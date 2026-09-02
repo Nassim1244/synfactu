@@ -20,7 +20,20 @@
     // Lets you run "docker compose" from inside this container against the
     // host daemon, so the production stack can be built and verified without
     // leaving the dev environment.
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    //
+    // Both options below are set to stop the feature resolving versions
+    // through GitHub. Left at their "latest" defaults it runs git ls-remote
+    // against github.com, and an unauthenticated request that gets rate
+    // limited returns an auth challenge rather than a version list - the
+    // build then fails with "Invalid compose_version value: latest".
+    //
+    // Nothing is lost: the moby packages installed from apt already provide
+    // the "docker compose" plugin. compose-switch is a shim for callers
+    // typing "docker-compose" with a hyphen, which nothing here does.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "dockerDashComposeVersion": "none",
+      "installDockerComposeSwitch": false
+    },
     "ghcr.io/devcontainers/features/git:1": {},
 
     // Gives the "node" user passwordless sudo. Needed because
