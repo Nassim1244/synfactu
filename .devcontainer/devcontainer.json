@@ -21,7 +21,26 @@
     // host daemon, so the production stack can be built and verified without
     // leaving the dev environment.
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-    "ghcr.io/devcontainers/features/git:1": {}
+    "ghcr.io/devcontainers/features/git:1": {},
+
+    // Gives the "node" user passwordless sudo. Needed because
+    // postCreateCommand runs as remoteUser and "corepack enable" writes its
+    // shims into root-owned /usr/local/bin.
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "node",
+      "installZsh": false,
+      "upgradePackages": false
+    },
+
+    // Claude Code itself. The agents run inside this container, so the CLI
+    // has to be here - a session started on the host has no pnpm and cannot
+    // pass a machine gate.
+    //
+    // Installs at build time as root, so it works with a non-root
+    // remoteUser. It would install Node 18 as a fallback if the base image
+    // had none; this one is a node: image, so that never fires. Do not add
+    // the node feature beside it - it would contend with the pinned version.
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
   },
 
   "customizations": {
@@ -31,7 +50,8 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "Prisma.prisma",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "anthropic.claude-code"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -40,9 +60,14 @@
     }
   },
 
-  // Runs once after the container is created. Before bootstrap step 2 there
-  // is no package.json yet, so this must not fail on an empty repository.
-  "postCreateCommand": "corepack enable && (test -f package.json && pnpm install --frozen-lockfile || echo 'no package.json yet - run bootstrap step 2')",
+  // Runs once after the container is created, as remoteUser. Before
+  // bootstrap step 2 there is no package.json yet, so this must not fail on
+  // an empty repository.
+  //
+  // "corepack enable" needs sudo: it writes the pnpm shim into root-owned
+  // /usr/local/bin, and this command does not run as root. Without it pnpm
+  // never arrives, step 2 cannot start, and no machine gate can pass.
+  "postCreateCommand": "sudo corepack enable && (test -f package.json && pnpm install --frozen-lockfile || echo 'no package.json yet - run bootstrap step 2')",
 
   // The container user. Keep it non-root, and keep it consistent with the
   // uid that owns the workspace mount.
