@@ -20,9 +20,23 @@
   - Record the answer as a new D-XXX either way. Skipping authentication is a decision, not the absence of one, and the D-XXX is what keeps the debt visible.
 - # 1b - Development container
   - Nothing is installed on the host. Every command from here on - `pnpm`, `prisma`, the checks the agents run - executes inside the development container, so it has to exist before step 2 can scaffold anything.
-  - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names and set `NODE_VERSION`.
   - **ASK** the user to confirm the repository is not inside a synced folder - OneDrive, Dropbox, iCloud. A sync client will copy `node_modules` and `.next` continuously, and one that touches a live SQLite file corrupts it. If it is, move the repository before going further; this gets harder to undo later, not easier.
-  - Open the repository in VS Code and choose **Reopen in Container**. Confirm `node --version` and `pnpm --version` answer inside it.
+  - ## Host prerequisites
+    - This is the one step with prerequisites outside the repository, and none of them announce themselves when missing. Confirm all three before opening VS Code.
+    - A Docker daemon installed and **running** - Docker Desktop with the WSL2 backend on Windows. "Reopen in Container" fails without naming this as the cause.
+    - The VS Code **Dev Containers** extension, `ms-vscode-remote.remote-containers`. It is what provides the "Reopen in Container" command; without it this step has no entry point at all.
+    - The daemon must be able to reach the drive holding the repository. A repository outside the system drive is fine, and is the first thing to check when the container fails to start.
+  - ## Adapt the skeleton
+    - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names and set `NODE_VERSION`.
+    - `NODE_VERSION` must match `ARG NODE_VERSION` in `docker/Dockerfile`. Development and production are deliberately different images, but a version skew between them produces failures that appear only in production.
+    - Claude Code has to be installed **inside the container**, or the instruction below cannot be followed. Add the official feature, `ghcr.io/anthropics/devcontainer-features/claude-code:1`.
+      - It installs at image build time as root, so it works with a non-root `remoteUser` and needs no npm prefix arrangement.
+      - It installs Node itself only when the base image has none, and that fallback is Node 18. The development image is a `node:` image, so the fallback never fires - do not add the `node` feature beside it, or it contends with the pinned version.
+    - Add the `anthropic.claude-code` extension to `customizations.vscode.extensions`.
+  - ## Build and verify
+    - Open the repository in VS Code and choose **Reopen in Container**. The first build pulls the base image and runs every feature; expect minutes, not seconds.
+    - Verify inside the container, treating each as a gate rather than a formality: `node --version` matches the pin, `pnpm --version` answers, `claude --version` answers.
+    - `pnpm` is the one that most often fails to arrive. `postCreateCommand` runs as `remoteUser`, and `corepack enable` writes its shims into a root-owned directory. If it fails, `pnpm` does not exist, step 2 cannot start, and no machine gate can pass afterwards.
   - **Run Claude Code from the container's terminal from this point on.** `@tester` runs `pnpm test` and `@committer` runs `pnpm lint`; dispatched from a shell outside the container, those commands do not exist and the machine gates cannot pass.
   - Commit: `build: add development container`.
 - # 2 - Scaffold
