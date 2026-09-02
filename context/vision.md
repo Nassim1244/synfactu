@@ -1,0 +1,50 @@
+- # Vision
+  - Purpose, target user, and direction of the app. Read at session start to anchor decisions.
+  - Stable file. Update only when purpose, target user, non-goals, or roadmap change.
+- # Purpose
+  - SynFactu records, invoices, tracks payment for and analyses the activity of a freelance consultant working under two French regimes at once - micro-entreprise and portage salarial - keeping the two strictly separate.
+- # Why it exists
+  - It replaces a yearly Excel workbook that works but has three limits: it is not clean (abandoned experiments and orphan formulas remain), it has no statistics or charts, and it covers a single year at a time.
+  - The single largest gain is the one the workbook structurally cannot give: **all years in one database**. Multi-year comparison, real TJM across a whole client relationship and revenue trend are not features bolted on top - they are the reason the tool exists.
+  - The second gain is separating the two regimes properly. Merging them in the workbook proved to be a mistake: micro charges (approx. 25 %, cotisations + CFP) are set by law and historized, portage charges (approx. 50 %) are contractual and several contracts may run at once. One column cannot hold both.
+  - The third is speed of entry. The time journal is used daily; every other view is used monthly at most.
+- # Non-goals
+  - **Generating legal invoice PDFs.** SynFactu records invoice *data*. The document itself is produced elsewhere.
+  - **VAT of any kind** - no threshold monitoring, no rates, no declarations.
+  - **Alerts, reminders and overdue flags.** The dashboard shows figures and the age of unpaid documents; the user draws the conclusions. There is no due date in the model.
+  - **Credit notes (avoirs).** A cancelled invoice takes the `Annulée` status and keeps its number.
+  - **Google Calendar import.**
+  - **Multi-tenancy, onboarding and licensing.** The tool is built as a single-operator instance. Nothing is hardcoded, so a later resale as a self-hosted product stays possible, but no work is done for it now.
+  - **Internationalisation.** French interface, euro, French fiscal rules. Locale and currency are a single constant; there is no translation layer.
+- # Target user
+  - **The consultant**, sole administrator, full access. Technical enough to run a Docker stack, and the person who will be typing time entries every working day. Speed of entry beats every other usability concern.
+  - **An externalised administrative and financial assistant**, later: restricted access to time entry and URSSAF. The role exists in the conceptual model so nothing has to be retrofitted; its permission matrix is deliberately deferred until the role is actually implemented.
+- # Deployment context
+  - **Single instance, self-hosted, operated by the user themself.** Operator and end user are the same person, so error messages may be direct and technical, and an upgrade is a deliberate act rather than a background event.
+  - No tenant boundary in the data model. The resale path stays open by having nothing hardcoded, not by multi-tenancy.
+  - Runs behind an existing shared Caddy instance, on an external Docker network. One container, SQLite in a named volume.
+  - **The instance must not be exposed on a public URL.** V1 ships without authentication (see the architecture decision recorded at bootstrap), so the network is the only boundary until Better Auth is wired in.
+  - Business data never leaves the host. No external service holds financial data.
+- # Roadmap
+  - Ordered by priority. Update when priorities shift. Completed items move to `context/progress.md`.
+  - ## Now
+    - 001 - Hello world (template bootstrap, see `specs/001-hello-world.md`).
+  - ## Next
+    - V1 is CRUD and views only. It records what you invoice, not what you are paid: estimated figures throughout, no real net, no outstanding-to-pay, no payment delay.
+    - 002 - Settings and company profile. First because `hours_per_day`, the rounding step and the estimated charge rate are settings, not constants, and 005 reads all three.
+    - 003 - Referential: partners, clients, mission categories, portage contracts, tags.
+    - 004 - Missions, including the time adjustment coefficient.
+    - 005 - Time entry journal. The daily-use screen; speed of entry is its acceptance criterion.
+    - 006 - Partner consolidation view and generated billing text.
+    - 007 - Micro invoicing.
+    - 008 - Portage declarations.
+    - 009 - Billing backlog.
+  - ## Later
+    - CI pipeline (GitHub Actions) running `format:check`, `lint`, `typecheck`, `test` and `build` on every push, so gates G5 and G8 are enforced rather than conventional. See `ai-rules/policy_workflow.md` -> Gates.
+    - **Phase 2** - payments, payslips, URSSAF, and the whole dashboard, statistics and charts. This is where estimated-versus-real reconciliation becomes possible, and where the historized charge rate table arrives.
+    - **Phase 3** - CSV import, which is also the Excel history migration path, and data export to CSV/JSON. Depends on Phase 2: historical charge rates are back-computed from URSSAF records, not hand-entered.
+    - **Authentication and user management** - Better Auth, roles, the assistant permission matrix. Until this ships, D-009 is outstanding debt across every V1 feature and the instance stays off any public URL.
+    - Audit log and data versioning - distinct concerns, both wanted.
+    - WYSIWYG PDF report builder.
+    - AI analysis against a self-hosted Ollama / Mistral instance - prestation descriptions, follow-up emails, client history summaries.
+    - PostgreSQL migration, if concurrent access or row-level security ever becomes a real requirement (see D-013). At the expected volumetry - around 10 000 time entries and under 100 clients - SQLite is comfortable and stays comfortable.
