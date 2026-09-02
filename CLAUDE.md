@@ -10,8 +10,10 @@
   - prisma/ - `schema.prisma` and the `migrations/` folder. Owned by the architect (see `ai-agents/agent_architect.md`).
   - tests/ - unit and integration suite, mirrors `src/`.
   - e2e/ - Playwright end-to-end journeys.
-  - specs/ - one .md per feature, follows `specs/TEMPLATE.md`.
-  - design/ - design artefacts per feature, one subfolder per spec index (e.g. `design/001/`, `design/002/`). Owned by the designer (see `ai-agents/agent_designer.md`). This is OPTIONAL.
+  - specs/ - `TEMPLATE.md` (the shape of a spec), `init.md` and `001-hello-world.md` (bootstrap artefacts, deleted once the first real feature ships), and two subtrees:
+    - specs/functional/ - the functional source of truth for the product: the functional specification, the conceptual data model, the functional decision record and the framing session. **Read-only to every agent.** A feature spec cites these; it never restates or edits them.
+    - specs/iteration/ - one folder per iteration, one .md per feature, following `specs/TEMPLATE.md`. Naming and the index convention live in `specs/iteration/README.md`.
+  - design/ - design artefacts per feature, one subfolder per spec index (e.g. `design/v01-001/`, `design/v01-002/`). Owned by the designer (see `ai-agents/agent_designer.md`). This is OPTIONAL.
   - ai-rules/ - policies and decisions (operational rules and their rationale).
   - ai-agents/ - agent workflows, one per agent: product owner, designer, architect, orchestrator, coder, tester, reviewer, committer, auditor, debugger, dependency, ai-method. These are canonical; `.claude/agents/` holds thin wrappers that point at them.
   - context/ - project state (vision, progress).
@@ -33,6 +35,13 @@
 - # Document model
   - Policies hold the operational rules (what to do).
   - `ai-rules/decisions.md` holds rationale only (why). Each decision points to the policy that owns the corresponding rule.
+- # Decision numbering - three series
+  - This project arrived with a functional decision record of its own, so three numbered series coexist. Confusing them is the single easiest mistake to make here.
+  - `D-001`, `D-002`, ... - three digits, zero-padded. **Architecture** decisions, in `ai-rules/decisions.md`. Allocated by `@architect`, append-only. **A bare `D-` reference anywhere in this repository means this series.**
+  - `D-01` .. `D-40`, then `D-41`+ - two digits. **Functional** decisions, in `specs/functional/Décisions v2.md`. Owned by the user, not by any agent. Read-only here.
+  - `RG-01`, `RG-02`, ... - **business rules**, in `specs/functional/MCD v2.md` section 4. Also read-only.
+  - When citing a functional decision or a business rule, always qualify it - "functional D-23", "RG-33" - so it cannot be mistaken for an architecture decision.
+  - Never edit an existing entry in any series. Supersede with a new number and say which one it replaces.
 - # Workflow
   - The full agent sequence and its gates live in `ai-rules/policy_workflow.md`. Read it before starting or resuming any feature.
   - Short form:

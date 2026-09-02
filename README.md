@@ -46,7 +46,7 @@
   - `CHANGELOG.md` - the version history and the rationale for **method** changes, written by `@ai-method`. It is to the method what `ai-rules/decisions.md` is to the architecture, which is why its entries carry a why and not only a what.
   - `ai-agents/agent_*.md` - one workflow per agent, canonical.
   - `.claude/agents/*.md` - thin Claude Code wrappers. Frontmatter, then a pointer to the canonical doc. They exist so Claude Code can dispatch; they are not a second place to put rules.
-  - `specs/TEMPLATE.md` - the shape of a spec. `specs/init.md` - the bootstrap. `specs/NNN-*.md` - one per feature.
+  - `specs/TEMPLATE.md` - the shape of a spec. `specs/init.md` - the bootstrap. `specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md` - one per feature, see `specs/iteration/README.md`.
   - `docker/` - the production and development stacks, an entrypoint and two operating scripts, with their own `README.md`. A skeleton to adapt at bootstrap step 10, not a working configuration. `.dockerignore` and `.env.example` stay at the repository root, because Docker and Next.js each resolve theirs against the root.
   - `.devcontainer/` - the VS Code development container, adapted at bootstrap step 1b. It and `docker/` are the only code the template ships.
 - # Decision numbering

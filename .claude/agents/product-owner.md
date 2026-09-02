@@ -1,6 +1,6 @@
 ---
 name: product-owner
-description: Use first for any new feature request. Challenges scope and vagueness, then writes the FUNCTIONAL SPEC section of specs/NNN-name.md. Also use to challenge an existing spec and report gaps. Stops at gate G1 for user approval.
+description: Use first for any new feature request. Challenges scope and vagueness, then writes the FUNCTIONAL SPEC section of specs/iteration/vNN/vNN-NNN-name.md. Also use to challenge an existing spec and report gaps. Stops at gate G1 for user approval.
 tools: Read, Write, Edit, Grep, Glob
 ---
 

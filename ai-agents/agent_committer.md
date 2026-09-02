@@ -24,7 +24,7 @@
   - ## 3 - Write the message
     - `<type>(<scope>): <subject>` - imperative, lowercase, no trailing period, 72 characters or fewer.
     - One scope. If two apply, this should have been two commits.
-    - Body: the traceability lines - `Implements specs/NNN-<name>.md`, `Per D-XXX`, `Migration: <name>` - and the why, whenever the diff does not carry it.
+    - Body: the traceability lines - `Implements specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`, `Per D-XXX`, `Migration: <name>` - and the why, whenever the diff does not carry it.
     - Mark a breaking change with `!` or a `BREAKING CHANGE:` footer. A migration that drops or retypes a column holding data is always breaking.
   - ## 4 - Commit
     - Execute `git add` and `git commit` on the same command line, so the user sees the files and the message at once.

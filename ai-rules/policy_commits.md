@@ -65,7 +65,7 @@
   - Never move or delete a published `v*` tag. A mistake is corrected by a new version, never by retagging.
   - Never release with an uncommitted change, a failing gate, or a migration that has not been applied to a clean database at least once.
 - # Traceability
-  - When implementing a spec, name it in the body: `Implements specs/001-<feature>.md`.
+  - When implementing a spec, name it in the body: `Implements specs/iteration/v01/v01-001-<feature>.md`.
   - When following a decision, cite it: `Per D-004`.
   - When a commit contains a migration, name it in the body: `Migration: 20260731120000_add_invoice_status`.
 - # Progress tracking
@@ -76,7 +76,7 @@
     - A migration is applied.
     - The roadmap in `context/vision.md` changed.
   - Do not update for: typo fixes, formatting, internal refactors without behavioural change, work-in-progress commits, dependency bumps.
-  - Format: one line per change, dated, citing the spec or decision: `YYYY-MM-DD - <event> - specs/NNN-<name>.md`.
+  - Format: one line per change, dated, citing the spec or decision: `YYYY-MM-DD - <event> - specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`.
   - Stage the `context/progress.md` change in the same commit when the update is tied to that commit's content; otherwise commit it as `docs: update progress`.
 - # Examples
   - `feat(invoices): add monthly numbering sequence`

@@ -27,9 +27,9 @@
   - Adding or changing an agent touches four files: the canonical document, the wrapper, the roster above, and the dispatch list in `CLAUDE.md`. Fewer than four means it drifts.
 - # Sequence for a new feature
   - ## Phase A - Definition (driven by the user)
-    - 1. `@product-owner` interviews the user, challenges scope, writes the FUNCTIONAL SPEC section of `specs/NNN-<name>.md`.
+    - 1. `@product-owner` interviews the user, challenges scope, writes the FUNCTIONAL SPEC section of `specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`.
       - **G1 - halts. The user approves the functional spec before anything else runs.**
-    - 2. `@designer` runs only if the feature has a user interface. Produces `design/NNN/`.
+    - 2. `@designer` runs only if the feature has a user interface. Produces `design/<index>/`.
       - **G2 - halts. The user approves the design.**
       - Skip for a pure back-end feature, and record the skip in the spec's Design field as "N/A".
     - 3. `@architect` fills the TECHNICAL SPEC section, records any new D-XXX, and proposes any Prisma schema change and migration.

@@ -30,12 +30,12 @@
     - Ask all independent questions at once. Do not drip-feed.
     - Name the assumptions you are making explicitly, so the user can reject them.
   - ## 3 - Write the functional spec
-    - Create `specs/NNN-<kebab-name>.md` from `specs/TEMPLATE.md`, using the next unused index.
+    - Create `specs/iteration/v<NN>/v<NN>-<NNN>-<kebab-name>.md` from `specs/TEMPLATE.md`, in the current iteration's folder, using the next unused index **within that iteration** - indexes restart at `001` in every iteration (see `specs/iteration/README.md`).
     - Fill every field under `# ── FUNCTIONAL SPEC ──`. Leave the technical half untouched; it belongs to `@architect`.
     - Goal: one or two sentences. What it achieves, for whom, and why now.
     - User flow: numbered steps, each stating what the user does and what the application does in response. Include the unhappy paths as their own steps.
     - Acceptance criteria: concrete and testable. Each one must be checkable by a person or a test without interpretation. Aim for three to eight.
-    - Design: the design folder path (`design/NNN/`) for a feature with a user interface, or "N/A" with a one-line reason.
+    - Design: the design folder path (`design/<index>/`) for a feature with a user interface, or "N/A" with a one-line reason.
     - Out of scope (functional): everything discussed and deliberately excluded. This is the part that prevents scope creep later, so be generous.
     - Open questions: anything unresolved, with who needs to answer it. An empty list is fine; a hidden guess is not.
   - ## 4 - Present at G1

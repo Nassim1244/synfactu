@@ -12,7 +12,7 @@
   - <Concrete, testable check 2.>
   - <Concrete, testable check 3.>
 - # Design
-  - <`design/NNN/` for a feature with a user interface, or "N/A" with a one-line reason.>
+  - <`design/<index>/` for a feature with a user interface, or "N/A" with a one-line reason.>
 - # Out of scope (functional)
   - <Everything discussed and deliberately excluded, to prevent scope creep.>
 - # Open questions

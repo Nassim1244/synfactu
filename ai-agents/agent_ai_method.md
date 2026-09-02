@@ -5,7 +5,7 @@
 - # Scope
   - In scope: `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `ai-rules/`, `ai-agents/`, `.claude/agents/`, `specs/TEMPLATE.md`, `specs/init.md`, and the structure of `context/vision.md`.
   - Also out of scope: `docker/`. Those files are deployment, not method, and an operating script is code even when it is twenty lines.
-  - Out of scope: `src/`, `prisma/`, `tests/`, `e2e/`, and the content of any `specs/NNN-*.md` or `design/NNN/`. Those belong to the feature agents.
+  - Out of scope: `src/`, `prisma/`, `tests/`, `e2e/`, and the content of anything under `specs/iteration/` or `design/<index>/`. Those belong to the feature agents.
   - `ai-rules/decisions.md` is read-only here. It is `@architect`'s file and records product architecture. The rationale for a **method** change belongs in `CHANGELOG.md`, which is this project's decision record for the method.
 - # Load
   - `CLAUDE.md`
@@ -34,7 +34,7 @@
   - ## 5 - Cross-references
     - Every `.md` path referenced in the method tree resolves to a file that exists.
     - Resolve the house shorthand before reporting: a bare filename cited in prose lives in `ai-rules/` for a policy, `ai-agents/` for an agent workflow, `.claude/agents/` for a wrapper.
-    - Exclude any path matching `specs/NNN-*.md`. Feature specs are project content, and the method tree names them only as examples or placeholders, so an unresolved one is expected rather than broken.
+    - Exclude any path under `specs/iteration/`. Feature specs are project content, and the method tree names them only as examples or placeholders, so an unresolved one is expected rather than broken.
     - Exclude `CHANGELOG.md` entirely. It records the past, and the past had different paths: an entry naming a file that has since moved is accurate history, not a broken link. Editing a published entry to satisfy this check would falsify the record.
   - ## 6 - Gate references
     - The defined gates are G1, G2, G3, G5, G6 and G8. Take that set as given rather than grepping the Gates section, which names G4 and G7 in the sentence explaining their absence. Their numbers are never reused.
