@@ -1,0 +1,62 @@
+- # Auditor
+  - Runs only when the user explicitly asks for it.
+  - Covers the full working tree, not a diff. Do not write code, only assess.
+- # Scope
+  - All `.ts` and `.tsx` under `src/`, `tests/` and `e2e/`, plus `prisma/schema.prisma`.
+  - Load `ai-rules/policy_architecture.md`, `ai-rules/policy_coding_guidelines.md`, `ai-rules/policy_techstack.md` and `ai-rules/decisions.md` before starting.
+- # Checks
+  - ## 1 - Architecture compliance
+    - Apply the dependency rule from `policy_architecture.md`.
+    - Procedure:
+      - Grep `src/features/*/domain.ts` for `@prisma/client`, `react`, `next/`. Any hit is a violation.
+      - Grep all of `src/` for `@prisma/client` and `from "@/lib/db"`. Any hit outside `src/lib/db.ts` and `src/features/*/repository.ts` is a violation of D-004.
+      - Grep `src/features/*/repository.ts` for `react` and `next/`. Any hit is a violation.
+      - For each feature, grep for imports of another feature's `repository`, `domain` or `components/` internals. Cross-feature access must go through `queries.ts` or `actions.ts`.
+      - Grep `src/lib/` for imports from `src/features/` or `src/app/`. Any hit is a violation.
+      - List `src/app/api/`. Any Route Handler outside the closed list in D-003 is a violation.
+      - Grep all of `src/` for `process.env`. Any hit outside `src/lib/config.ts` is a violation.
+    - Report every violation with file and line.
+  - ## 2 - Server boundary integrity
+    - List every file containing `"use server"`.
+    - For each exported action, check in order: a role check present, a `schema.parse` present, a `revalidatePath` or `revalidateTag` after a successful mutation.
+    - Report every action missing any of the three.
+  - ## 3 - Numeric and temporal representation
+    - Grep `prisma/schema.prisma` for `Float` and `Decimal`. Any occurrence on a money, duration or rate field violates D-007.
+    - Grep `src/` outside `src/lib/money/` for arithmetic on values named `*Cents`, `*Minutes` or `*Bp`. Report raw arithmetic that belongs in a value object.
+    - Grep for `toFixed(` outside `src/lib/money/`. Formatting belongs to the value object.
+    - Grep `prisma/schema.prisma` for `DateTime` fields whose name suggests a period (`month`, `period`, `quarter`). Any of those violates D-008.
+    - Grep `src/` for `new Date()` inside `domain.ts` and `repository.ts`. Time should be injected, not read.
+  - ## 4 - Duplicate code
+    - Goal: logic copy-pasted across files, not trivial one-liners.
+    - Read every `.ts` and `.tsx` under `src/`. Identify functions longer than roughly eight lines sharing substantially similar logic with another elsewhere.
+    - Focus on: the same computation in two features, the same validation block, the same error-handling shape, the same Prisma query written twice.
+    - Report each pair with file paths and function names, and one sentence on what is duplicated. Only genuine duplicates.
+  - ## 5 - Duplicate and drifting constants
+    - Collect every module-level constant across `src/`.
+    - Flag any two in different files with the same value and apparent purpose: the same default page size, the same timeout, the same error string, the same role literal.
+    - Flag every role compared by string literal outside the permission module. Roles must come from one place (see `policy_security.md`).
+    - Report each with file paths, names and values.
+  - ## 6 - Dead code
+    - Run `pnpm lint` and collect unused-import and unused-variable findings.
+    - For every exported symbol in `src/`, grep for its name across `src/`, `tests/` and `e2e/`. Flag any with zero references outside its own file, excluding Next's required exports (`default`, `metadata`, `generateMetadata`, `GET`, `POST`, `middleware`, `config`) and test fixtures.
+    - Flag every file in `src/features/` that nothing imports.
+  - ## 7 - Coding guideline violations
+    - Grep `src/` for `console.`, `: any`, `as any`, `!.`, `dangerouslySetInnerHTML`, `@ts-ignore`, `@ts-expect-error`, `eslint-disable`.
+    - For `eslint-disable`, flag every occurrence with no reason on the same line.
+    - For every exported function in `src/features/*/actions.ts`, check its doc comment names the required role.
+    - For every exported function in `src/features/*/repository.ts`, check its doc comment states the scoping applied.
+    - For every model in `prisma/schema.prisma`, check a comment is present.
+  - ## 8 - Test health
+    - Grep `tests/` and `e2e/` for `it.skip`, `describe.skip`, `it.only`, `describe.only`, `sleep`, `waitForTimeout`.
+    - List every file in `src/features/` with no corresponding test file.
+    - List every Zod schema with no test asserting a rejection.
+- # Output format
+  - One section per check, using the headings above.
+  - Under each, a flat list: file path, line when available, one-line description.
+  - If a check is clean, write `Clean.`
+  - End with one line: the total number of findings across all checks.
+  - No recommendations and no explanation beyond the one-line descriptions. Keep it short.
+- # Forbidden
+  - Editing any file.
+  - Reporting a finding without a file path.
+  - Padding the report with stylistic preferences not backed by a policy.

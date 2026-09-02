@@ -1,0 +1,94 @@
+- # Decisions
+  - Architecture Decision Records. Append-only and immutable. Do not edit a past entry; supersede with a new D-XXX.
+  - Each entry holds rationale only. The operational rule lives in the policy file noted under "Rule lives in".
+  - Format: D-XXX - Title. Context. Decision. Alternatives. Rationale. Rule lives in.
+- # D-001 - Feature-sliced structure under src/
+  - Context: organising application code in the Next.js App Router.
+  - Decision: `src/features/<domain>/` holds everything for one domain (actions, queries, repository, schema, domain logic, components). `src/app/` holds routes only. `src/lib/` holds shared infrastructure. `src/components/ui/` holds shadcn primitives.
+  - Alternatives: horizontal layers (`src/components/`, `src/services/`, `src/db/`); flat Next.js default with colocation inside `src/app/`.
+  - Rationale: a feature is the unit of change. Horizontal layers force every change to touch four folders and make it hard to see a domain's full surface. The flat default degrades past roughly ten features. Feature slicing keeps a domain reviewable in one listing and makes an unused domain trivially deletable.
+  - Rule lives in: `policy_architecture.md` -> Structure.
+- # D-002 - pnpm with a committed lockfile and exact version pins
+  - Context: dependency reproducibility for a Docker-built application.
+  - Decision: pnpm as the package manager. Direct dependencies pinned exactly in `package.json` (no `^`, no `~`). `pnpm-lock.yaml` committed. Docker builds use `pnpm install --frozen-lockfile`.
+  - Alternatives: npm or yarn; exact pins without a lockfile; caret ranges with a lockfile.
+  - Rationale: a Next.js install pulls on the order of a thousand transitive packages. Pinning direct dependencies alone leaves all of them floating, so two builds a week apart produce different images, which contradicts the "one command starts it anywhere" principle. pnpm's non-flat `node_modules` also makes an undeclared import fail immediately rather than working locally and breaking in the container.
+  - Rule lives in: `policy_techstack.md` -> Dependencies.
+- # D-003 - Server Actions as the sole mutation path
+  - Context: how writes reach the server.
+  - Decision: every application mutation is a Server Action. Route Handlers are permitted only for a closed list: the Better Auth catch-all, the health check endpoint, inbound webhooks, and file downloads. Adding a Route Handler outside that list requires a new D-XXX.
+  - Alternatives: Route Handlers for everything; an open "prefer Server Actions" guideline.
+  - Rationale: Server Actions are direct function calls, so a renamed or removed field is a compile error rather than a runtime failure, and no hand-written fetch layer can drift from the server. A pure "Server Actions only" rule would be violated on day one because Better Auth ships a catch-all Route Handler and Docker needs an addressable health check, so the exceptions are enumerated rather than left to judgment. A Server Action is itself a POST endpoint and is not protected by route matching; see D-009.
+  - Rule lives in: `policy_architecture.md` -> Server boundary.
+- # D-004 - The repository is the only Prisma call site
+  - Context: where database access is allowed to live.
+  - Decision: the Prisma client is importable only from `src/features/<domain>/repository.ts` (and `src/lib/db/`). Server Actions, Server Components and domain logic call repository functions, never Prisma.
+  - Alternatives: Prisma callable from anywhere server-side; a repository only where a test fake is needed.
+  - Rationale: three things depend on it. The planned SQLite to PostgreSQL migration (D-013) breaks in a handful of files instead of every call site. Domain logic becomes testable against an in-memory fake with no database. And cross-cutting invariants (tenant scoping, soft-delete filtering, ordering) get one enforceable home, which matters because a single forgotten `where` clause in a scattered query is a data leak between tenants.
+  - Rule lives in: `policy_architecture.md` -> Data access.
+- # D-005 - Zod validation at every server boundary
+  - Context: TypeScript types are erased at runtime, so any value crossing the network is `unknown`.
+  - Decision: every Server Action and every Route Handler parses its input with a Zod schema before doing anything else. Schemas live in `src/features/<domain>/schema.ts` and are reused for client-side form validation.
+  - Alternatives: validate only untrusted input; rely on TypeScript types alone.
+  - Rationale: an unvalidated action is a hole in data integrity, and a malformed amount or date does not crash, it silently corrupts every derived figure downstream. `z.infer` derives the TypeScript type from the same schema, so there is one definition rather than two that can drift. Sharing the schema with the form keeps validation messages consistent between client and server.
+  - Rule lives in: `policy_security.md` -> Input validation.
+- # D-006 - Reads go through Server Components calling repositories
+  - Context: how data reaches a page.
+  - Decision: pages are async Server Components that await repository functions directly. Filtering, sorting and pagination state lives in URL search params. No client-side data-fetching library.
+  - Alternatives: Client Components fetching Route Handlers via TanStack Query; both patterns from the start.
+  - Rationale: a direct function call is type-checked end to end and needs no endpoint, no serialization and no loading state for the initial render. Search-param state makes any view bookmarkable and shareable for free. TanStack Query earns its complexity only when a view must update without a navigation (polling, optimistic updates); introducing it before that need exists buys machinery and no benefit. Supersede this decision if such a view appears.
+  - Rule lives in: `policy_architecture.md` -> Data access.
+- # D-007 - Exact integers in storage, value objects in the domain
+  - Context: representing money, durations and rates in a system where JavaScript has no decimal type and SQLite has no decimal column.
+  - Decision: store exact integers in the smallest meaningful unit - money in cents, durations in minutes, rates in basis points. Domain code manipulates `Money`, `Duration` and `Rate` value objects from `src/lib/money/`; the repository converts at the boundary. Decimals are derived at display only, never stored.
+  - Alternatives: Prisma `Decimal`; floating point.
+  - Rationale: floats accumulate error across totals, which is unacceptable for financial figures. Prisma `Decimal` is exact in JavaScript memory but is backed by a float column on SQLite, so precision can be lost on the round-trip. Integers are exact on SQLite and on PostgreSQL alike, so the D-013 migration becomes a pure infrastructure swap with no data transformation - the highest-risk operation on a financial dataset is simply avoided. The value objects are permanent, not a SQLite workaround: they give rounding one tested home and would still be required if the columns ever became `NUMERIC`, because Prisma would hand back Decimal objects rather than plain numbers.
+  - Rule lives in: `policy_architecture.md` -> Data model conventions.
+- # D-008 - UTC timestamps, periods as YYYY-MM strings
+  - Context: storing dates in an application whose reporting is organised by month.
+  - Decision: all `DateTime` columns store UTC. A period (an invoicing month, a declaration month) is stored as a `String` in `YYYY-MM` form, not as a date. Rendering to local time happens in the presentation layer only.
+  - Alternatives: store local time; represent a period as the first day of the month.
+  - Rationale: a period is not an instant, and encoding it as one imports a timezone it does not have. Midnight on 1 April in Paris is 31 March in UTC, so every month-boundary aggregation silently attributes work to the wrong month. Storing the period as a string removes the ambiguity entirely and sorts correctly as text.
+  - Rule lives in: `policy_architecture.md` -> Data model conventions.
+- # D-009 - Authentication and authorisation enforced at two layers
+  - Context: protecting routes and mutations in an application with roles.
+  - Decision: middleware guards route access and redirects unauthenticated users. Independently, every Server Action, Route Handler and repository entry point re-checks the session and the caller's role before touching data.
+  - Alternatives: middleware only; per-action checks only.
+  - Rationale: middleware alone is not a security boundary, because a Server Action is a POST endpoint that can be invoked directly without matching the route it was rendered from. Per-action checks alone are sufficient for security but let an unauthenticated visitor render page shells before being rejected. The two layers serve different purposes: middleware is user experience, the per-action check is the actual boundary.
+  - Rule lives in: `policy_security.md` -> Authentication and authorisation.
+- # D-010 - Vitest, React Testing Library and Playwright
+  - Context: choosing a test stack.
+  - Decision: Vitest for domain logic, repositories and schemas. React Testing Library, run under Vitest, for component behaviour. Playwright for a small number of critical end-to-end journeys against a running app.
+  - Alternatives: Jest; Vitest alone; Vitest plus RTL without end-to-end coverage.
+  - Rationale: the three cover different failure classes and none substitutes for another. Vitest runs native TypeScript and ESM without the transform configuration Jest requires. RTL catches broken component behaviour with the network faked. Only a real browser exercises middleware redirects, Server Action round-trips and database writes in one flow, which is precisely where a two-layer auth model (D-009) can fail silently. Playwright is slow, so the policy caps it to critical journeys.
+  - Rule lives in: `policy_testing.md`.
+- # D-011 - ESLint and Prettier
+  - Context: linting and formatting.
+  - Decision: ESLint with `typescript-eslint` (type-aware), `eslint-plugin-react-hooks`, `@next/eslint-plugin-next` and `eslint-plugin-jsx-a11y`. Prettier for formatting. Both run in the pre-commit checks and in the reviewer's machine gate.
+  - Alternatives: Biome.
+  - Rationale: these rules are what the machine gate actually enforces, so rule coverage matters more than speed. `react-hooks` catches stale-closure bugs, the most common React defect class. The Next plugin catches Server and Client Component boundary mistakes, which is where a new App Router codebase goes wrong. Type-aware rules such as `no-floating-promises` catch unawaited database writes. Biome is far faster but its Next-specific and type-aware coverage is thinner, and at this codebase size the speed difference is not observable. Revisit if the project reaches a scale where lint time is felt.
+  - Rule lives in: `policy_coding_guidelines.md` -> Style.
+- # D-012 - Structured JSON logging to stdout via pino
+  - Context: application logging in a container.
+  - Decision: pino, one child logger per module, JSON lines written to stdout. No log files on disk. Level from `LOG_LEVEL`, default `info`.
+  - Alternatives: `console.*` with a wrapper; writing log files inside the container.
+  - Rationale: the container runtime already captures stdout, so writing files inside the container creates a second, unrotated copy that grows until the volume fills. JSON lines are filterable without parsing rules, which matters when the operator supporting a self-hosted instance is not the developer. Structured fields also make it possible to forbid whole categories of value (see `policy_security.md`) rather than reviewing every message by hand.
+  - Rule lives in: `policy_coding_guidelines.md` -> Error handling and logging.
+- # D-013 - SQLite first, PostgreSQL later, Prisma as the abstraction
+  - Context: choosing the database for a self-hosted single-operator application.
+  - Decision: start on SQLite, a single file persisted in a Docker volume. Migrate to PostgreSQL when concurrent access, scalability or row-level security becomes a real requirement. Prisma is the abstraction that makes the swap possible.
+  - Alternatives: PostgreSQL from day one; a document store.
+  - Rationale: SQLite needs no service, no credentials and no separate container, so `docker compose up` starts one thing. That matches the operational simplicity principle and is sufficient for a single operator plus an occasional assistant. Prisma covers most of the difference between the two engines; D-004 and D-007 exist specifically to confine the parts it does not cover.
+  - Rule lives in: `policy_techstack.md` -> Database.
+- # D-014 - No secrets in the repository
+  - Context: handling `BETTER_AUTH_SECRET` and any future credential.
+  - Decision: secrets are supplied through environment variables only, read once at startup through a validated config module. `.env` is git-ignored; `.env.example` is committed and contains placeholder values only. No secret is ever written to a log, an error message or a client-visible payload.
+  - Alternatives: a committed config file; a secret manager service.
+  - Rationale: the application is self-hosted by people who are not the developer, so environment variables are the one mechanism every deployment target supports. A secret manager would contradict the data-sovereignty principle by introducing an external dependency. Validating configuration at startup turns a missing secret into an immediate, clear failure rather than a runtime error in an unrelated feature.
+  - Rule lives in: `policy_security.md` -> Secrets.
+- # D-015 - Gated agent workflow with bounded retries
+  - Context: how much autonomy the orchestrator has between the spec and the commit.
+  - Decision: the functional spec (G1) and the design (G2) halt for the user. The architect's questions (G3) halt by construction. The machine gates (G5 green build, G8 pre-commit checks) and the reviewer's READY verdict (G6) proceed automatically. On a failed machine gate or a CHANGES NEEDED verdict, the orchestrator loops back to `@coder` at most twice, then halts and reports.
+  - Alternatives: fully autonomous to the commit; halt at every gate; unbounded retries.
+  - Rationale: the gates that halt are the ones where a wrong answer is expensive and a machine cannot detect it - scope and visual design are judgment calls that get more costly the later they are caught. A green build is objective and reproducible, so there is nothing for a human to add. Retries are capped because an agent that cannot fix a failure in two attempts is usually pursuing a wrong approach, and further iterations burn context without converging.
+  - Rule lives in: `policy_workflow.md` -> Gates.

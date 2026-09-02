@@ -1,0 +1,145 @@
+- # Bootstrap
+  - Run this once, on an empty repository holding only the template files.
+  - Goal: a running, containerised Next.js application with the full toolchain wired, ending with `specs/001-hello-world.md` implemented and committed.
+  - Read `CLAUDE.md`, `ai-rules/policy_techstack.md`, `ai-rules/policy_architecture.md` and `ai-rules/decisions.md` before starting.
+  - Work through the steps in order. Stop and ask at every point marked **ASK**. Commit where marked, following `ai-rules/policy_commits.md`.
+- # 0 - Fill the vision
+  - **ASK** the user for the content of `context/vision.md`: purpose, why it exists, non-goals, target user, deployment context.
+  - Do not proceed with placeholders. Every later decision refers back to this file.
+- # 1 - Project identity, license and bootstrap options
+  - **ASK** the user for the package name, the human-readable application name and the license.
+    - License options to present, with the trade-off in one line each:
+      - MIT or Apache-2.0 - permissive, anyone may build a closed product on it.
+      - AGPL-3.0 - copyleft that reaches network use, so a hosted derivative must publish its source. The usual choice when a self-hosted product may later be sold under a commercial exception.
+      - Proprietary - no open-source grant. The usual choice when the software will be licensed per customer.
+  - Record the answer as a new D-XXX in `ai-rules/decisions.md`, with "Rule lives in: project root `LICENSE`".
+  - Write `LICENSE`.
+  - **ASK** the user whether the bootstrap includes authentication. This governs steps 4, 8 and 8b, and it has to be answered here because step 4 declares the environment variables.
+    - Include it - Better Auth, roles, sessions and the middleware are wired at bootstrap. The application is protected from its first commit, and the two layers of D-009 are in place before any feature exists.
+    - Skip it - no login, no roles, no session. Faster to a running application, and defensible for a single-operator tool on a private network. The cost is real: D-009 has to be retro-fitted across every feature already written, and the instance must not be exposed on a public URL until it is.
+  - Record the answer as a new D-XXX either way. Skipping authentication is a decision, not the absence of one, and the D-XXX is what keeps the debt visible.
+- # 1b - Development container
+  - Nothing is installed on the host. Every command from here on - `pnpm`, `prisma`, the checks the agents run - executes inside the development container, so it has to exist before step 2 can scaffold anything.
+  - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names and set `NODE_VERSION`.
+  - **ASK** the user to confirm the repository is not inside a synced folder - OneDrive, Dropbox, iCloud. A sync client will copy `node_modules` and `.next` continuously, and one that touches a live SQLite file corrupts it. If it is, move the repository before going further; this gets harder to undo later, not easier.
+  - Open the repository in VS Code and choose **Reopen in Container**. Confirm `node --version` and `pnpm --version` answer inside it.
+  - **Run Claude Code from the container's terminal from this point on.** `@tester` runs `pnpm test` and `@committer` runs `pnpm lint`; dispatched from a shell outside the container, those commands do not exist and the machine gates cannot pass.
+  - Commit: `build: add development container`.
+- # 2 - Scaffold
+  - Create the Next.js application in the repository root:
+    - `pnpm create next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm`
+  - Set `"strict": true` and `"noUncheckedIndexedAccess": true` in `tsconfig.json`.
+  - Pin the Node version in `package.json` `engines`, and add an `.nvmrc` with the same version.
+  - Replace every caret range in `package.json` with an exact version (see D-002). Run `pnpm install` and commit `pnpm-lock.yaml`.
+  - Create the empty folder skeleton from `ai-rules/policy_architecture.md` -> Structure: `src/features/`, `src/lib/`, `src/components/ui/`, `tests/`, `e2e/`, `design/`.
+  - Commit: `chore: scaffold next.js application`.
+- # 3 - Toolchain
+  - Prettier with `prettier-plugin-tailwindcss`. Add `format` and `format:check` scripts.
+  - ESLint with the plugin set from D-011: `typescript-eslint` in type-aware mode, `eslint-plugin-react-hooks`, `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y`. Add a `lint` script.
+  - Add a `typecheck` script running `tsc --noEmit`.
+  - Vitest with `@vitejs/plugin-react`, `jsdom`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`. Add a `test` script. Point the config at `tests/`.
+  - Playwright. Add a `test:e2e` script. Point the config at `e2e/`. Chromium only at bootstrap.
+  - Verify: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` all pass on the empty project.
+  - Commit: `chore: add lint, format, type and test toolchain`.
+- # 4 - Configuration module
+  - Create `src/lib/config.ts`: a Zod schema over `process.env`, parsed once at module load, exporting a typed frozen object (see D-014).
+  - At bootstrap it declares at least `NODE_ENV`, `DATABASE_URL` and `LOG_LEVEL`.
+  - When step 1 chose to include authentication, it also declares `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`. When authentication was skipped, do not declare them. A required variable nobody can give a meaning to is how a config module starts rotting.
+  - A missing or malformed variable must fail startup with a message naming the variable. Write a test for that.
+  - Create `.env.example` listing every variable with a placeholder, and, when authentication is included, a comment on how to generate `BETTER_AUTH_SECRET`. Never a real value.
+  - Create `.env` locally. Confirm it is git-ignored.
+  - Commit: `feat(config): add validated environment configuration`.
+- # 5 - Logging
+  - Create `src/lib/logger.ts`: the pino root logger, level from `config.LOG_LEVEL`, JSON to stdout, pretty transport in development only (see D-012).
+  - Add a redaction list covering `password`, `token`, `secret`, `authorization`, `cookie`.
+  - Commit: `feat(lib): add structured logging`.
+- # 6 - Value objects
+  - Create `src/lib/money/` with `Money`, `Duration` and `Rate` (see D-007).
+    - `Money` - constructed from and serialised to integer cents. Addition, subtraction, multiplication by a `Rate`, division into equal parts with the remainder distributed deterministically, comparison, and formatting against the single locale constant of `ai-rules/policy_coding_guidelines.md` -> Value objects.
+    - `Duration` - constructed from and serialised to integer minutes. Addition, rounding up to a configurable step, conversion to a decimal number of days given a day length, formatting.
+    - `Rate` - constructed from and serialised to integer basis points. Application to a `Money`, formatting as a percentage.
+  - Every rounding rule lives inside these classes. Nothing outside `src/lib/money/` performs arithmetic on cents, minutes or basis points.
+  - **ASK** the user for the rounding convention on money (half up, half even, or always down) and the day length in minutes. Record the answers as a D-XXX.
+  - Tests are mandatory here and are written by `@tester`: boundaries, negatives, the half-way case, and the remainder distribution.
+  - Commit: `feat(lib): add money, duration and rate value objects`.
+- # 7 - Database
+  - Add Prisma. Datasource `sqlite`, `DATABASE_URL` from the environment (see D-013).
+  - Create `src/lib/db.ts`: the Prisma client singleton, guarded against hot-reload duplication in development.
+  - Create the initial migration with `prisma migrate dev`. Never `prisma db push`.
+  - Add `db:migrate` and `db:studio` scripts.
+  - Confirm the database file path resolves inside the volume mount point, not inside the source tree.
+  - Commit: `feat(db): add prisma with sqlite datasource`.
+- # 8 - Authentication
+  - **Conditional.** Run this step only if step 1 chose to include authentication. If it did not, go straight to step 8b and carry the skip into the close-out report.
+  - Add Better Auth. Configure email and password, sessions, roles and invitations, backed by the local database (see D-009).
+  - Generate its schema into `prisma/schema.prisma`, then create the migration.
+  - Create `src/app/api/auth/[...all]/route.ts` - the first of the four permitted Route Handlers (see D-003).
+  - Create `src/lib/auth.ts` exporting the server instance plus `getSession()` and `requireRole(role)`. `requireRole` throws or returns a failure; it never returns an ignorable boolean.
+  - Create `src/middleware.ts` redirecting unauthenticated requests away from protected routes. Document in a comment that this is user experience, not the security boundary.
+  - **ASK** the user for the initial role list, and how the first administrator account is created.
+  - Commit: `feat(auth): add better auth with roles and sessions`.
+- # 8b - Seed
+  - Create `prisma/seed.ts` with the two modes defined in `ai-rules/policy_testing.md` -> Seed data, selected by an argument and never by `NODE_ENV`.
+  - The script refuses to run against a database that already holds rows, in both modes.
+  - Add `db:seed` and `db:seed:test` scripts.
+  - When authentication was included:
+    - The `test` mode creates one administrator and one restricted-role user, with fixed identifiers and credentials, and nothing else.
+    - The `dev` mode adds the `test` set plus sample data. At bootstrap it has nothing to add beyond the users; it grows with each feature.
+    - This is where the answer to "how is the first administrator created" lands. If the answer was an interactive command rather than a seed, build that instead and say so here.
+  - When authentication was skipped:
+    - Create the file with both modes present, the refusal guard in place, and no records in either. The shape is what matters; the first feature that needs data fills it.
+    - Do not invent placeholder rows to make the file look finished. An unused seed record becomes a dependency the moment someone writes a test against it.
+  - Commit: `feat(db): add seed script with dev and test modes`.
+- # 9 - Health check
+  - Create `src/app/api/health/route.ts` - the second permitted Route Handler. Returns 200 with the application version, and verifies the database is reachable.
+  - The version is read from `package.json` at build time and baked into the image. Never hard-code it and never declare it a second time (see `ai-rules/policy_commits.md` -> Versioning).
+  - Commit: `feat(app): add health check endpoint`.
+- # 10 - Containerisation
+  - `docker/` ships with the template, already holding a skeleton: `Dockerfile`, `docker-compose.yml`, `docker-compose.dev.yml`, `entrypoint.sh`, `restart.sh`, `update.sh` and its own `README.md`. Adapt it; do not write it again from nothing. It and `.devcontainer/` are the only code the template ships, because they are the only parts that are nearly identical between projects.
+  - The development stack was already adapted at step 1b. This step covers production only, and the two stay separate stacks with different project names.
+  - Read `docker/README.md` first, then replace every `CHANGEME`: the compose project name, the image name, and the name of the external network the existing Caddy instance runs on.
+  - Verify rather than trust: the pinned `NODE_VERSION` against `package.json` `engines`, the Prisma CLI path in `entrypoint.sh` against the version you pinned, and `output: "standalone"` in `next.config`, without which the runtime stage has nothing to copy.
+  - The database is a named volume in both stacks, and needs nothing on the host: the volume inherits the image's ownership of `/data` on first creation. Backups reach the host through `update.sh`, not through the volume type.
+  - The healthcheck and the migration-on-entrypoint are already in the skeleton. Confirm both fire rather than assuming they do.
+  - Tag the image with the version and with `latest` (see `ai-rules/policy_commits.md` -> Versioning).
+  - Write `.dockerignore` at the repository root, not in `docker/`. Docker resolves it against the build context, and the build context is the root.
+  - Keep `.env.example` at the repository root too. Next.js loads `.env` from the project root, so an example living anywhere else invites someone to copy it next to itself, where nothing will read it.
+  - Verify: `cd docker && docker compose up` from a clean checkout produces a reachable application.
+  - Commit: `build: add multi-stage dockerfile and compose service`.
+- # 10b - Operating scripts
+  - `restart.sh` and `update.sh` ship with the skeleton. Read both before running either, and keep their two guarantees intact when you adapt them:
+    - `update.sh` **backs up the database first and aborts if that fails**, before anything is built or migrated. The entrypoint applies `prisma migrate deploy` to a file holding years of financial data, and a migration is the one operation with no undo. Everything else in the script is recoverable because of that step.
+    - Neither script runs a destructive Docker command - no `down -v`, no volume removal, no image pruning. An operator running `update.sh` monthly must not be one flag away from deleting the database.
+  - `update.sh` snapshots with `sqlite3 ".backup"` inside the container, then extracts with `docker compose cp`. Only that sequence is consistent against a live database, and it is why `sqlite3` is installed in the runtime image. Do not simplify it into a `cp`.
+  - **ASK** the user where backups are written and how many to keep, and set `BACKUP_DIR` and `BACKUP_KEEP` accordingly. Record the answer as a D-XXX; the template has no operations policy to default to.
+  - Verify both scripts once, on the freshly deployed instance, before the first real feature ships. A backup script that has never been run is not a backup script.
+  - Commit: `build: adapt docker skeleton and operating scripts`.
+- # 11 - Security headers
+  - Set `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy` and a frame-ancestors policy once, in `next.config` or middleware (see `ai-rules/policy_security.md`).
+  - Commit: `feat(app): add security headers`.
+- # 12 - shadcn/ui
+  - Initialise shadcn/ui with components copied into `src/components/ui/`.
+  - Install only the primitives `specs/001-hello-world.md` needs, which is `Button` and nothing else. Add the rest per feature, never speculatively.
+  - **ASK** the user for the base colour and the light or dark default.
+  - Commit: `feat(ui): add shadcn primitives`.
+- # 13 - Dependency audit
+  - Run `ai-agents/agent_dependency.md` once. Report using its format: advisory id, package, severity, direct or transitive, reachable or not, decision.
+  - Stop after the first report. Do not auto-upgrade.
+- # 14 - Hello world
+  - Implement `specs/001-hello-world.md` through the normal workflow, to prove every gate and every agent handoff works.
+  - Do not shortcut it because the feature is trivial. The point is the chain, not the feature.
+  - Run: `@architect` (G3) -> `@orchestrator` -> `@coder` -> `@tester` -> G5 -> `@reviewer` (G6) -> `@committer` (G8).
+  - `@product-owner` and `@designer` are skipped here only because the spec and its design are supplied with the template. Every subsequent feature starts at G1.
+  - Expect `@architect` to record almost nothing. The feature has no data model, no server boundary, no authorisation and no validation, so those sections of the technical spec read "N/A". That is the correct answer, not a gap to fill.
+  - Expect `@tester` to produce a component test and one Playwright journey, and no repository or schema test. There is nothing at those levels to cover.
+  - Read `specs/001-hello-world.md` -> What this deliberately does not prove before calling the stack validated. A green bootstrap proves the chain runs; it does not prove the database, the server boundary or the authorisation layers. The first real feature exercises those for the first time.
+- # 15 - Close out
+  - Update `context/progress.md` with the bootstrap date, the decisions recorded and the migrations applied.
+  - Confirm `git status` is clean and no ignored artefact was committed.
+  - Report to the user: the decisions recorded during bootstrap, whether authentication was included or skipped, the environment variables they must set, and the command to start the application.
+  - When authentication was skipped, restate the consequence in the report rather than leaving it buried in the D-XXX: the instance must not be exposed on a public URL, and D-009 is outstanding debt.
+- # Notes
+  - `.claude/agents/` must be present at the repository root for subagent dispatch to work. If the template was copied without it, recreate it before step 14.
+  - Pin every dependency to the latest stable version at bootstrap time, exactly, with no range (see D-002). Verify each pinned version exists before writing it.
+  - If any step forces a choice not covered by an existing D-XXX, stop and record a decision rather than deciding silently.
+  - Continuous integration is deliberately not set up at bootstrap. It is carried in `context/vision.md` -> Roadmap -> Later, and until it exists the machine gates depend on the agents running them.

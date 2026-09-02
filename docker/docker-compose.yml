@@ -1,0 +1,66 @@
+# Skeleton shipped with the spec-driven template. Adapt every CHANGEME.
+# Run from this directory: cd docker && docker compose up -d
+#
+# Placeholders: the compose project name, the image name, and the name of
+# the external network your Caddy instance already runs on.
+
+name: synfactu
+
+services:
+  app:
+    build:
+      # The build context is the repository root, not this folder.
+      # .dockerignore is resolved against the context, so it lives there too.
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION:-22}
+    image: synfactu:latest
+    restart: unless-stopped
+
+    env_file:
+      # Next.js loads .env from the project root, so the example and the real
+      # file both live there. This line is what brings them into the container.
+      - ../.env
+
+    environment:
+      # The path inside the container. The host side is set by the volume below.
+      DATABASE_URL: "file:/data/app.db"
+
+    volumes:
+      # A named volume, not a host directory. Bind-mount source code you are
+      # editing; use a named volume for data that just has to survive. SQLite
+      # file locking is reliable in a named volume on every host, including
+      # Docker Desktop, and nothing on the host - a sync client, a backup
+      # agent, a stray script - can reach the live file.
+      #
+      # Backups still land on the host: update.sh extracts them. See README.md.
+      - data:/data
+
+    expose:
+      # Not "ports". Nothing is published to the host: Caddy reaches the
+      # container over the shared network and terminates TLS.
+      - "3000"
+
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+    networks:
+      - proxy
+
+volumes:
+  data:
+
+networks:
+  proxy:
+    # Created and owned by the existing Caddy stack, not by this file.
+    external: true
+    name: CHANGEME-caddy-network

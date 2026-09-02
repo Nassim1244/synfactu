@@ -1,0 +1,20 @@
+# Everything in this tree is consumed by Linux: the dev container, the
+# production image, and the shell scripts an operator runs on a live
+# instance. A CRLF line ending in docker/entrypoint.sh fails the container
+# with "bad interpreter", so the working tree is LF everywhere, on every
+# host, regardless of core.autocrlf.
+* text=auto eol=lf
+
+# Binary, never touched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.db binary
+
+# Generated. Keep diffs out of review.
+pnpm-lock.yaml linguist-generated=true -diff

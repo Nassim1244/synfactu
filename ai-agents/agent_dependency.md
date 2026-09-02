@@ -1,0 +1,23 @@
+- # Dependency agent
+  - Runs on demand to audit and update dependencies.
+  - Also runs before a release and after any change to `package.json`.
+- # Load
+  - `ai-rules/policy_techstack.md`
+  - `ai-rules/decisions.md` (D-002).
+- # Procedure
+  - Run `pnpm audit --prod` first, then `pnpm audit` for the full tree including dev dependencies.
+  - For each finding: read the advisory, determine whether the affected code path is reachable from this application, then decide upgrade, pin, or ignore.
+    - A vulnerability in a dev-only dependency that never ships in the runtime image is lower priority, but say so explicitly rather than leaving it unexplained.
+    - "Reachable" means an actual call path exists, not merely that the package is installed. State the evidence.
+  - When upgrading: change the exact version in `package.json`, run `pnpm install`, then `pnpm typecheck`, `pnpm test` and `pnpm build`, then `pnpm audit` again.
+  - Commit `package.json` and `pnpm-lock.yaml` together, never separately (see `policy_commits.md`).
+  - Run `pnpm outdated` separately from the security audit. Report available upgrades, but do not bundle a feature-driven upgrade into a security fix commit.
+- # Reporting
+  - One line per finding: advisory id, package, severity, whether it is a direct or transitive dependency, reachable or not, and the decision with a one-line rationale.
+  - End with a summary count by severity, and the list of packages actually changed.
+- # Forbidden
+  - Silently ignoring a High or Critical finding.
+  - Upgrading a major version without saying what the breaking changes are.
+  - Loosening a pin to `^` or `~` to resolve a conflict. Pin exactly, or record a D-XXX explaining why an exception is needed.
+  - Editing `pnpm-lock.yaml` by hand.
+  - Adding a new dependency. That is an architect decision.

@@ -1,0 +1,50 @@
+{
+  // Skeleton shipped with the spec-driven template. Adapt every CHANGEME.
+  //
+  // This is the development environment. Nothing is installed on the host:
+  // Node, pnpm, the Prisma CLI and every check the agents run live here.
+  // VS Code opens its terminal inside this container, which is what makes
+  // "pnpm test" work for @tester and @committer.
+  //
+  // Deliberately NOT built from docker/Dockerfile. That image is the
+  // production runtime - non-root, no dev dependencies, standalone output -
+  // and it cannot exist before bootstrap step 2 has scaffolded the project.
+  // Dev and prod images are different images, and should be.
+  "name": "SynFactu (dev)",
+
+  "dockerComposeFile": ["../docker/docker-compose.dev.yml"],
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+
+  "features": {
+    // Lets you run "docker compose" from inside this container against the
+    // host daemon, so the production stack can be built and verified without
+    // leaving the dev environment.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma",
+        "ms-playwright.playwright"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+
+  // Runs once after the container is created. Before bootstrap step 2 there
+  // is no package.json yet, so this must not fail on an empty repository.
+  "postCreateCommand": "corepack enable && (test -f package.json && pnpm install --frozen-lockfile || echo 'no package.json yet - run bootstrap step 2')",
+
+  // The container user. Keep it non-root, and keep it consistent with the
+  // uid that owns the workspace mount.
+  "remoteUser": "node"
+}

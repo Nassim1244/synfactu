@@ -1,0 +1,50 @@
+# Development stack. Used by .devcontainer/devcontainer.json, and usable on
+# its own: docker compose -f docker/docker-compose.dev.yml up -d
+#
+# This is NOT an overlay on docker-compose.yml. It is a separate stack with
+# its own project name, so its volumes never collide with production's - a
+# dev migration must not be able to reach production data.
+#
+# Adapt every CHANGEME.
+
+name: synfactu-dev
+
+services:
+  dev:
+    # A plain Node image, not the project's Dockerfile. The production image
+    # is non-root, carries no dev dependencies and needs a built application;
+    # none of that exists yet at bootstrap, and none of it is wanted here.
+    image: node:${NODE_VERSION:-22}-bookworm
+    working_dir: /workspace
+    # VS Code attaches and drives the container. Without this it would exit
+    # immediately, having nothing to run.
+    command: sleep infinity
+
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "file:/data/dev.db"
+
+    volumes:
+      # The source, bind-mounted so edits are live. Keep the repository off
+      # any synced folder - OneDrive, Dropbox, iCloud - or it will sync
+      # node_modules, .next and eventually the database file.
+      - ..:/workspace:cached
+
+      # node_modules in a named volume, deliberately shadowing the bind mount
+      # above. On Docker Desktop, thousands of small files crossing the
+      # filesystem translation layer is the difference between a fast install
+      # and a painful one. It also keeps the host free of Linux binaries.
+      - dev_node_modules:/workspace/node_modules
+
+      # The development database. A named volume, like production: file
+      # locking is reliable there on every host, and nothing outside Docker
+      # can touch the file.
+      - dev_data:/data
+
+    ports:
+      # Published to localhost only. Nothing here goes near Caddy.
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  dev_node_modules:
+  dev_data:

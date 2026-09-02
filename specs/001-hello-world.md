@@ -1,0 +1,57 @@
+- # Hello world
+- # ── FUNCTIONAL SPEC ──────────────────────────────────────────
+  - Supplied with the template. Treated as approved at G1.
+  - Deliberately trivial. Its purpose is to prove the project is ready to be coded in, not to deliver product value.
+- # Goal
+  - A single page showing the text "Hello world" and a button that changes the text's colour. It exists to prove the toolchain, the container and the agent chain all work end to end before any real feature is specified.
+- # User flow
+  - A visitor opens `/hello-world` and sees "Hello world" as the page heading, rendered in the first colour of a fixed sequence, with a button below it.
+  - The visitor presses the button. The heading changes to the next colour in the sequence and the button's label updates to name the colour it will apply next.
+  - The visitor presses the button from the last colour of the sequence. The heading returns to the first colour.
+  - The visitor reloads the page. The heading is back to the first colour; nothing was remembered.
+  - The visitor operates the page with the keyboard alone, reaching the button by tabbing and pressing it with Enter or Space.
+- # Acceptance criteria
+  - `/hello-world` renders the text "Hello world" as the page's only level-1 heading.
+  - On first render the heading uses the first colour of the sequence defined in the technical spec.
+  - Pressing the button once advances the heading to the next colour in that sequence.
+  - Pressing the button while the heading is on the last colour returns it to the first.
+  - Reloading the page returns the heading to the first colour; no colour is persisted anywhere.
+  - The button's accessible name states the colour it will apply next, so the page is usable and verifiable without seeing the colours.
+  - The button is reachable by keyboard and activates with both Enter and Space.
+  - The page renders without reading from the database and without calling a Server Action.
+- # Design
+  - `design/001/`
+- # Out of scope (functional)
+  - Persisting the chosen colour, in any form.
+  - Authentication, roles or per-user state. This page is public.
+  - Choosing an arbitrary colour. The sequence is fixed and short.
+  - Any real product behaviour. This feature is a smoke test and is expected to be deleted once the first real feature ships.
+- # What this deliberately does not prove
+  - Stated plainly so nobody mistakes a green bootstrap for a validated stack.
+  - It does not exercise the database, a repository, a Zod schema, a Server Action, a migration or the authorisation layers.
+  - Those are proven by the first real feature, which is the first to run the full chain of `ai-rules/policy_workflow.md`.
+  - What it does prove: the application builds, starts in its container and answers; a route renders; the Server and Client Component boundary works; Tailwind and the shadcn primitives are wired; all three test levels run; and every gate from G3 to G8 can be passed by the agent chain.
+- # Open questions
+  - None.
+- # ── TECHNICAL SPEC ───────────────────────────────────────────
+  - <Filled by @architect at bootstrap step 14. Do not edit by hand.>
+- # Architecture decisions
+  - <->
+- # Feature slice
+  - <->
+- # Data model
+  - <->
+- # Numeric and temporal representation
+  - <->
+- # Server boundary
+  - <->
+- # Data access
+  - <->
+- # Authorisation
+  - <->
+- # Validation
+  - <->
+- # Dependencies
+  - <->
+- # Out of scope (technical)
+  - <->

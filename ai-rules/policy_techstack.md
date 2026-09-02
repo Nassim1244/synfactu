@@ -1,0 +1,47 @@
+- # Tech stack
+  - Canonical home for: language and library choices, dependency policy, scripts.
+  - All versions are pinned exactly in `package.json` and locked in `pnpm-lock.yaml` (see D-002).
+  - Do not write version numbers in this file.
+- # Principles
+  - Data sovereignty: business data stays on the operator's machine. No external service stores user or financial data.
+  - One language end to end: TypeScript everywhere.
+  - Operational simplicity: one command starts everything, and two scripts in `docker/` cover restarting and updating a deployed instance.
+  - Progressive database: SQLite now, PostgreSQL when the need is real (see D-013).
+- # Required
+  - Node.js - version pinned in `package.json` `engines`, matched by the Dockerfile base image and by the development container. Nothing is installed on the host: every command in this file runs inside the development container (see `policy_architecture.md` -> Development environment).
+  - Next.js with the App Router, TypeScript, `strict: true`.
+  - React.
+  - Tailwind CSS.
+  - shadcn/ui - components are copied into `src/components/ui/`, not installed as a dependency.
+  - Prisma - ORM and migration tool.
+  - SQLite - a single file in a Docker volume (see D-013).
+  - Better Auth - authentication, roles, invitations and sessions, stored in the local database.
+  - Zod - runtime validation at every server boundary (see D-005).
+  - react-hook-form with `@hookform/resolvers` - forms, sharing the Zod schemas.
+  - pino - structured logging (see D-012).
+- # Optional, introduce only when a feature needs it
+  - `@react-pdf/renderer` - PDF export, served through a file-download Route Handler.
+  - A charting library - chosen by a D-XXX when the first chart is specified.
+  - TanStack Query - only if a view genuinely needs polling or optimistic updates, which supersedes D-006.
+- # Database
+  - SQLite while a single operator and an occasional assistant are the only users.
+  - Migrate to PostgreSQL when concurrent write access, scalability or row-level security becomes a requirement (see D-013).
+  - The migration adds a `postgres` service to `docker-compose.yml` and changes `DATABASE_URL`. D-004 and D-007 exist so that nothing else changes.
+- # Dev and build
+  - pnpm - package manager. `pnpm install --frozen-lockfile` in Docker (see D-002).
+  - Vitest - unit and integration test runner.
+  - React Testing Library with `@testing-library/user-event` - component tests, run under Vitest.
+  - Playwright - end-to-end journeys.
+  - ESLint with `typescript-eslint`, `eslint-plugin-react-hooks`, `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y` (see D-011).
+  - Prettier with `prettier-plugin-tailwindcss`.
+  - `pnpm audit` - dependency vulnerability scanning, invoked via `ai-agents/agent_dependency.md`.
+  - Docker and Docker Compose - the only supported deployment target.
+- # Dependencies
+  - Pin every direct dependency exactly. No `^`, no `~`, no `*`.
+  - `pnpm-lock.yaml` is committed and never edited by hand.
+  - Adding a dependency requires a one-line justification in the spec's technical section: what it does that the existing stack cannot.
+  - Prefer a copied component or a twenty-line helper over a dependency for anything trivial.
+  - Never add a dependency that phones home or requires an account.
+- # Scripts
+  - `package.json` must expose, at minimum: `dev`, `build`, `start`, `lint`, `format`, `format:check`, `typecheck`, `test`, `test:e2e`, `db:migrate`, `db:seed`, `db:seed:test`, `db:studio`.
+  - Every check the reviewer and committer run is a script, so it is invoked identically by a human, an agent and CI.

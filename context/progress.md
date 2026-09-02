@@ -1,0 +1,16 @@
+- # Progress
+  - Snapshot of the project's current state. Maintained by the committer (see `ai-rules/policy_commits.md` -> Progress tracking).
+  - Within each section, most recent entry first.
+  - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
+- # In progress
+  - [Specs currently being worked on.]
+- # Completed
+  - [Move spec entries here when they reach READY (see `ai-agents/agent_reviewer.md`).]
+- # Blocked or deferred
+  - [List items waiting on a decision or paused, with the reason.]
+- # Releases
+  - [One line per release: date, version, and the specs included since the previous tag.]
+- # Migrations applied
+  - [One line per migration: date, migration name, what it changed.]
+- # Recent events
+  - [Decisions recorded, roadmap changes, dependency upgrades that changed behaviour.]

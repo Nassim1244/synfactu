@@ -1,0 +1,41 @@
+- # <Feature name>
+- # ── FUNCTIONAL SPEC ──────────────────────────────────────────
+  - <Written by @product-owner. Approved by the user at gate G1.>
+- # Goal
+  - <One or two sentences: what this achieves, for whom, and why now.>
+- # User flow
+  - <Step 1: what the user does, what the application does in response.>
+  - <Step 2: ...>
+  - <Unhappy path: empty state, no permission, invalid input, concurrent edit.>
+- # Acceptance criteria
+  - <Concrete, testable check 1.>
+  - <Concrete, testable check 2.>
+  - <Concrete, testable check 3.>
+- # Design
+  - <`design/NNN/` for a feature with a user interface, or "N/A" with a one-line reason.>
+- # Out of scope (functional)
+  - <Everything discussed and deliberately excluded, to prevent scope creep.>
+- # Open questions
+  - <Anything unresolved, and who needs to answer it. "None" is a valid answer; a hidden guess is not.>
+- # ── TECHNICAL SPEC ───────────────────────────────────────────
+  - <Filled by @architect after the functional spec is approved. Do not edit by hand.>
+- # Architecture decisions
+  - <Existing D-XXX that apply, and any new D-XXX created for this feature, one line each.>
+- # Feature slice
+  - <The `src/features/<domain>/` folder, and each file to create or modify with its responsibility in one sentence.>
+- # Data model
+  - <Schema diff, migration name, backfill needed. "N/A" if nothing changes.>
+- # Numeric and temporal representation
+  - <Every money, duration, rate, instant and period field, with its storage unit. "N/A" if none.>
+- # Server boundary
+  - <Each Server Action: required role, Zod schema, paths revalidated. Any Route Handler, with the closed-list entry justifying it.>
+- # Data access
+  - <Each repository function, its intent, and the scoping it enforces.>
+- # Authorisation
+  - <The role required at each entry point.>
+- # Validation
+  - <What each schema rejects beyond type checks.>
+- # Dependencies
+  - <Any new package with a one-line justification, or "None".>
+- # Out of scope (technical)
+  - <Implementation choices explicitly deferred or excluded.>

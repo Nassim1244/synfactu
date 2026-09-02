@@ -1,0 +1,70 @@
+- # Testing policy
+  - Read this before writing or modifying tests.
+  - Canonical home for: test layout, what to test at which level, database testing, fixtures, relevance, coverage stance, forbidden practices.
+  - Three levels, each covering what the others cannot (see D-010).
+- # Ownership
+  - The `@tester` subagent is the sole author of the `tests/` and `e2e/` trees. The `@coder` subagent writes production code only and hands off to `@tester` before `@reviewer` runs.
+  - "Alongside the feature" means the same workflow, not the same agent.
+  - Exception: `@debugger` writes the single failing regression test that reproduces a bug, then hands to `@coder`. `@tester` still reviews and extends it afterwards.
+- # Layout
+  - `tests/` mirrors `src/`. `src/features/invoices/domain.ts` -> `tests/features/invoices/domain.test.ts`.
+  - `e2e/` is flat, one file per user journey: `e2e/create-invoice.spec.ts`.
+  - Shared fixtures and factories live in `tests/support/`.
+- # What to test where
+  - `domain.ts` - pure unit tests under Vitest. No database, no mocks. This is where coverage should be highest.
+  - `repository.ts` - integration tests against a real SQLite database, exercising the actual query. Assert the scoping is applied and cannot be bypassed.
+  - `schema.ts` - assert every rejection the schema is supposed to perform. A Zod schema with no test for its rejections is untested.
+  - `actions.ts` - test the role check and the validation failure paths, with the repository faked. The happy path belongs to the repository and end-to-end levels.
+  - `components/` - React Testing Library. Query by role and accessible name, never by class or test id unless nothing else identifies the element. Use `user-event`, not `fireEvent`.
+  - Server Components - do not unit test. They are covered end to end.
+  - `e2e/` - Playwright. Critical journeys only.
+- # End-to-end scope
+  - A journey earns a Playwright test when it crosses layers that no other level exercises together: authentication, middleware redirection, a Server Action round-trip, a database write and the resulting render.
+  - Mandatory journeys, when the project has authentication: sign in and reach a protected route; a restricted role being denied an admin action; the primary create-read cycle of the application's core entity.
+  - When the project bootstrapped without authentication, only the last one is mandatory. Do not write a placeholder journey for a sign-in that does not exist.
+  - Everything else stays at the unit or component level. Playwright is slow; a large end-to-end suite gets disabled, and a disabled suite protects nothing.
+  - Tests run against a freshly migrated, seeded database and must be independent of execution order. The seed is defined below.
+- # Seed data
+  - One seed file, `prisma/seed.ts`, owned by `@architect`. No other agent edits it. `@tester` may ask for an addition; it does not make one.
+  - Two modes, selected by an argument, never by `NODE_ENV`:
+    - `test` - the minimum needed for end-to-end determinism. One administrator, one restricted-role user, and nothing else. Fixed identifiers, fixed credentials, fixed timestamps.
+    - `dev` - the `test` set plus realistic sample data across the application's main entities, enough to exercise a populated dashboard.
+  - The `test` seed is deterministic. No random values, no `new Date()`, no faker. A given seed run produces byte-identical rows every time, or end-to-end failures become unreproducible.
+  - The `test` seed is minimal. Every record in it exists because a named test needs it. A record nothing depends on will silently become a dependency and then break unrelated tests when it changes.
+  - Test credentials are fixtures, not secrets, and are the same in every checkout. They must be rejected by the application outside the test environment, and they never appear in `.env.example`.
+  - Seeding runs against a fresh database, never against one holding data. The seed script refuses to run if the target database already has rows.
+  - `pnpm db:seed` and `pnpm db:seed:test` are the entry points. End-to-end runs invoke the latter as part of their setup, never by hand.
+  - Adding a record to the `test` seed for one new test is a smell. Prefer creating the record inside the test that needs it.
+- # Database testing
+  - Repository tests run against a real SQLite file created per test file, in a temporary directory, migrated from `prisma/migrations/`. Never against the development database.
+  - Truncate or recreate between tests. A test must not depend on another's rows.
+  - Never mock the Prisma client in a repository test. Mocking the thing under test proves nothing.
+  - Fake the repository, not Prisma, when testing an action or domain logic.
+- # Money, duration and time
+  - Every value object has tests for its rounding behaviour at the boundaries, including negatives and the half-way case.
+  - Any calculation combining a rate and an amount has a test asserting the exact expected cent value, written by hand, not derived by rerunning the implementation.
+  - Time-dependent logic takes the current time as an argument or through an injected clock. Never call `new Date()` inside a function under test.
+  - Any month-boundary or period-derivation logic has a test at the boundary (last day of a month, first day of a year).
+- # Conventions
+  - One test file per source file.
+  - Test names describe behaviour: `rejects a negative amount`, not `test validation`.
+  - Use `describe` per exported function, `it` per behaviour.
+  - `it.each` for variations of one scenario.
+  - Arrange, act, assert, visibly separated.
+  - Run through the package manager: `pnpm test`, `pnpm test:e2e`. Never a globally installed binary.
+- # Relevance
+  - Every test asserts at least one observable outcome.
+  - The test must fail if the production behaviour under check were broken or removed. A test that passes against a deleted implementation is noise.
+  - Mocks replace boundaries (the database, the network, the clock, the file system), never the unit under test.
+  - No tautological assertions: `expect(x).toBe(x)`, or asserting a mock's own configured return value.
+  - No snapshot test of a whole component tree. Snapshots of large output get regenerated rather than read.
+- # Coverage
+  - High in `domain.ts`, `repository.ts` and `schema.ts`. Best-effort in components. Meaningful tests, not a percentage target.
+  - A bug fix ships with a regression test that would have failed before the fix.
+- # Forbidden
+  - No test touching the real network.
+  - No test writing outside a temporary directory.
+  - No `sleep` or fixed timeout. Use Playwright's auto-waiting and Testing Library's `findBy*`.
+  - No test depending on execution order or on another test's data.
+  - No test asserting on an implementation detail (a private function, an internal state shape, a CSS class).
+  - No skipped or commented-out test committed to `main`.

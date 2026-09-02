@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Environment - never commit a real value (see D-014)
+.env
+.env.*
+!.env.example
+
+# Database - lives in a Docker volume, never in the tree (see D-013)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+prisma/*.db*
+
+# Backups written by docker/update.sh
+backups/
+
+# Test and coverage output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Build and tooling caches
+*.tsbuildinfo
+.eslintcache
+
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json

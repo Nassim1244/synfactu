@@ -1,0 +1,56 @@
+- # Security
+  - Read this when writing a technical spec, designing structure, writing code, writing a spec, or reviewing.
+  - Canonical home for: input validation, authentication and authorisation, tenant isolation, secrets, data exposure, dependency and container hardening.
+  - The reviewer performs the security review; there is no separate security agent. See `ai-agents/agent_reviewer.md`.
+  - Logging-format rules and the list of values that must never be logged live in `policy_coding_guidelines.md` -> Error handling and logging.
+- # Threat model
+  - The application is self-hosted. The operator is not the developer and will not patch it.
+  - Trusted: the host machine, the Docker volume, the Caddy instance terminating TLS.
+  - Untrusted: everything arriving over HTTP, including requests from an authenticated user. A logged-in user with a restricted role is an adversary for anything outside their role.
+  - Assume any Server Action can be invoked directly, with arbitrary arguments, by any authenticated session.
+- # Input validation
+  - Every Server Action and every Route Handler parses its input with a Zod schema before any other work (see D-005).
+  - Validate shape, type, range and format. A positive amount is `.positive()`, not a comment.
+  - Never trust an id supplied by the client to imply permission. Fetch the record, then check the caller may act on it.
+  - Never build a raw SQL string. Use Prisma's typed API. If `$queryRaw` is unavoidable, use its tagged-template form so values are parameterised; never `$queryRawUnsafe`.
+  - Validate and normalise any user-supplied path or filename before it reaches the file system. Reject anything containing a separator or `..`.
+  - Cap the size of every uploaded or pasted payload explicitly.
+- # Authentication and authorisation
+  - This section applies to a project whose bootstrap included authentication (see `specs/init.md` step 1). A project that skipped it has no sessions and no roles, so the role rules below are dormant, not violated. Every other section of this policy applies in full.
+  - Re-introducing authentication later means revisiting every Server Action written in the meantime. That is the debt the D-XXX recorded at bootstrap names, and it does not shrink on its own.
+  - Two layers, both required (see D-009).
+    - Middleware: redirects unauthenticated requests away from protected routes. This is user experience.
+    - Per-entry-point check: every Server Action, Route Handler and protected Server Component resolves the session and asserts the caller's role before touching data. This is the boundary.
+  - The role check is the first statement of the function, before validation.
+  - A helper such as `requireRole("admin")` throws or returns a failure; it never returns a boolean the caller can ignore.
+  - Never derive permission from something the client sent, including a hidden form field or a URL segment.
+  - Better Auth owns sessions, password hashing and invitations. Do not hand-roll any of it.
+  - The permission matrix, once defined, lives in one module. A role compared by string literal scattered across features is a bug.
+- # Tenant and ownership isolation
+  - Every repository function reading or writing scoped data applies the scope itself, from the server-resolved session (see `policy_architecture.md` -> Data access).
+  - A caller must not be able to widen the scope by omitting an argument. The scope is not a parameter with a default.
+  - When the application becomes multi-tenant, a query without an explicit tenant filter is a defect, regardless of whether it currently returns wrong data.
+- # Secrets
+  - No secret is committed. Environment variables only, read through `src/lib/config.ts` (see D-014).
+  - `.env` is git-ignored. `.env.example` is committed with placeholders only.
+  - `BETTER_AUTH_SECRET` must be generated per deployment. A default value in any file, example or documentation is a defect.
+  - No secret in a log line, an error message, a client payload, a URL or a commit message.
+  - Any variable named to the client must be prefixed `NEXT_PUBLIC_`. Treat every `NEXT_PUBLIC_` value as world-readable.
+- # Data exposure
+  - A Server Action or query returns only the fields the caller needs. Never spread a Prisma model to the client.
+  - Password hashes, session tokens and internal identifiers never leave the server.
+  - Error responses carry a stable code, not an internal message (see `policy_coding_guidelines.md` -> Error handling).
+  - An unauthorised read and a missing record return the same response, so existence cannot be probed.
+- # Container and dependency hardening
+  - The runtime image runs as a non-root user and contains no dev dependencies.
+  - No port is published except the one Caddy proxies. The database is a file, not a listening service.
+  - `pnpm audit` runs through `ai-agents/agent_dependency.md`. High and Critical findings are never silently ignored.
+  - Security headers are set once, in `next.config` or middleware: `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` or an equivalent frame-ancestors policy.
+- # Forbidden
+  - A Server Action or Route Handler without a role check.
+  - A Server Action or Route Handler without schema validation.
+  - `$queryRawUnsafe`.
+  - `dangerouslySetInnerHTML`.
+  - A committed secret, or a default secret value anywhere.
+  - Returning a raw Prisma model to the client.
+  - Trusting a client-supplied identifier as proof of ownership.

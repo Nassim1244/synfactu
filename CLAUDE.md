@@ -1,0 +1,63 @@
+- # Project
+  - Self-hosted web application built with Next.js and TypeScript.
+  - Distributed as a Docker image, started with one command from `docker/`.
+  - Developed inside a container. Nothing is installed on the host; run this session from the development container's terminal, or `pnpm` does not exist for the agents.
+  - Data sovereignty: all business data stays on the operator's machine. No user or data leaves the host.
+  - This file is read first by Claude at session start. It is the entry point.
+- # Folder layout
+  - To learn the actual current module structure, run a `glob` / directory listing of `src/` at session start - do not read files to discover it, and do not rely on a hand-written map (it drifts). `ai-rules/policy_architecture.md` holds the intended structure (the why and where); the live listing holds what exists now.
+  - src/ - application code (see `ai-rules/policy_architecture.md`).
+  - prisma/ - `schema.prisma` and the `migrations/` folder. Owned by the architect (see `ai-agents/agent_architect.md`).
+  - tests/ - unit and integration suite, mirrors `src/`.
+  - e2e/ - Playwright end-to-end journeys.
+  - specs/ - one .md per feature, follows `specs/TEMPLATE.md`.
+  - design/ - design artefacts per feature, one subfolder per spec index (e.g. `design/001/`, `design/002/`). Owned by the designer (see `ai-agents/agent_designer.md`). This is OPTIONAL.
+  - ai-rules/ - policies and decisions (operational rules and their rationale).
+  - ai-agents/ - agent workflows, one per agent: product owner, designer, architect, orchestrator, coder, tester, reviewer, committer, auditor, debugger, dependency, ai-method. These are canonical; `.claude/agents/` holds thin wrappers that point at them.
+  - context/ - project state (vision, progress).
+  - docker/ - the production and development stacks, the entrypoint and the operating scripts, with their own `README.md`. Everything Docker reads, except the two files it resolves against the repository root (see Root files).
+  - .devcontainer/ - the VS Code development container. Nothing is installed on the host, so every command runs inside it - including Claude Code itself, or the agents cannot run `pnpm`.
+  - `docker/` and `.devcontainer/` ship as skeletons to adapt, and are the only code in the tree.
+- # Root files
+  - package.json - pinned dependencies, Node version, and the application `version`, which is the single source of truth for it (see `ai-rules/policy_commits.md` -> Versioning).
+  - pnpm-lock.yaml - committed. Never edited by hand (see D-002).
+  - .env.example - every environment variable the app reads, with safe placeholder values. Never contains a real secret. Stays at the root because Next.js loads `.env` from the project root.
+  - .dockerignore - stays at the root because Docker resolves it against the build context, which is the root.
+  - LICENSE - chosen at project bootstrap and recorded as a new D-XXX (see `specs/init.md`).
+- # Tech stack
+  - See `ai-rules/policy_techstack.md`.
+- # Context
+  - Read `context/vision.md` to understand the app's purpose and roadmap. Stable file, rarely changes.
+  - Read `context/progress.md` at session start to know the current state.
+  - `context/progress.md` is maintained by the committer (see `ai-rules/policy_commits.md` -> Progress tracking).
+- # Document model
+  - Policies hold the operational rules (what to do).
+  - `ai-rules/decisions.md` holds rationale only (why). Each decision points to the policy that owns the corresponding rule.
+- # Workflow
+  - The full agent sequence and its gates live in `ai-rules/policy_workflow.md`. Read it before starting or resuming any feature.
+  - Short form:
+    - New feature -> `@product-owner` writes the functional spec -> **G1, stops for the user**.
+    - UI feature -> `@designer` fills `design/<index>/` -> **G2, stops for the user**.
+    - Then `@architect` fills the technical spec, records D-XXX, owns any Prisma schema change -> **G3, stops for the user**.
+    - Then `@orchestrator` drives `@coder` -> `@tester` -> `@reviewer` -> `@committer`.
+    - Bug report -> `@debugger` reproduces and writes the failing test, then rejoins at `@coder`.
+  - When designing structure -> load `ai-rules/policy_architecture.md`.
+  - When writing code -> dispatch to `@coder`, which runs `ai-agents/agent_coder.md`. The coder writes production code only.
+  - When writing tests -> dispatch to `@tester`, which runs `ai-agents/agent_tester.md`. The coder must never write tests.
+  - When committing -> dispatch to `@committer`, which runs `ai-agents/agent_committer.md`.
+  - When reviewing -> dispatch to `@reviewer`, which runs `ai-agents/agent_reviewer.md`. The reviewer also owns the security review.
+  - These lines route. They do not say what each agent loads: that belongs to the agent's own `Load` section, which is the only place it is stated.
+  - When writing a technical spec, designing structure, writing code, writing a spec, or reviewing -> also load `ai-rules/policy_security.md`.
+  - When auditing dependencies -> run `ai-agents/agent_dependency.md`.
+  - When changing or verifying the method itself - a policy, an agent document, this file, the README, the spec template or the bootstrap -> dispatch to `@ai-method`. Never edit those in the main session.
+  - Load `ai-rules/decisions.md` only to (a) review, (b) propose a new decision, or (c) check the rationale behind a rule.
+- # Subagents (Claude Code)
+  - When running under Claude Code, you must dispatch each task to the matching subagent in `.claude/agents/`: `product-owner`, `designer`, `architect`, `orchestrator`, `coder`, `tester`, `reviewer`, `committer`, `auditor`, `debugger`, `dependency`, `ai-method`.
+  - Do not handle these tasks in the main session - that defeats the context isolation.
+  - Never skip `@tester`. The coder must not author tests; the tester is the sole author of the `tests/` and `e2e/` trees.
+  - If a subagent cannot be invoked, fails, or returns an error, stop and ask the user how to proceed. Never silently fall back to the main session.
+  - When writing a subagent prompt, pass file paths - never read the files yourself and inline their content into the prompt. The subagent must read all referenced files itself. Extracting and transmitting file content defeats context isolation and risks silent omission or interpretation.
+- # Adding a new policy file
+  - Add only when an existing doc holds 30+ lines of rules referenced by 2+ other docs.
+- # Definition of done
+  - See `ai-agents/agent_reviewer.md`.

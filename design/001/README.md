@@ -1,0 +1,59 @@
+- # Design 001 - Hello world
+  - Supplied with the template. Treated as approved at G2.
+  - Serves as the worked example of what `ai-agents/agent_designer.md` expects a design folder to contain. It is short because the feature is trivial; the section headings are the part to copy, not the length.
+- # Screens
+  - ## Hello world
+    - Route: `/hello-world`.
+    - Purpose: show that the application renders, and that an interactive client component responds, before any real feature exists.
+- # Layout
+  - Single column, centred both horizontally and vertically in the viewport.
+  - Top to bottom:
+    - The heading, level 1: "Hello world".
+    - One line of supporting text stating that this page is a bootstrap smoke test and will be removed.
+    - The colour button.
+- # Content
+  - Heading text: exactly "Hello world".
+  - Supporting text: one sentence, muted, smaller than the heading.
+  - Button label: names the colour it will apply next, for example "Switch to amber". The label is the accessible name; there is no separate `aria-label`.
+- # Components
+  - `Button` for the colour control, variant default.
+  - No `Card`, no dialog, no form. Nothing else is needed and nothing else should be added.
+  - No new primitive is required.
+- # Colour sequence
+  - Three colours, in a fixed order, wrapping back to the first: the default foreground, then a blue, then an amber.
+  - Chosen from the Tailwind palette already configured at bootstrap. No custom colour is introduced.
+  - Each has a light and a dark variant, so the heading stays legible in both themes.
+  - Every colour meets at least the WCAG AA contrast ratio for large text against the page background, in both themes.
+- # States
+  - ## Loading
+    - None. The page is static apart from the client component, and there is nothing to await.
+  - ## Empty
+    - Not applicable. There is no collection.
+  - ## Populated
+    - The normal and only case: heading, supporting line, button.
+  - ## Partial
+    - Not applicable. There is no derived or reconciled data on this screen.
+  - ## Error
+    - Not applicable. Nothing on this page can fail at runtime; there is no fetch, no mutation and no validation.
+    - If the page itself fails to render, the App Router `error.tsx` boundary handles it, as it does for every route.
+  - ## Forbidden
+    - Not applicable. The page is public and there are no roles.
+  - ## Saving and saved
+    - Not applicable. Nothing is saved.
+- # Interaction detail
+  - Pressing the button advances the heading colour by one position in the sequence and updates the button label to name the next colour.
+  - The change is immediate and local. There is no transition, no pending state and no server round trip.
+  - The colour resets to the first on reload. This is deliberate and stated in the supporting text.
+  - The user stays on `/hello-world`. There is no navigation.
+- # Keyboard
+  - Tab order: the button is the only focusable element on the page.
+  - The button activates with both Enter and Space, which the native `button` element provides. Nothing is re-implemented.
+  - The focus ring is the default one from the shadcn primitive and is not suppressed.
+- # Responsive
+  - The column keeps its centring at every size. Below the tablet breakpoint the heading drops one type step so it does not wrap on a narrow phone.
+  - Nothing collapses, stacks or reflows. There is only one column at every size.
+- # Accessibility
+  - Heading hierarchy: a single `h1`, "Hello world". No other heading level is used, and none is skipped.
+  - The button's accessible name names the colour it will apply next, so the control is meaningful without seeing the result.
+  - Colour is the subject of this page rather than a carrier of status, so the usual "never colour alone" rule is satisfied by the button label rather than by an icon.
+  - The colour change is not announced to assistive technology. It is decorative, and announcing it on every press would be noise.

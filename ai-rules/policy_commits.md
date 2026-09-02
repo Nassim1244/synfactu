@@ -1,0 +1,97 @@
+- # Commits
+  - Read this when committing or amending.
+  - Canonical home for: pre-commit checks, branching, commit format, allowed types, scope, breaking changes, traceability, progress tracking.
+  - Conventional Commits style. Trunk-based workflow.
+- # Before committing (gate G8)
+  - Pre-commit checks are scoped to what is staged. The reviewer applies the same scoping on the aggregated diff range (see `ai-agents/agent_reviewer.md` -> Check).
+    - Staged changes include any `.ts` or `.tsx` under `src/`, `tests/` or `e2e/`: run `pnpm format:check`, `pnpm lint`, `pnpm typecheck`. All three must pass.
+    - Staged changes include any `.ts` or `.tsx` under `src/` or `tests/`: also run `pnpm test`. Must pass.
+    - Staged changes touch `prisma/schema.prisma` or `prisma/migrations/`: also confirm a migration file accompanies the schema change, and run `pnpm test`.
+    - Staged changes touch `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.*` or anything under `docker/`: run all four checks.
+    - Staged changes include a shell script: run `shellcheck` on it if available, and state plainly that it was not run if it is not. `docker/` holds the only executables in the tree, and they are the ones an operator runs on a live instance.
+    - Docs-only commits (changes confined to `ai-rules/`, `ai-agents/`, `.claude/`, `context/`, `specs/`, `design/`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `LICENSE`, `.gitignore`): no pre-commit checks required. Format, lint and type checks have nothing to say about Markdown.
+    - Staged changes touch the method itself (`ai-rules/`, `ai-agents/`, `.claude/`, `CLAUDE.md`, `README.md`, `specs/TEMPLATE.md`, `specs/init.md`): no machine check applies, but `@ai-method` in `check` mode must have returned PASS. The method governs every feature built afterwards, so it is the one docs change that is not exempt from review.
+  - Always invoke tooling through the package manager scripts (`pnpm lint`, `pnpm typecheck`, `pnpm test`). Never call a globally installed `eslint`, `tsc`, `vitest` or `prettier`.
+  - Stage only the files belonging to the logical change. No blanket `git add .`.
+  - Never commit `node_modules/`, `.next/`, a `.env` file, a database file, coverage output or a secret. `.gitignore` covers this; a deviation is a bug.
+  - `pnpm-lock.yaml` is committed whenever `package.json` changes, in the same commit.
+- # Atomicity
+  - One logical change per commit.
+- # Branching (trunk-based)
+  - `main` is the only long-lived branch and is always releasable.
+  - Small, low-risk changes go directly to `main`.
+  - Experimental or multi-commit work lives on a short-lived branch (`feat/<x>`, `fix/<x>`), merged back within days.
+  - Squash-merge or rebase before merging. No merge commits on `main`.
+  - No release, develop or hotfix branches. Releases are tags on `main`.
+  - Never force-push `main`. Force-push allowed on your own feature branches only.
+  - Amend only local, unpushed commits.
+- # Format
+  - `<type>(<optional scope>): <subject>`
+  - Subject in imperative mood, lowercase, no trailing period, 72 characters or fewer.
+  - Body optional, separated by a blank line, wrapped at 72.
+- # Allowed types
+  - build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test.
+- # Scope
+  - Optional, one per commit. A feature name or an infrastructure area: `invoices`, `payments`, `auth`, `db`, `ui`, `config`, `docker`, `specs`, `docs`.
+  - Prefer the feature folder name, since the structure is feature-sliced (see D-001).
+  - Split the change if more than one scope applies.
+- # Breaking changes
+  - Append `!` after the type or scope: `feat(auth)!: require a role on every action`.
+  - Or add a footer line `BREAKING CHANGE: <description>`.
+  - A migration that drops or retypes a column holding data is always a breaking change.
+  - Either form bumps the MAJOR version at the next release (see Versioning).
+- # Versioning
+  - The single source of truth is the `version` field in `package.json`. SemVer.
+  - Nothing else declares a version. The health endpoint, the image tag and the git tag all read it from there.
+  - The version is bumped at release time, not per commit. A feature commit does not touch it.
+  - Bump rule since the previous release tag:
+    - Any commit marked `!` or carrying a `BREAKING CHANGE:` footer -> MAJOR.
+    - Otherwise any `feat` commit -> MINOR.
+    - Otherwise -> PATCH.
+  - The git tag is the version prefixed with `v`: `v1.4.0`. The Docker image carries the same tag plus `latest`.
+- # Releases
+  - A release is a tagged commit on `main` whose image has been built and verified. Nothing else is a release.
+  - Only run this on `main`, with a clean working tree and every gate passed.
+  - Procedure:
+    - 1. Run `ai-agents/agent_reviewer.md` in full-tree mode, not incremental. A release is the one time the review is not scoped to a diff.
+    - 2. Run `ai-agents/agent_dependency.md`. No unresolved High or Critical finding may ship.
+    - 3. Compute the new version with the bump rule above, from the commits since the previous `v*` tag. State the version and the reason for the bump before applying it.
+    - 4. Bump `version` in `package.json`. Commit as `chore(release): v<version>`.
+    - 5. Build the image and tag it `<name>:v<version>` and `<name>:latest`.
+    - 6. Verify from a clean checkout: `docker compose up` starts, `prisma migrate deploy` runs before the server accepts traffic, `/api/health` returns 200 and reports the new version.
+    - 7. Tag the commit: `git tag v<version>`. Push the commit and the tag.
+    - 8. Record the release in `context/progress.md`: date, version, and the specs included since the previous tag.
+  - Verification is not optional. An image that has never been started from a clean checkout has not been released, it has only been built.
+  - Never move or delete a published `v*` tag. A mistake is corrected by a new version, never by retagging.
+  - Never release with an uncommitted change, a failing gate, or a migration that has not been applied to a clean database at least once.
+- # Traceability
+  - When implementing a spec, name it in the body: `Implements specs/001-<feature>.md`.
+  - When following a decision, cite it: `Per D-004`.
+  - When a commit contains a migration, name it in the body: `Migration: 20260731120000_add_invoice_status`.
+- # Progress tracking
+  - After a successful commit, update `context/progress.md` only if the commit changes project state.
+  - Update when:
+    - A spec moves to a new state (started, completed, blocked, deferred).
+    - A new decision (D-XXX) is recorded.
+    - A migration is applied.
+    - The roadmap in `context/vision.md` changed.
+  - Do not update for: typo fixes, formatting, internal refactors without behavioural change, work-in-progress commits, dependency bumps.
+  - Format: one line per change, dated, citing the spec or decision: `YYYY-MM-DD - <event> - specs/NNN-<name>.md`.
+  - Stage the `context/progress.md` change in the same commit when the update is tied to that commit's content; otherwise commit it as `docs: update progress`.
+- # Examples
+  - `feat(invoices): add monthly numbering sequence`
+  - `fix(payments): apply tenant scope in listByInvoice`
+  - `docs: add D-007 (integer storage, value objects in domain)`
+  - `feat(db)!: split amount into cents and currency`
+- # Forbidden
+  - Trailing period in the subject.
+  - Vague messages (`update`, `wip`, `tweak`, `misc`).
+  - Mixing unrelated changes in one commit.
+  - Types outside the allowed list.
+  - Committing `package.json` without its `pnpm-lock.yaml`.
+  - Committing a schema change without its migration.
+  - Force-push to `main`.
+  - Amending a pushed commit.
+  - Mentioning AI as co-author.
+- # Execution
+  - Always execute `git add` and `git commit` in the same command line, so the user can check files and message at the same time.

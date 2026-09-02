@@ -1,0 +1,93 @@
+- # Architecture
+  - Read this when designing module structure or adding a feature that crosses modules.
+  - Canonical home for: structure, dependency rule, server boundary, data access, data model conventions, configuration, deployment shape.
+- # Structure
+  - Feature-sliced (see D-001).
+  - `src/app/` - routes only. `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `middleware.ts`. A route file wires and renders; it holds no business logic.
+    - `src/app/api/` - Route Handlers, restricted to the closed list in "Server boundary".
+  - `src/features/<domain>/` - one folder per business domain. Standard files, all optional except `repository.ts` when the domain touches the database:
+    - `schema.ts` - Zod schemas for every input crossing the server boundary. Exports the inferred types.
+    - `repository.ts` - the only file in the domain allowed to import the Prisma client (see D-004).
+    - `domain.ts` - pure business logic. No Prisma, no React, no `next/*` imports.
+    - `actions.ts` - Server Actions. Marked `"use server"`.
+    - `queries.ts` - read functions called by Server Components.
+    - `components/` - React components specific to this domain.
+  - `src/components/ui/` - shadcn/ui primitives. Copied in, editable, not a dependency.
+  - `src/components/` - shared application components used by two or more features.
+  - `src/lib/` - shared infrastructure:
+    - `db.ts` - the Prisma client singleton.
+    - `auth.ts` - the Better Auth server instance and the session/role helpers.
+    - `config.ts` - environment variables, parsed and validated once at startup (see D-014).
+    - `logger.ts` - the pino root logger (see D-012).
+    - `money/` - the `Money`, `Duration` and `Rate` value objects (see D-007).
+  - `prisma/` - `schema.prisma` and `migrations/`. Owned by the architect.
+  - `tests/` - mirrors `src/`. `e2e/` - Playwright journeys.
+- # Dependency rule
+  - `domain.ts` imports value objects and types only. Never Prisma, never React, never `next/*`.
+  - `repository.ts` imports Prisma and the domain's types. Never React, never `next/*`, never another feature's repository.
+  - `actions.ts` and `queries.ts` import their own domain's repository, schema and domain logic.
+  - Components import from their own feature and from `src/components/`. Never from another feature's internals.
+  - Cross-feature access goes through the other feature's `queries.ts` or `actions.ts`, never its `repository.ts` or its components.
+  - `src/lib/` never imports from `src/features/` or `src/app/`.
+- # Server boundary
+  - Every mutation is a Server Action (see D-003).
+  - Route Handlers are permitted only for:
+    - the Better Auth catch-all at `src/app/api/auth/[...all]/route.ts`,
+    - the health check at `src/app/api/health/route.ts`,
+    - inbound webhooks from an external system,
+    - file downloads that must carry a non-JSON `Content-Type`.
+  - Any Route Handler outside that list requires a new D-XXX before it is written.
+  - Every Server Action starts with, in this order: the session and role check (see D-009), then `schema.parse` on its input (see D-005), then the repository call.
+  - A Server Action returns a plain serialisable result. It never returns a Prisma model directly and never returns an `Error` instance.
+  - After a successful mutation, call `revalidatePath` or `revalidateTag` for the affected route. Do not refetch on the client.
+- # Data access
+  - The Prisma client is importable only from `src/lib/db.ts` and from `src/features/<domain>/repository.ts` (see D-004).
+  - A repository function takes and returns domain types, not Prisma types. It converts at its own boundary.
+  - Repository functions are named for intent: `listUnpaidInvoices`, not `findMany`.
+  - Every repository function that reads or writes tenant-scoped data applies the scope itself. A caller must not be able to omit it.
+  - Reads reach a page through an async Server Component awaiting `queries.ts` (see D-006). No client-side data-fetching library.
+  - Filter, sort and pagination state lives in URL search params, not in client state.
+  - Transactions: use `prisma.$transaction` inside the repository. A transaction never spans two repositories.
+- # Data model conventions
+  - Money is stored as an integer number of cents. Durations as integer minutes. Rates as integer basis points (2460 = 24.60 %). See D-007.
+  - Domain code manipulates `Money`, `Duration` and `Rate` from `src/lib/money/`, never raw integers. The repository converts at its boundary.
+  - Decimals are derived at display time. Never stored, never persisted as an intermediate.
+  - `DateTime` columns store UTC (see D-008). Conversion to local time happens in the presentation layer only.
+  - A period (an invoicing month, a declaration month) is a `String` in `YYYY-MM` form, never a date.
+  - Every model carries `createdAt` and `updatedAt`.
+  - Deletions that must remain auditable are soft: a nullable `deletedAt`, filtered in the repository.
+  - Enumerations are Prisma `enum` when the set is closed and code branches on it; a lookup table when the user can extend it.
+- # Schema and migrations
+  - `prisma/schema.prisma` is owned by the architect. No other agent edits it.
+  - Every schema change ships with a migration generated by `prisma migrate dev`. Never `prisma db push` outside a throwaway experiment.
+  - Migrations are committed and never edited once applied anywhere other than the author's machine.
+  - A migration that drops or retypes a column holding data requires an explicit note in the spec's technical section stating what is lost and how it is recovered.
+- # Configuration
+  - Every environment variable is declared, parsed and validated in `src/lib/config.ts` with a Zod schema, once, at module load.
+  - Application code reads the exported config object. It never reads `process.env` directly.
+  - A missing or malformed variable fails startup with a message naming the variable.
+  - `.env.example` lists every variable with a placeholder. Keep it in sync; a variable added without updating it is a bug.
+- # Deployment shape
+  - One `app` service in `docker/docker-compose.yml`, its `build.context` set to the repository root. No database service while on SQLite (see D-013). No reverse-proxy service: the container joins the external network of an existing Caddy instance.
+  - `docker/` holds the `Dockerfile`, the compose file and the operating scripts. `.dockerignore` and `.env.example` stay at the repository root, because Docker and Next.js each resolve theirs against the root and would not find them elsewhere.
+  - The SQLite file lives in a named volume, never in the image and never on a bind-mounted host directory. Bind-mount source code being edited; use a named volume for data that only has to survive.
+  - This is also the safe choice for SQLite specifically. File locking is reliable in a named volume on every host, including Docker Desktop, whose filesystem translation layer does not carry locking faithfully - and an unreliable lock corrupts a database rather than raising an error. Nothing on the host can reach the live file either: no sync client, no backup agent, no stray script.
+  - Backups reach the host through the operating script, not through the volume type. It runs `sqlite3 ".backup"` inside the container, the only consistent snapshot of a live database, then extracts it with `docker compose cp`.
+  - The runtime user is non-root. A named volume inherits the ownership of its mount point on first creation, so the image's `chown` is what makes it writable and nothing is required on the host.
+- # Development environment
+  - Development runs in a container, described by `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml`. Nothing is installed on the host.
+  - The development image is a plain Node image, not the production `Dockerfile`. The production image is non-root, carries no dev dependencies and needs a built application, none of which exists before the project is scaffolded.
+  - Development and production are separate compose stacks with different project names, never a base and an overlay. Compose prefixes volume names with the project name, which is what keeps a development migration away from production data.
+  - The plain `docker-compose.yml` is production. An auto-loaded override file would mean that forgetting a flag runs development configuration on a server; this way, forgetting a flag runs production configuration locally, which is the harmless direction.
+  - `node_modules` lives in a named volume shadowing the source bind mount, so an install does not drag thousands of small files across the filesystem boundary.
+  - The repository must not sit inside a synced folder. A sync client will copy `node_modules` and `.next` continuously, and touching a live SQLite file corrupts it.
+  - The image is built multi-stage: dependencies, build, runtime. The runtime stage runs as a non-root user and contains no dev dependencies.
+  - Migrations run at container start via `prisma migrate deploy`, before the server accepts traffic.
+- # Defaults
+  - Composition over inheritance.
+  - Pure functions in `domain.ts`.
+  - Explicit over implicit.
+  - No module-level mutable state. Pass dependencies as arguments.
+  - Server Components by default. `"use client"` only where interactivity requires it, pushed as far down the tree as possible.
+- # Module split
+  - Split a feature when it has more than one responsibility, or when its `repository.ts` exceeds roughly 300 lines.
