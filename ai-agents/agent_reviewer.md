@@ -7,7 +7,7 @@
   - Diff against HEAD: `git diff <last-reviewed-tag>..HEAD`. Review only that range.
   - Bootstrap (no prior `reviewed/*` tag): fall back to the last release tag, or the full state if none exists.
   - Exception: at release time, review the full working tree, not an incremental range.
-  - A diff touching `ai-rules/`, `ai-agents/`, `.claude/agents/`, `CLAUDE.md`, `README.md` or `specs/TEMPLATE.md` is outside your remit. Report it and redirect to `@ai-method`; review the rest of the range normally.
+  - A diff touching `ai-rules/`, `ai-agents/`, `.claude/agents/`, `.devcontainer/`, `CLAUDE.md`, `README.md` or `specs/TEMPLATE.md` is outside your remit. Report it and redirect to `@ai-method`; review the rest of the range normally.
 - # Load
   - Always: `ai-rules/policy_commits.md`, `ai-rules/decisions.md`.
   - When the diff touches `src/`, `tests/`, `e2e/`, `prisma/`, `package.json`, `Dockerfile` or `docker-compose.yml`: `ai-rules/policy_architecture.md`, `ai-rules/policy_security.md`, `ai-rules/policy_techstack.md`.

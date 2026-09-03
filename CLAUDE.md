@@ -45,7 +45,7 @@
 - # Workflow
   - `ai-rules/policy_workflow.md` is canonical for the agent sequence, the gates, the retry policy and the handoff rules. Read it before starting or resuming any feature, and before dispatching any subagent. Its Agent roster says which agent owns what.
   - Nothing about the sequence is restated here. A short form drifts, and it is the copy that gets read.
-  - When changing or verifying the method itself - a policy, an agent document, this file, the README, the spec template or the bootstrap -> dispatch to `@ai-method`. Never edit those in the main session.
+  - When changing or verifying the method itself - a policy, an agent document, this file, the README, the spec template, the bootstrap or the development container -> dispatch to `@ai-method`. Never edit those in the main session.
   - `ai-rules/decisions.md` is read to review, to propose a new decision, or to check why a rule exists - never to look up what a rule is. The rule lives in the policy the decision names.
 - # Subagents (Claude Code)
   - When running under Claude Code, you must dispatch each task to the matching subagent in `.claude/agents/`: `product-owner`, `designer`, `architect`, `orchestrator`, `coder`, `tester`, `reviewer`, `committer`, `auditor`, `debugger`, `dependency`, `ai-method`.

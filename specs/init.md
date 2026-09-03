@@ -29,10 +29,9 @@
   - ## Adapt the skeleton
     - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names and set `NODE_VERSION`.
     - `NODE_VERSION` must match `ARG NODE_VERSION` in `docker/Dockerfile`. Development and production are deliberately different images, but a version skew between them produces failures that appear only in production.
-    - Claude Code has to be installed **inside the container**, or the instruction below cannot be followed. Add the official feature, `ghcr.io/anthropics/devcontainer-features/claude-code:1`.
+    - Claude Code has to run **inside the container**, or the instruction below cannot be followed. The skeleton already carries the official feature, `ghcr.io/anthropics/devcontainer-features/claude-code:1`, and the `anthropic.claude-code` extension in `customizations.vscode.extensions`. Confirm both are there rather than adding them.
       - It installs at image build time as root, so it works with a non-root `remoteUser` and needs no npm prefix arrangement.
       - It installs Node itself only when the base image has none, and that fallback is Node 18. The development image is a `node:` image, so the fallback never fires - do not add the `node` feature beside it, or it contends with the pinned version.
-    - Add the `anthropic.claude-code` extension to `customizations.vscode.extensions`.
   - ## Build and verify
     - Open the repository in VS Code and choose **Reopen in Container**. The first build pulls the base image and runs every feature; expect minutes, not seconds.
     - Verify inside the container, treating each as a gate rather than a formality: `node --version` matches the pin, `pnpm --version` answers, `claude --version` answers.
