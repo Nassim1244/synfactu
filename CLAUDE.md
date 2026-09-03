@@ -43,23 +43,10 @@
   - When citing a functional decision or a business rule, always qualify it - "functional D-23", "RG-33" - so it cannot be mistaken for an architecture decision.
   - Never edit an existing entry in any series. Supersede with a new number and say which one it replaces.
 - # Workflow
-  - The full agent sequence and its gates live in `ai-rules/policy_workflow.md`. Read it before starting or resuming any feature.
-  - Short form:
-    - New feature -> `@product-owner` writes the functional spec -> **G1, stops for the user**.
-    - UI feature -> `@designer` fills `design/<index>/` -> **G2, stops for the user**.
-    - Then `@architect` fills the technical spec, records D-XXX, owns any Prisma schema change -> **G3, stops for the user**.
-    - Then `@orchestrator` drives `@coder` -> `@tester` -> `@reviewer` -> `@committer`.
-    - Bug report -> `@debugger` reproduces and writes the failing test, then rejoins at `@coder`.
-  - When designing structure -> load `ai-rules/policy_architecture.md`.
-  - When writing code -> dispatch to `@coder`, which runs `ai-agents/agent_coder.md`. The coder writes production code only.
-  - When writing tests -> dispatch to `@tester`, which runs `ai-agents/agent_tester.md`. The coder must never write tests.
-  - When committing -> dispatch to `@committer`, which runs `ai-agents/agent_committer.md`.
-  - When reviewing -> dispatch to `@reviewer`, which runs `ai-agents/agent_reviewer.md`. The reviewer also owns the security review.
-  - These lines route. They do not say what each agent loads: that belongs to the agent's own `Load` section, which is the only place it is stated.
-  - When writing a technical spec, designing structure, writing code, writing a spec, or reviewing -> also load `ai-rules/policy_security.md`.
-  - When auditing dependencies -> run `ai-agents/agent_dependency.md`.
+  - `ai-rules/policy_workflow.md` is canonical for the agent sequence, the gates, the retry policy and the handoff rules. Read it before starting or resuming any feature, and before dispatching any subagent. Its Agent roster says which agent owns what.
+  - Nothing about the sequence is restated here. A short form drifts, and it is the copy that gets read.
   - When changing or verifying the method itself - a policy, an agent document, this file, the README, the spec template or the bootstrap -> dispatch to `@ai-method`. Never edit those in the main session.
-  - Load `ai-rules/decisions.md` only to (a) review, (b) propose a new decision, or (c) check the rationale behind a rule.
+  - `ai-rules/decisions.md` is read to review, to propose a new decision, or to check why a rule exists - never to look up what a rule is. The rule lives in the policy the decision names.
 - # Subagents (Claude Code)
   - When running under Claude Code, you must dispatch each task to the matching subagent in `.claude/agents/`: `product-owner`, `designer`, `architect`, `orchestrator`, `coder`, `tester`, `reviewer`, `committer`, `auditor`, `debugger`, `dependency`, `ai-method`.
   - Do not handle these tasks in the main session - that defeats the context isolation.

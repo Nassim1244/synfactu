@@ -116,8 +116,7 @@
   - The database is a named volume in both stacks, and needs nothing on the host: the volume inherits the image's ownership of `/data` on first creation. Backups reach the host through `update.sh`, not through the volume type.
   - The healthcheck and the migration-on-entrypoint are already in the skeleton. Confirm both fire rather than assuming they do.
   - Tag the image with the version and with `latest` (see `ai-rules/policy_commits.md` -> Versioning).
-  - Write `.dockerignore` at the repository root, not in `docker/`. Docker resolves it against the build context, and the build context is the root.
-  - Keep `.env.example` at the repository root too. Next.js loads `.env` from the project root, so an example living anywhere else invites someone to copy it next to itself, where nothing will read it.
+  - Write `.dockerignore` at the repository root, not in `docker/`, and keep `.env.example` there too (see `CLAUDE.md` -> Root files for why).
   - Verify: `cd docker && docker compose up` from a clean checkout produces a reachable application.
   - Commit: `build: add multi-stage dockerfile and compose service`.
 - # 10b - Operating scripts

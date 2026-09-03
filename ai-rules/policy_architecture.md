@@ -69,7 +69,7 @@
   - `.env.example` lists every variable with a placeholder. Keep it in sync; a variable added without updating it is a bug.
 - # Deployment shape
   - One `app` service in `docker/docker-compose.yml`, its `build.context` set to the repository root. No database service while on SQLite (see D-013). No reverse-proxy service: the container joins the external network of an existing Caddy instance.
-  - `docker/` holds the `Dockerfile`, the compose file and the operating scripts. `.dockerignore` and `.env.example` stay at the repository root, because Docker and Next.js each resolve theirs against the root and would not find them elsewhere.
+  - `docker/` holds the `Dockerfile`, the compose file and the operating scripts. `.dockerignore` and `.env.example` stay at the repository root (see `CLAUDE.md` -> Root files).
   - The SQLite file lives in a named volume, never in the image and never on a bind-mounted host directory. Bind-mount source code being edited; use a named volume for data that only has to survive.
   - This is also the safe choice for SQLite specifically. File locking is reliable in a named volume on every host, including Docker Desktop, whose filesystem translation layer does not carry locking faithfully - and an unreliable lock corrupts a database rather than raising an error. Nothing on the host can reach the live file either: no sync client, no backup agent, no stray script.
   - Backups reach the host through the operating script, not through the volume type. It runs `sqlite3 ".backup"` inside the container, the only consistent snapshot of a live database, then extracts it with `docker compose cp`.

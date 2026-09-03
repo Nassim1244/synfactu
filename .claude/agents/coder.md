@@ -1,6 +1,6 @@
 ---
 name: coder
-description: Use to implement a spec or modify production code, dispatched by the orchestrator after the technical spec is complete. Loads the architecture, coding-guideline and security policies. Writes production code only, never tests.
+description: Use to implement a spec or modify production code, dispatched by the orchestrator after the technical spec is complete. Writes production code only, never tests.
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

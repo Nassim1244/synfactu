@@ -42,12 +42,12 @@
   - `ai-rules/policy_testing.md` - test layout, what to test at which level, database testing, seed data, relevance, coverage stance.
   - `ai-rules/policy_security.md` - threat model, input validation, authorisation, tenant isolation, secrets, data exposure, container hardening.
   - `ai-rules/policy_commits.md` - pre-commit checks, branching, message format, versioning, the release procedure, progress tracking.
-  - `ai-rules/decisions.md` - rationale for **product architecture** only, written by `@architect`. Each entry names the policy that owns the corresponding rule. Load it to review, to propose a decision, or to check why a rule exists - not to look up what the rule is.
+  - `ai-rules/decisions.md` - rationale for **product architecture** only, written by `@architect`. Each entry names the policy that owns the corresponding rule. When it may be read: `CLAUDE.md` -> Workflow.
   - `CHANGELOG.md` - the version history and the rationale for **method** changes, written by `@ai-method`. It is to the method what `ai-rules/decisions.md` is to the architecture, which is why its entries carry a why and not only a what.
   - `ai-agents/agent_*.md` - one workflow per agent, canonical.
   - `.claude/agents/*.md` - thin Claude Code wrappers. Frontmatter, then a pointer to the canonical doc. They exist so Claude Code can dispatch; they are not a second place to put rules.
   - `specs/TEMPLATE.md` - the shape of a spec. `specs/init.md` - the bootstrap. `specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md` - one per feature, see `specs/iteration/README.md`.
-  - `docker/` - the production and development stacks, an entrypoint and two operating scripts, with their own `README.md`. A skeleton to adapt at bootstrap step 10, not a working configuration. `.dockerignore` and `.env.example` stay at the repository root, because Docker and Next.js each resolve theirs against the root.
+  - `docker/` - the production and development stacks, an entrypoint and two operating scripts, with their own `README.md`. A skeleton to adapt at bootstrap step 10, not a working configuration.
   - `.devcontainer/` - the VS Code development container, adapted at bootstrap step 1b. It and `docker/` are the only code the template ships.
 - # Decision numbering
   - `ai-rules/decisions.md` uses `D-001`, `D-002`, ... - three digits, zero-padded, allocated by `@architect`, append-only.

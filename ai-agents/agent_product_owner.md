@@ -31,13 +31,8 @@
     - Name the assumptions you are making explicitly, so the user can reject them.
   - ## 3 - Write the functional spec
     - Create `specs/iteration/v<NN>/v<NN>-<NNN>-<kebab-name>.md` from `specs/TEMPLATE.md`, in the current iteration's folder, using the next unused index **within that iteration** - indexes restart at `001` in every iteration (see `specs/iteration/README.md`).
-    - Fill every field under `# ── FUNCTIONAL SPEC ──`. Leave the technical half untouched; it belongs to `@architect`.
-    - Goal: one or two sentences. What it achieves, for whom, and why now.
-    - User flow: numbered steps, each stating what the user does and what the application does in response. Include the unhappy paths as their own steps.
-    - Acceptance criteria: concrete and testable. Each one must be checkable by a person or a test without interpretation. Aim for three to eight.
-    - Design: the design folder path (`design/<index>/`) for a feature with a user interface, or "N/A" with a one-line reason.
-    - Out of scope (functional): everything discussed and deliberately excluded. This is the part that prevents scope creep later, so be generous.
-    - Open questions: anything unresolved, with who needs to answer it. An empty list is fine; a hidden guess is not.
+    - Fill every field under `# ── FUNCTIONAL SPEC ──` as `specs/TEMPLATE.md` specifies, and leave the technical half untouched; it belongs to `@architect`.
+    - Two things the template does not say: aim for three to eight acceptance criteria, and be generous with Out of scope, which is the field that prevents scope creep later.
   - ## 4 - Present at G1
     - Show the user the spec path and a summary of: the goal, the acceptance criteria, and what you put out of scope.
     - State explicitly that this is gate G1 and nothing proceeds until they approve.

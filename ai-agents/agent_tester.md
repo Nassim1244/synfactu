@@ -22,7 +22,7 @@
     - `schema.ts` - one test per rejection the schema is supposed to perform.
     - `repository.ts` - integration tests against a real database file, asserting the scoping holds and cannot be bypassed by the caller.
     - `domain.ts` - pure unit tests, including boundaries and the awkward cases.
-    - `actions.ts` - the role check and the validation failure paths, with the repository faked.
+    - `actions.ts` - see `ai-rules/policy_testing.md` -> Test levels.
     - `components/` - React Testing Library, queried by role and accessible name, driven with `user-event`.
     - `e2e/` - only a journey crossing layers that no other level exercises together.
   - ## 3 - Make each test earn its place
@@ -46,4 +46,4 @@
   - Weakening, skipping or deleting an existing test to accommodate a new one.
   - Committing a skipped or commented-out test.
   - A `sleep` or a fixed timeout in place of proper waiting.
-  - Asserting on an implementation detail: a private function, an internal state shape, a CSS class.
+  - Asserting on an implementation detail. See `ai-rules/policy_testing.md` -> Forbidden.
