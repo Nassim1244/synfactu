@@ -13,15 +13,6 @@
 // multiplying an amount by a rate, and dividing a total exactly - are done in
 // arbitrary precision and handed back as safe integers, so the value objects
 // themselves never hold one.
-//
-// The literals are written `BigInt(0)` rather than `0n` because `tsconfig.json`
-// targets ES2017, which forbids the literal form. The constructor call is
-// equivalent; raising the target is a toolchain decision and not this module's
-// to make.
-
-const ZERO = BigInt(0);
-const ONE = BigInt(1);
-const TWO = BigInt(2);
 
 /**
  * Rejects anything that is not an exact integer JavaScript can represent.
@@ -124,9 +115,9 @@ export function scaleHalfUp(
   const numerator = BigInt(value) * BigInt(multiplier);
   const denominator = BigInt(scale);
 
-  const isNegative = numerator < ZERO !== denominator < ZERO;
-  const absNumerator = numerator < ZERO ? -numerator : numerator;
-  const absDenominator = denominator < ZERO ? -denominator : denominator;
+  const isNegative = numerator < 0n !== denominator < 0n;
+  const absNumerator = numerator < 0n ? -numerator : numerator;
+  const absDenominator = denominator < 0n ? -denominator : denominator;
 
   const quotient = absNumerator / absDenominator;
   const remainder = absNumerator % absDenominator;
@@ -134,7 +125,7 @@ export function scaleHalfUp(
   // `2 * remainder >= denominator` is the half-way test written without a
   // division, so it stays exact. `>=` rather than `>` is what makes it half
   // UP rather than half down.
-  const rounded = TWO * remainder >= absDenominator ? quotient + ONE : quotient;
+  const rounded = 2n * remainder >= absDenominator ? quotient + 1n : quotient;
 
   return toSafeInteger(isNegative ? -rounded : rounded, label);
 }
