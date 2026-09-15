@@ -3,10 +3,13 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
-  - 2026-09-15 - bootstrap at step 12 of 15, database, health check, shadcn primitives and the first test coverage landed; steps 8b, 10, 10b, 11, 13, 14 and 15 outstanding - specs/init.md
+  - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
-  - [Move spec entries here when they reach READY (see `ai-agents/agent_reviewer.md`).]
+  - 2026-09-15 - hello world completed, READY at G6 and committed at G8: `/hello-world` renders the heading and the colour-cycling button, with 11 component tests and the first Playwright journey - specs/001-hello-world.md
+  - 2026-09-15 - bootstrap step 14 complete, the full agent chain ran end to end - @architect (G3), @orchestrator, @coder, @tester, G5, @reviewer (G6, one CHANGES NEEDED and one retry), @committer (G8) - specs/init.md
+  - 2026-09-15 - bootstrap step 11 complete, five security headers set once in `next.config.ts`; landed inside the step 14 retry, because @reviewer blocked the first G6 pass on their absence - specs/init.md
 - # Blocked or deferred
+  - 2026-09-15 - dependency audit never run, routed to @dependency: step 13 has never executed, and it is the one security obligation with no evidence behind it (@reviewer named it twice). Mandatory before any release - `ai-rules/policy_commits.md` -> Releases step 2 - specs/init.md
   - 2026-09-15 - production image build broken, with @architect: `prisma generate` and `next build` both exit 1 without DATABASE_URL in the Dockerfile build stage. Blocks step 10 (containerisation), not step 14 (hello world) - specs/init.md
 - # Releases
   - [One line per release: date, version, and the specs included since the previous tag.]
