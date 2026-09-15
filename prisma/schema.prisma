@@ -1,0 +1,39 @@
+// Prisma schema. Owned by the architect; no other agent edits this file
+// (`ai-rules/policy_architecture.md` -> Schema and migrations).
+//
+// There are no models yet, and that is deliberate. `specs/001-hello-world.md`
+// renders without touching the database, and the domain entities described in
+// `specs/functional/` - clients, missions, time entries, invoices - arrive
+// with feature v01-001 onward, each through the normal workflow with its own
+// spec. A speculative table is worse than no table: it becomes a migration
+// someone has to undo.
+//
+// There is also no `prisma/migrations/` directory yet, for the same reason.
+// `prisma migrate dev` creates nothing from a model-less schema, and
+// `prisma migrate deploy` exits 0 without one while still creating the SQLite
+// file - so `docker/entrypoint.sh` and the health check both work today. The
+// first migration, and `migration_lock.toml` with it, arrive with the first
+// real model (AD-020).
+
+// The v7 generator. It emits TypeScript source into the directory below
+// rather than patching `node_modules/.prisma`, which is why the output path
+// is explicit and why `src/generated/` is git-ignored: this is build output
+// that happens to live in the source tree, recreated by `prisma generate`.
+//
+// `src/generated/` rather than a folder under `src/lib/`, because everything
+// else in `src/` is hand-written and the boundary has to be obvious to both a
+// reader and an ignore file. Only `src/lib/db.ts` and the feature repositories
+// may import from it (AD-004).
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// No `url` here: Prisma 7 removed it from the schema. The connection string
+// lives in `prisma.config.ts` at the repository root for Migrate, and reaches
+// the client at runtime through the driver adapter (AD-020). DATABASE_URL
+// itself is still the single source of truth, validated in `src/lib/config.ts`
+// (AD-013, AD-014).
+datasource db {
+  provider = "sqlite"
+}

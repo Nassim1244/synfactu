@@ -39,6 +39,11 @@ export default defineConfig([
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",
+    // The Prisma client emitted by `prisma generate` (AD-020). TypeScript
+    // source, but build output: it is recreated from `prisma/schema.prisma`
+    // and never edited by hand. Type-aware linting over it is pure cost, and
+    // grows with every model added.
+    "src/generated/**",
   ]),
 
   // Core ESLint recommended rules. This must stay ABOVE the typescript-eslint
