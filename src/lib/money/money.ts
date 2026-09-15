@@ -108,8 +108,13 @@ export class Money {
 
   /**
    * This amount multiplied by a rate, rounded half up (AD-018): a half-cent
-   * rounds away from zero, so 1050 cents at 250 basis points (2.50 %) is
-   * 26.25 cents and becomes 27, and -1050 cents at the same rate becomes -27.
+   * rounds away from zero. 1000 cents at 5 basis points (0.05 %) is exactly
+   * 0.5 cents and becomes 1, and -1000 cents at the same rate becomes -1 - the
+   * half moves away from zero in both directions, never toward it.
+   *
+   * Only an exact half moves. 1050 cents at 250 basis points (2.50 %) is
+   * 26.25 cents, which is below the half, so it stays 26, and -1050 cents at
+   * the same rate stays -26. Half up is not "always up".
    *
    * The product is computed in `bigint`, so the intermediate value is exact no
    * matter how large the amount, and only the final quotient has to fit in a
