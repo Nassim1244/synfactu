@@ -92,6 +92,6 @@
   - Committing a schema change without its migration.
   - Force-push to `main`.
   - Amending a pushed commit.
-  - Mentioning AI as co-author.
+  - **Never ever mention an AI as co-author**.
 - # Execution
   - Always execute `git add` and `git commit` in the same command line, so the user can check files and message at the same time.
