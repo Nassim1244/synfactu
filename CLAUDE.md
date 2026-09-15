@@ -10,9 +10,8 @@
   - prisma/ - `schema.prisma` and the `migrations/` folder. Owned by the architect (see `ai-agents/agent_architect.md`).
   - tests/ - unit and integration suite, mirrors `src/`.
   - e2e/ - Playwright end-to-end journeys.
-  - specs/ - `TEMPLATE.md` (the shape of a spec), `init.md` and `001-hello-world.md` (bootstrap artefacts, deleted once the first real feature ships), and two subtrees:
-    - specs/functional/ - the functional source of truth for the product: the functional specification, the conceptual data model, the functional decision record and the framing session. **Read-only to every agent.** A feature spec cites these; it never restates or edits them.
-    - specs/iteration/ - one folder per iteration, one .md per feature, following `specs/TEMPLATE.md`. Naming and the index convention live in `specs/iteration/README.md`.
+  - specs/functional/ - the durable functional source: what the product does, its data model, and the `FD-nnn` decisions behind both. Outlives every iteration. Owned by the user.
+  - specs/iteration/ - one folder per iteration, one .md per feature, following `specs/iteration/TEMPLATE.md`. Naming and the index convention: `specs/iteration/README.md`.
   - design/ - design artefacts per feature, one subfolder per spec index (e.g. `design/v01-001/`, `design/v01-002/`). Owned by the designer (see `ai-agents/agent_designer.md`). This is OPTIONAL.
   - ai-rules/ - policies and decisions (operational rules and their rationale).
   - ai-agents/ - agent workflows, one per agent: product owner, designer, architect, orchestrator, coder, tester, reviewer, committer, auditor, debugger, dependency, ai-method. These are canonical; `.claude/agents/` holds thin wrappers that point at them.
@@ -22,10 +21,10 @@
   - `docker/` and `.devcontainer/` ship as skeletons to adapt, and are the only code in the tree.
 - # Root files
   - package.json - pinned dependencies, Node version, and the application `version`, which is the single source of truth for it (see `ai-rules/policy_commits.md` -> Versioning).
-  - pnpm-lock.yaml - committed. Never edited by hand (see D-002).
+  - pnpm-lock.yaml - committed. Never edited by hand (see AD-002).
   - .env.example - every environment variable the app reads, with safe placeholder values. Never contains a real secret. Stays at the root because Next.js loads `.env` from the project root.
   - .dockerignore - stays at the root because Docker resolves it against the build context, which is the root.
-  - LICENSE - chosen at project bootstrap and recorded as a new D-XXX (see `specs/init.md`).
+  - LICENSE - chosen at project bootstrap and recorded as a new AD-XXX (see `specs/init.md`).
 - # Tech stack
   - See `ai-rules/policy_techstack.md`.
 - # Context
@@ -35,13 +34,6 @@
 - # Document model
   - Policies hold the operational rules (what to do).
   - `ai-rules/decisions.md` holds rationale only (why). Each decision points to the policy that owns the corresponding rule.
-- # Decision numbering - three series
-  - This project arrived with a functional decision record of its own, so three numbered series coexist. Confusing them is the single easiest mistake to make here.
-  - `D-001`, `D-002`, ... - three digits, zero-padded. **Architecture** decisions, in `ai-rules/decisions.md`. Allocated by `@architect`, append-only. **A bare `D-` reference anywhere in this repository means this series.**
-  - `D-01` .. `D-40`, then `D-41`+ - two digits. **Functional** decisions, in `specs/functional/Décisions v2.md`. Owned by the user, not by any agent. Read-only here.
-  - `RG-01`, `RG-02`, ... - **business rules**, in `specs/functional/MCD v2.md` section 4. Also read-only.
-  - When citing a functional decision or a business rule, always qualify it - "functional D-23", "RG-33" - so it cannot be mistaken for an architecture decision.
-  - Never edit an existing entry in any series. Supersede with a new number and say which one it replaces.
 - # Workflow
   - `ai-rules/policy_workflow.md` is canonical for the agent sequence, the gates, the retry policy and the handoff rules. Read it before starting or resuming any feature, and before dispatching any subagent. Its Agent roster says which agent owns what.
   - Nothing about the sequence is restated here. A short form drifts, and it is the copy that gets read.
@@ -50,7 +42,7 @@
 - # Subagents (Claude Code)
   - When running under Claude Code, you must dispatch each task to the matching subagent in `.claude/agents/`: `product-owner`, `designer`, `architect`, `orchestrator`, `coder`, `tester`, `reviewer`, `committer`, `auditor`, `debugger`, `dependency`, `ai-method`.
   - Do not handle these tasks in the main session - that defeats the context isolation.
-  - Never skip `@tester`. The coder must not author tests; the tester is the sole author of the `tests/` and `e2e/` trees.
+  - Never skip `@tester`. Who owns the `tests/` and `e2e/` trees: `ai-rules/policy_testing.md` -> Ownership.
   - If a subagent cannot be invoked, fails, or returns an error, stop and ask the user how to proceed. Never silently fall back to the main session.
   - When writing a subagent prompt, pass file paths - never read the files yourself and inline their content into the prompt. The subagent must read all referenced files itself. Extracting and transmitting file content defeats context isolation and risks silent omission or interpretation.
 - # Adding a new policy file

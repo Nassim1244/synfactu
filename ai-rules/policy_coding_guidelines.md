@@ -5,7 +5,7 @@
   - Security rules (validation, authorisation, secrets) live in `policy_security.md`.
   - Commit rules (pre-commit checks, branching, message format) live in `policy_commits.md`.
 - # Style
-  - Formatter: Prettier. Linter: ESLint with the plugin set in D-011. Both must pass before a commit.
+  - Formatter: Prettier. Linter: ESLint with the plugin set in AD-011. Both must pass before a commit.
   - Run through the package manager: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`. Never call a globally installed binary.
   - `strict: true` in `tsconfig.json`, plus `noUncheckedIndexedAccess`.
   - Named exports everywhere, except a route file's `default export`, which Next requires.
@@ -35,11 +35,11 @@
   - Compose shadcn/ui primitives from `src/components/ui/`. Do not restyle them inline; change the primitive if the whole app needs the change.
   - Tailwind classes only. No CSS modules, no styled-components, no inline `style` except for a genuinely dynamic value.
 - # Forms
-  - `react-hook-form` with `zodResolver`, using the same schema the Server Action parses (see D-005).
+  - `react-hook-form` with `zodResolver`, using the same schema the Server Action parses (see AD-005).
   - The Server Action re-validates regardless of what the client did. Client-side validation is user experience, not a guarantee.
   - Submission state comes from `useFormStatus` or the action's own pending state, never a manual boolean.
 - # Value objects
-  - Money, durations and rates are handled through `Money`, `Duration` and `Rate` (see D-007). Arithmetic on raw cents or raw minutes outside `src/lib/money/` is forbidden.
+  - Money, durations and rates are handled through `Money`, `Duration` and `Rate` (see AD-007). Arithmetic on raw cents or raw minutes outside `src/lib/money/` is forbidden.
   - Rounding happens inside the value object. A rounding rule written anywhere else is a bug.
   - Formatting for display is a value-object method, not a scattered `toFixed(2)`.
   - The application has one interface language and one locale, declared as a single constant in `src/lib/money/`. Formatting methods take no locale argument and read that constant.
@@ -48,7 +48,7 @@
   - Server Actions return a discriminated result (`{ ok: true, data }` or `{ ok: false, error }`), they do not throw for expected failures.
   - Throw only for programmer errors and genuinely exceptional conditions. Let the error boundary catch those.
   - Never expose an internal error message, a stack trace or a database constraint name to the client. Return a stable error code the UI maps to a message.
-  - Logging via pino (see D-012). One child logger per module: `const log = logger.child({ module: "invoices/repository" })`.
+  - Logging via pino (see AD-012). One child logger per module: `const log = logger.child({ module: "invoices/repository" })`.
   - Log level from `LOG_LEVEL`, default `info`. JSON lines to stdout. No log files.
   - Never log: passwords, tokens, session identifiers, `BETTER_AUTH_SECRET`, full request bodies, or personal financial data. Log identifiers, not payloads.
   - Log at the boundary where the failure is handled, once. Do not log and rethrow.

@@ -7,7 +7,7 @@
   - Diff against HEAD: `git diff <last-reviewed-tag>..HEAD`. Review only that range.
   - Bootstrap (no prior `reviewed/*` tag): fall back to the last release tag, or the full state if none exists.
   - Exception: at release time, review the full working tree, not an incremental range.
-  - A diff touching `ai-rules/`, `ai-agents/`, `.claude/agents/`, `.devcontainer/`, `CLAUDE.md`, `README.md` or `specs/TEMPLATE.md` is outside your remit. Report it and redirect to `@ai-method`; review the rest of the range normally.
+  - A diff touching `ai-rules/`, `ai-agents/`, `.claude/agents/`, `.devcontainer/`, `CLAUDE.md`, `README.md`, `specs/iteration/TEMPLATE.md` or `specs/iteration/README.md` is outside your remit. Report it and redirect to `@ai-method`; review the rest of the range normally.
 - # Load
   - Always: `ai-rules/policy_commits.md`, `ai-rules/decisions.md`.
   - When the diff touches `src/`, `tests/`, `e2e/`, `prisma/`, `package.json`, `Dockerfile` or `docker-compose.yml`: `ai-rules/policy_architecture.md`, `ai-rules/policy_security.md`, `ai-rules/policy_techstack.md`.
@@ -33,12 +33,12 @@
       - Any secret, token or default secret value in a committed file, including `.env.example`.
       - Any new environment variable missing from `.env.example` or from the config schema.
       - Any log line that could carry a password, a token, a session id or personal financial data.
-      - Any new Route Handler outside the closed list in D-003.
-    - Cite `policy_security.md` and the relevant D-XXX for every finding.
+      - Any new Route Handler outside the closed list in AD-003.
+    - Cite `policy_security.md` and the relevant AD-XXX for every finding.
   - ## Policy pass
     - For each loaded policy, verify the diff complies with every rule it states.
     - Check the dependency rule specifically: `domain.ts` free of Prisma, React and `next/*`; no Prisma import outside `src/lib/db.ts` and a `repository.ts`; no cross-feature import of another feature's internals.
-    - Check numeric and temporal representation against D-007 and D-008: no float for money, no raw arithmetic on cents outside `src/lib/money/`, no period stored as a date.
+    - Check numeric and temporal representation against AD-007 and AD-008: no float for money, no raw arithmetic on cents outside `src/lib/money/`, no period stored as a date.
     - Check that a schema change ships with its migration, and that a destructive migration was approved in the spec.
   - ## Spec pass
     - Verify every acceptance criterion is met, and name the code or test that satisfies each one.
@@ -54,7 +54,7 @@
 - # Output
   - Group findings by source policy, for example `policy_security` -> Authorisation, or `policy_architecture` -> Data access.
   - Security findings come first, under their own heading.
-  - Each finding: file, line when available, one line on what is wrong, and the rule it breaks. Cite the backing decision when there is one, for example `policy_architecture -> Data access / D-004`.
+  - Each finding: file, line when available, one line on what is wrong, and the rule it breaks. Cite the backing decision when there is one, for example `policy_architecture -> Data access / AD-004`.
   - Separate blocking findings from advisory ones. Advisory findings never change the verdict.
   - Conclude with a verdict: READY or CHANGES NEEDED.
 - # On READY
@@ -65,4 +65,4 @@
   - Editing any file.
   - Returning READY with an unresolved security finding.
   - Returning READY when a machine check failed.
-  - Raising a finding without naming the rule it breaks. If no rule covers it, it is advisory, or it belongs in a new D-XXX.
+  - Raising a finding without naming the rule it breaks. If no rule covers it, it is advisory, or it belongs in a new AD-XXX.

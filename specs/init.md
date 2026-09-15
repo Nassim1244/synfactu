@@ -12,15 +12,15 @@
       - MIT or Apache-2.0 - permissive, anyone may build a closed product on it.
       - AGPL-3.0 - copyleft that reaches network use, so a hosted derivative must publish its source. The usual choice when a self-hosted product may later be sold under a commercial exception.
       - Proprietary - no open-source grant. The usual choice when the software will be licensed per customer.
-  - Record the answer as a new D-XXX in `ai-rules/decisions.md`, with "Rule lives in: project root `LICENSE`".
+  - Record the answer as a new AD-XXX in `ai-rules/decisions.md`, with "Rule lives in: project root `LICENSE`".
   - Write `LICENSE`.
   - **ASK** the user whether the bootstrap includes authentication. This governs steps 4, 8 and 8b, and it has to be answered here because step 4 declares the environment variables.
-    - Include it - Better Auth, roles, sessions and the middleware are wired at bootstrap. The application is protected from its first commit, and the two layers of D-009 are in place before any feature exists.
-    - Skip it - no login, no roles, no session. Faster to a running application, and defensible for a single-operator tool on a private network. The cost is real: D-009 has to be retro-fitted across every feature already written, and the instance must not be exposed on a public URL until it is.
-  - Record the answer as a new D-XXX either way. Skipping authentication is a decision, not the absence of one, and the D-XXX is what keeps the debt visible.
+    - Include it - Better Auth, roles, sessions and the middleware are wired at bootstrap. The application is protected from its first commit, and the two layers of AD-009 are in place before any feature exists.
+    - Skip it - no login, no roles, no session. Faster to a running application, and defensible for a single-operator tool on a private network. The cost is real: AD-009 has to be retro-fitted across every feature already written, and the instance must not be exposed on a public URL until it is.
+  - Record the answer as a new AD-XXX either way. Skipping authentication is a decision, not the absence of one, and the AD-XXX is what keeps the debt visible.
 - # 1b - Development container
   - Nothing is installed on the host. Every command from here on - `pnpm`, `prisma`, the checks the agents run - executes inside the development container, so it has to exist before step 2 can scaffold anything.
-  - **ASK** the user to confirm the repository is not inside a synced folder - OneDrive, Dropbox, iCloud. A sync client will copy `node_modules` and `.next` continuously, and one that touches a live SQLite file corrupts it. If it is, move the repository before going further; this gets harder to undo later, not easier.
+  - **ASK** the user to confirm the repository is not inside a synced folder - OneDrive, Dropbox, iCloud. The rule and why it matters: `ai-rules/policy_architecture.md` -> Development environment. If it is, move the repository before going further; this gets harder to undo later, not easier.
   - ## Host prerequisites
     - This is the one step with prerequisites outside the repository, and none of them announce themselves when missing. Confirm all three before opening VS Code.
     - A Docker daemon installed and **running** - Docker Desktop with the WSL2 backend on Windows. "Reopen in Container" fails without naming this as the cause.
@@ -43,40 +43,41 @@
     - `pnpm create next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm`
   - Set `"strict": true` and `"noUncheckedIndexedAccess": true` in `tsconfig.json`.
   - Pin the Node version in `package.json` `engines`, and add an `.nvmrc` with the same version.
-  - Replace every caret range in `package.json` with an exact version (see D-002). Run `pnpm install` and commit `pnpm-lock.yaml`.
+  - Replace every caret range in `package.json` with an exact version (see AD-002). Run `pnpm install` and commit `pnpm-lock.yaml`.
   - Create the empty folder skeleton from `ai-rules/policy_architecture.md` -> Structure: `src/features/`, `src/lib/`, `src/components/ui/`, `tests/`, `e2e/`, `design/`.
+  - Create `specs/iteration/v1/` for the first iteration. The naming rules are in `specs/iteration/README.md`.
   - Commit: `chore: scaffold next.js application`.
 - # 3 - Toolchain
   - Prettier with `prettier-plugin-tailwindcss`. Add `format` and `format:check` scripts.
-  - ESLint with the plugin set from D-011: `typescript-eslint` in type-aware mode, `eslint-plugin-react-hooks`, `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y`. Add a `lint` script.
+  - ESLint with the plugin set from AD-011: `typescript-eslint` in type-aware mode, `eslint-plugin-react-hooks`, `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y`. Add a `lint` script.
   - Add a `typecheck` script running `tsc --noEmit`.
   - Vitest with `@vitejs/plugin-react`, `jsdom`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`. Add a `test` script. Point the config at `tests/`.
   - Playwright. Add a `test:e2e` script. Point the config at `e2e/`. Chromium only at bootstrap.
   - Verify: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` all pass on the empty project.
   - Commit: `chore: add lint, format, type and test toolchain`.
 - # 4 - Configuration module
-  - Create `src/lib/config.ts`: a Zod schema over `process.env`, parsed once at module load, exporting a typed frozen object (see D-014).
+  - Create `src/lib/config.ts`: a Zod schema over `process.env`, parsed once at module load, exporting a typed frozen object (see AD-014).
   - At bootstrap it declares at least `NODE_ENV`, `DATABASE_URL` and `LOG_LEVEL`.
   - When step 1 chose to include authentication, it also declares `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`. When authentication was skipped, do not declare them. A required variable nobody can give a meaning to is how a config module starts rotting.
-  - A missing or malformed variable must fail startup with a message naming the variable. Write a test for that.
+  - Startup must fail on a missing or malformed variable, as `ai-rules/policy_architecture.md` -> Configuration requires. Write a test for that.
   - Create `.env.example` listing every variable with a placeholder, and, when authentication is included, a comment on how to generate `BETTER_AUTH_SECRET`. Never a real value.
   - Create `.env` locally. Confirm it is git-ignored.
   - Commit: `feat(config): add validated environment configuration`.
 - # 5 - Logging
-  - Create `src/lib/logger.ts`: the pino root logger, level from `config.LOG_LEVEL`, JSON to stdout, pretty transport in development only (see D-012).
+  - Create `src/lib/logger.ts`: the pino root logger, level from `config.LOG_LEVEL`, JSON to stdout, pretty transport in development only (see AD-012).
   - Add a redaction list covering `password`, `token`, `secret`, `authorization`, `cookie`.
   - Commit: `feat(lib): add structured logging`.
 - # 6 - Value objects
-  - Create `src/lib/money/` with `Money`, `Duration` and `Rate` (see D-007).
+  - Create `src/lib/money/` with `Money`, `Duration` and `Rate` (see AD-007).
     - `Money` - constructed from and serialised to integer cents. Addition, subtraction, multiplication by a `Rate`, division into equal parts with the remainder distributed deterministically, comparison, and formatting against the single locale constant of `ai-rules/policy_coding_guidelines.md` -> Value objects.
     - `Duration` - constructed from and serialised to integer minutes. Addition, rounding up to a configurable step, conversion to a decimal number of days given a day length, formatting.
     - `Rate` - constructed from and serialised to integer basis points. Application to a `Money`, formatting as a percentage.
   - Every rounding rule lives inside these classes. Nothing outside `src/lib/money/` performs arithmetic on cents, minutes or basis points.
-  - **ASK** the user for the rounding convention on money (half up, half even, or always down) and the day length in minutes. Record the answers as a D-XXX.
+  - **ASK** the user for the rounding convention on money (half up, half even, or always down) and the day length in minutes. Record the answers as an AD-XXX.
   - Tests are mandatory here and are written by `@tester`: boundaries, negatives, the half-way case, and the remainder distribution.
   - Commit: `feat(lib): add money, duration and rate value objects`.
 - # 7 - Database
-  - Add Prisma. Datasource `sqlite`, `DATABASE_URL` from the environment (see D-013).
+  - Add Prisma. Datasource `sqlite`, `DATABASE_URL` from the environment (see AD-013).
   - Create `src/lib/db.ts`: the Prisma client singleton, guarded against hot-reload duplication in development.
   - Create the initial migration with `prisma migrate dev`. Never `prisma db push`.
   - Add `db:migrate` and `db:studio` scripts.
@@ -84,9 +85,9 @@
   - Commit: `feat(db): add prisma with sqlite datasource`.
 - # 8 - Authentication
   - **Conditional.** Run this step only if step 1 chose to include authentication. If it did not, go straight to step 8b and carry the skip into the close-out report.
-  - Add Better Auth. Configure email and password, sessions, roles and invitations, backed by the local database (see D-009).
+  - Add Better Auth. Configure email and password, sessions, roles and invitations, backed by the local database (see AD-009).
   - Generate its schema into `prisma/schema.prisma`, then create the migration.
-  - Create `src/app/api/auth/[...all]/route.ts` - the first of the four permitted Route Handlers (see D-003).
+  - Create `src/app/api/auth/[...all]/route.ts` - the first of the four permitted Route Handlers (see AD-003).
   - Create `src/lib/auth.ts` exporting the server instance plus `getSession()` and `requireRole(role)`. `requireRole` throws or returns a failure; it never returns an ignorable boolean.
   - Create `src/middleware.ts` redirecting unauthenticated requests away from protected routes. Document in a comment that this is user experience, not the security boundary.
   - **ASK** the user for the initial role list, and how the first administrator account is created.
@@ -123,7 +124,7 @@
     - `update.sh` **backs up the database first and aborts if that fails**, before anything is built or migrated. The entrypoint applies `prisma migrate deploy` to a file holding years of financial data, and a migration is the one operation with no undo. Everything else in the script is recoverable because of that step.
     - Neither script runs a destructive Docker command - no `down -v`, no volume removal, no image pruning. An operator running `update.sh` monthly must not be one flag away from deleting the database.
   - `update.sh` snapshots with `sqlite3 ".backup"` inside the container, then extracts with `docker compose cp`. Only that sequence is consistent against a live database, and it is why `sqlite3` is installed in the runtime image. Do not simplify it into a `cp`.
-  - **ASK** the user where backups are written and how many to keep, and set `BACKUP_DIR` and `BACKUP_KEEP` accordingly. Record the answer as a D-XXX; the template has no operations policy to default to.
+  - **ASK** the user where backups are written and how many to keep, and set `BACKUP_DIR` and `BACKUP_KEEP` accordingly. Record the answer as an AD-XXX; the template has no operations policy to default to.
   - Verify both scripts once, on the freshly deployed instance, before the first real feature ships. A backup script that has never been run is not a backup script.
   - Commit: `build: adapt docker skeleton and operating scripts`.
 - # 11 - Security headers
@@ -149,9 +150,11 @@
   - Update `context/progress.md` with the bootstrap date, the decisions recorded and the migrations applied.
   - Confirm `git status` is clean and no ignored artefact was committed.
   - Report to the user: the decisions recorded during bootstrap, whether authentication was included or skipped, the environment variables they must set, and the command to start the application.
-  - When authentication was skipped, restate the consequence in the report rather than leaving it buried in the D-XXX: the instance must not be exposed on a public URL, and D-009 is outstanding debt.
+  - When authentication was skipped, restate the consequence in the report rather than leaving it buried in the AD-XXX: the instance must not be exposed on a public URL, and AD-009 is outstanding debt.
+  - **Remind the user to copy `specs/functional/templates/`** - `functional-spec.md`, `data-model.md` and `functional-decisions.md` - into `specs/functional/` and fill them before the first iteration is specified. The bootstrap does not write them: they describe the product, not the stack, and no agent can invent them. Until they hold something, `@product-owner` has nothing to derive a feature spec from and every spec written is a guess.
+  - Say the same thing whenever they are stale rather than empty. A feature spec derived from an outdated functional source is wrong in a way no gate catches.
 - # Notes
   - `.claude/agents/` must be present at the repository root for subagent dispatch to work. If the template was copied without it, recreate it before step 14.
-  - Pin every dependency to the latest stable version at bootstrap time, exactly, with no range (see D-002). Verify each pinned version exists before writing it.
-  - If any step forces a choice not covered by an existing D-XXX, stop and record a decision rather than deciding silently.
+  - Pin every dependency to the latest stable version at bootstrap time, exactly, with no range (see AD-002). Verify each pinned version exists before writing it.
+  - If any step forces a choice not covered by an existing AD-XXX, stop and record a decision rather than deciding silently.
   - Continuous integration is deliberately not set up at bootstrap. It is carried in `context/vision.md` -> Roadmap -> Later, and until it exists the machine gates depend on the agents running them.

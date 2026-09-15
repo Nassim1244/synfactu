@@ -28,7 +28,7 @@
   - ## 3 - Make each test earn its place
     - For every test: if the production behaviour it checks were deleted, would this fail? If not, it is noise. Remove it.
     - Never assert a mock's own configured return value.
-    - Fake boundaries - the database, the clock, the network, the file system - never the unit under test.
+    - Apply the mocking rule in `ai-rules/policy_testing.md` -> Relevance.
   - ## 4 - Money, duration and time
     - Every expected cent value is written by hand from the spec. Never run the implementation and paste its output as the expectation.
     - Every rounding rule gets boundary tests, including the halfway case and the negative.

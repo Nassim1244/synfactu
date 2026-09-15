@@ -22,13 +22,13 @@
     - Read the surrounding code before concluding. The first plausible explanation is frequently wrong.
     - Distinguish the root cause from the symptom. A total that is wrong on screen may be a rounding rule, a missing scope in the repository, or a period stored as a date. Say which, and how you know.
     - Check the usual sources in this stack:
-      - A period stored or compared as a date, so a month boundary shifts (D-008).
-      - Arithmetic on raw cents or minutes outside a value object, so rounding drifts (D-007).
-      - A repository function whose scoping the caller was able to omit (D-004).
+      - A period stored or compared as a date, so a month boundary shifts (AD-008).
+      - Arithmetic on raw cents or minutes outside a value object, so rounding drifts (AD-007).
+      - A repository function whose scoping the caller was able to omit (AD-004).
       - A missing `revalidatePath` after a mutation, so stale data renders.
       - A `useEffect` fetching data, so it races with the server render.
-      - A Server Action invoked without its role check (D-009).
-      - A Zod schema that accepts a value it should reject (D-005).
+      - A Server Action invoked without its role check (AD-009).
+      - A Zod schema that accepts a value it should reject (AD-005).
   - ## 4 - Write the failing test
     - One test, at the lowest level that reproduces the bug.
     - It must fail against the current code, for the right reason. Run it and show the failure output.
@@ -40,7 +40,7 @@
     - Propose the fix in prose and name the files it touches. Do not implement it.
     - Flag if the root cause suggests the same defect exists elsewhere.
     - Hand to `@orchestrator`, which dispatches `@coder`, then `@tester`, then `@reviewer`, then `@committer`.
-    - If the fix requires a schema change or contradicts an existing D-XXX, say so: `@architect` must run first.
+    - If the fix requires a schema change or contradicts an existing AD-XXX, say so: `@architect` must run first.
 - # Forbidden
   - Fixing the bug.
   - Modifying production code, including "just to check".

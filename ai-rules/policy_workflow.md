@@ -1,12 +1,12 @@
 - # Workflow
   - Read this before starting or resuming any feature, and before dispatching any subagent.
   - Canonical home for: the agent sequence, the gates, retry policy, handoff rules, entry points.
-  - Rationale for the gate design: see D-015.
+  - Rationale for the gate design: see AD-015.
 - # Agent roster
   - Name, role in one line, and the document that governs it. Nothing else. See Agent documents below.
   - `@product-owner` - challenges the request and writes the functional spec. See `ai-agents/agent_product_owner.md`.
   - `@designer` - owns `design/<index>/`. See `ai-agents/agent_designer.md`.
-  - `@architect` - fills the technical spec, records D-XXX, owns `prisma/schema.prisma` and migrations. See `ai-agents/agent_architect.md`.
+  - `@architect` - fills the technical spec, records AD-XXX, owns `prisma/schema.prisma` and migrations. See `ai-agents/agent_architect.md`.
   - `@orchestrator` - drives the implementation chain. See `ai-agents/agent_orchestrator.md`.
   - `@coder` - production code only. See `ai-agents/agent_coder.md`.
   - `@tester` - sole author of `tests/` and `e2e/`. See `ai-agents/agent_tester.md`.
@@ -32,7 +32,7 @@
     - 2. `@designer` runs only if the feature has a user interface. Produces `design/<index>/`.
       - **G2 - halts. The user approves the design.**
       - Skip for a pure back-end feature, and record the skip in the spec's Design field as "N/A".
-    - 3. `@architect` fills the TECHNICAL SPEC section, records any new D-XXX, and proposes any Prisma schema change and migration.
+    - 3. `@architect` fills the TECHNICAL SPEC section, records any new AD-XXX, and proposes any Prisma schema change and migration.
       - **G3 - halts by construction. The architect presents options and waits for the user's answers, including approval of any migration.**
   - ## Phase B - Implementation (driven by the orchestrator)
     - 4. `@orchestrator` reads the completed spec and emits an ordered plan, then dispatches:
@@ -46,7 +46,7 @@
 - # Sequence for a bug
   - 1. `@debugger` reproduces the bug and writes one failing test that captures it.
   - 2. `@orchestrator` takes over from step 5 above: `@coder`, `@tester`, `@reviewer`, `@committer`.
-  - No spec, no design and no architect step, unless the fix requires a schema change or contradicts an existing D-XXX. In that case stop and run `@architect` first.
+  - No spec, no design and no architect step, unless the fix requires a schema change or contradicts an existing AD-XXX. In that case stop and run `@architect` first.
 - # Gates
   - G1 - the functional spec is correct and complete. Human. Halts.
   - G2 - the design is approved. Human. Halts.
@@ -60,9 +60,9 @@
   - A judgment gate is an agent's verdict. It is only as reliable as the policies backing it, which is why the reviewer must cite the specific rule behind every finding.
   - Known limitation: the machine gates are enforced only by the agents that run them. There is no continuous integration yet, so a commit made outside `@committer` bypasses G5 and G8 entirely. Until CI exists, the gates are a convention, not an enforcement. See `context/vision.md` -> Roadmap -> Later.
 - # Retry policy
-  - On a failed G5 or a CHANGES NEEDED at G6, the orchestrator dispatches `@coder` again with the full failure report attached.
+  - On a failed G5 or a CHANGES NEEDED at G6, the orchestrator dispatches the responsible agent again with the full failure report attached.
   - Maximum two retries. On the third failure the orchestrator halts, reports what was attempted and what still fails, and asks the user how to proceed.
-  - A retry never skips `@tester`. If the failure was a broken test, `@tester` fixes the test; if it was broken behaviour, `@coder` fixes the code. The orchestrator decides which, and says why.
+  - A retry never skips `@tester` or `@reviewer`. Which agent fixes which class of failure is canonical in `ai-agents/agent_orchestrator.md` -> Retry policy. The orchestrator decides, and says why.
   - The orchestrator never edits code itself to make a gate pass.
 - # Handoff rules
   - Pass file paths between agents, never inlined file content. The receiving agent reads what it needs.
@@ -71,12 +71,15 @@
   - `@coder` never writes tests. `@tester` never writes production code. `@reviewer` and `@auditor` never write anything.
   - Only `@architect` edits `prisma/schema.prisma` and `prisma/seed.ts`. Only `@committer` runs `git commit`.
 - # Spec numbering
-  - Specs are numbered sequentially from `001`. The number is allocated by `@product-owner` as the next unused index in `specs/`.
-  - The design folder shares the index: `specs/007-payments.md` pairs with `design/007/`.
+  - Feature specs live in `specs/iteration/v<NN>/`, one folder per iteration, and are named `v<NN>-<NNN>-<short-name>.md`. The rules are in `specs/iteration/README.md`; it is canonical and this section does not restate them.
+  - `v<NN>-<NNN>` is the **index**. The feature number restarts at `001` in every iteration, so the iteration prefix is what makes it unique.
+  - The number is allocated by `@product-owner` as the next unused index in the current iteration folder.
+  - The design folder shares the index: `specs/iteration/v1/v01-007-payments.md` pairs with `design/v01-007/`.
+  - The functional source these specs derive from lives in `specs/functional/`. A feature spec cites it; it never restates it.
 - # When to stop and ask
-  - The request contradicts an existing D-XXX.
+  - The request contradicts an existing AD-XXX.
   - The spec's acceptance criteria cannot be tested as written.
   - A migration would drop or retype a column holding data.
   - A new dependency is needed that is not in `policy_techstack.md`.
-  - A Route Handler is needed outside the closed list in D-003.
+  - A Route Handler is needed outside the closed list in AD-003.
   - Two retries have not cleared a gate.

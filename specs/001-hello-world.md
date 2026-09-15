@@ -20,7 +20,7 @@
   - The button is reachable by keyboard and activates with both Enter and Space.
   - The page renders without reading from the database and without calling a Server Action.
 - # Design
-  - `design/001/`
+  - Out of scope here
 - # Out of scope (functional)
   - Persisting the chosen colour, in any form.
   - Authentication, roles or per-user state. This page is public.

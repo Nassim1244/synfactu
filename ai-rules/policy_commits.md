@@ -10,7 +10,7 @@
     - Staged changes touch `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.*` or anything under `docker/`: run all four checks.
     - Staged changes include a shell script: run `shellcheck` on it if available, and state plainly that it was not run if it is not. `docker/` holds the only executables in the tree, and they are the ones an operator runs on a live instance.
     - Docs-only commits (changes confined to `ai-rules/`, `ai-agents/`, `.claude/`, `context/`, `specs/`, `design/`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `LICENSE`, `.gitignore`): no pre-commit checks required. Format, lint and type checks have nothing to say about Markdown.
-    - Staged changes touch the method itself (`ai-rules/`, `ai-agents/`, `.claude/`, `.devcontainer/`, `CLAUDE.md`, `README.md`, `specs/TEMPLATE.md`, `specs/init.md`): no machine check applies, but `@ai-method` in `check` mode must have returned PASS. The method governs every feature built afterwards, so it is the one docs change that is not exempt from review.
+    - Staged changes touch the method itself (`ai-rules/`, `ai-agents/`, `.claude/`, `.devcontainer/`, `CLAUDE.md`, `README.md`, `specs/iteration/TEMPLATE.md`, `specs/iteration/README.md`, `specs/init.md`): no machine check applies, but `@ai-method` in `check` mode must have returned PASS. The method governs every feature built afterwards, so it is the one docs change that is not exempt from review.
   - Always invoke tooling through the package manager scripts (`pnpm lint`, `pnpm typecheck`, `pnpm test`). Never call a globally installed `eslint`, `tsc`, `vitest` or `prettier`.
   - Stage only the files belonging to the logical change. No blanket `git add .`.
   - Never commit `node_modules/`, `.next/`, a `.env` file, a database file, coverage output or a secret. `.gitignore` covers this; a deviation is a bug.
@@ -33,7 +33,7 @@
   - build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test.
 - # Scope
   - Optional, one per commit. A feature name or an infrastructure area: `invoices`, `payments`, `auth`, `db`, `ui`, `config`, `docker`, `specs`, `docs`.
-  - Prefer the feature folder name, since the structure is feature-sliced (see D-001).
+  - Prefer the feature folder name, since the structure is feature-sliced (see AD-001).
   - Split the change if more than one scope applies.
 - # Breaking changes
   - Append `!` after the type or scope: `feat(auth)!: require a role on every action`.
@@ -65,14 +65,14 @@
   - Never move or delete a published `v*` tag. A mistake is corrected by a new version, never by retagging.
   - Never release with an uncommitted change, a failing gate, or a migration that has not been applied to a clean database at least once.
 - # Traceability
-  - When implementing a spec, name it in the body: `Implements specs/iteration/v01/v01-001-<feature>.md`.
-  - When following a decision, cite it: `Per D-004`.
+  - When implementing a spec, name it in the body: `Implements specs/iteration/v1/v01-001-<feature>.md`.
+  - When following a decision, cite it: `Per AD-004`.
   - When a commit contains a migration, name it in the body: `Migration: 20260731120000_add_invoice_status`.
 - # Progress tracking
   - After a successful commit, update `context/progress.md` only if the commit changes project state.
   - Update when:
     - A spec moves to a new state (started, completed, blocked, deferred).
-    - A new decision (D-XXX) is recorded.
+    - A new decision (AD-XXX) is recorded.
     - A migration is applied.
     - The roadmap in `context/vision.md` changed.
   - Do not update for: typo fixes, formatting, internal refactors without behavioural change, work-in-progress commits, dependency bumps.
@@ -81,7 +81,7 @@
 - # Examples
   - `feat(invoices): add monthly numbering sequence`
   - `fix(payments): apply tenant scope in listByInvoice`
-  - `docs: add D-007 (integer storage, value objects in domain)`
+  - `docs: add AD-007 (integer storage, value objects in domain)`
   - `feat(db)!: split amount into cents and currency`
 - # Forbidden
   - Trailing period in the subject.
@@ -92,6 +92,6 @@
   - Committing a schema change without its migration.
   - Force-push to `main`.
   - Amending a pushed commit.
-  - **Never ever mention an AI as co-author**.
+  - Mentioning AI as co-author.
 - # Execution
   - Always execute `git add` and `git commit` in the same command line, so the user can check files and message at the same time.

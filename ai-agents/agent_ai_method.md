@@ -3,10 +3,10 @@
   - Goal: own the documents that define how this project is built, so that changing them is deliberate and their coherence is verifiable.
   - It governs the method, never the product. Nothing it does touches application code.
 - # Scope
-  - In scope: `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `ai-rules/`, `ai-agents/`, `.claude/agents/`, `specs/TEMPLATE.md`, `specs/init.md`, and the structure of `context/vision.md`.
+  - In scope: `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `ai-rules/`, `ai-agents/`, `.claude/agents/`, `specs/iteration/TEMPLATE.md`, `specs/iteration/README.md`, `specs/init.md`, and the structure of `context/vision.md`.
   - Also in scope: `.devcontainer/`. It is how the agents get a working environment, and without it no machine gate can run at all - which makes it method rather than deployment.
   - Also out of scope: `docker/`. Those files are how the product deploys, not how it is built, and an operating script is code even when it is twenty lines.
-  - Out of scope: `src/`, `prisma/`, `tests/`, `e2e/`, and the content of anything under `specs/iteration/` or `design/<index>/`. Those belong to the feature agents.
+  - Out of scope: `src/`, `prisma/`, `tests/`, `e2e/`, and the content of `specs/functional/`, any `specs/iteration/v*/` spec, or any `design/<index>/`. Those belong to the feature agents.
   - `ai-rules/decisions.md` is read-only here. It is `@architect`'s file and records product architecture. The rationale for a **method** change belongs in `CHANGELOG.md`, which is this project's decision record for the method.
 - # Load
   - `CLAUDE.md`
@@ -28,7 +28,8 @@
     - The three counts agree: files on disk, roster entries, dispatch list entries.
   - ## 3 - Wrapper content
     - Apply `ai-rules/policy_workflow.md` -> Agent documents. A wrapper carries a pointer and prohibitions, nothing else.
-    - Flag any wrapper containing: a literal format string, an enumeration of three or more items, a list of files to load, or a numbered or ordered procedure.
+    - Flag any wrapper containing: a literal format string, an enumeration of three or more of the method's documents beyond the two its pointer names, a list of files to load, or a numbered or ordered procedure.
+    - The frontmatter `description:` naming what the agent does - its steps, its checks, the subjects it covers - is routing information, and is what Claude Code matches on to dispatch. Flag a description only where it enumerates documents, which is a load list in disguise.
     - Flag any wrapper naming two or more policy files, which is a load list by another shape.
   - ## 4 - Load lists
     - Grep the method tree for load statements outside an agent's own `Load` section. There should be none.
@@ -36,7 +37,7 @@
   - ## 5 - Cross-references
     - Every `.md` path referenced in the method tree resolves to a file that exists.
     - Resolve the house shorthand before reporting: a bare filename cited in prose lives in `ai-rules/` for a policy, `ai-agents/` for an agent workflow, `.claude/agents/` for a wrapper.
-    - Exclude any path under `specs/iteration/`. Feature specs are project content, and the method tree names them only as examples or placeholders, so an unresolved one is expected rather than broken.
+    - Exclude any path under `specs/iteration/v*/` or `specs/functional/`. Feature specs are project content, and the method tree names them only as examples or placeholders, so an unresolved one is expected rather than broken.
     - Exclude `CHANGELOG.md` entirely. It records the past, and the past had different paths: an entry naming a file that has since moved is accurate history, not a broken link. Editing a published entry to satisfy this check would falsify the record.
   - ## 6 - Gate references
     - The defined gates are G1, G2, G3, G5, G6 and G8. Take that set as given rather than grepping the Gates section, which names G4 and G7 in the sentence explaining their absence. Their numbers are never reused.
@@ -44,7 +45,7 @@
     - Never flag a gate number that is merely named. Every document explaining why G4 and G7 do not exist has to name them, and a check that reports its own documentation is a check nobody runs twice.
   - ## 7 - Decision numbering
     - `ai-rules/decisions.md` entries are three-digit, sequential, with no gaps and no duplicates.
-    - Report any `D-XXX` cited elsewhere in the tree that does not exist in `ai-rules/decisions.md`.
+    - Report any `AD-XXX` cited elsewhere in the tree that does not exist in `ai-rules/decisions.md`.
   - ## 8 - Stated counts
     - `README.md` states how many agents, policies and decisions exist. Verify each against the tree.
     - These rot silently, which is why they are checked rather than trusted.
@@ -53,6 +54,9 @@
     - Report any sentence of twelve words or more appearing near-verbatim in two different documents. One home per rule; a duplicate is where drift starts.
     - Two documents may both say where a rule lives. A sentence that points at a canonical home is not a copy of the rule, and pointing is what the document model asks for.
     - Exclude the `Decision:` lines of `ai-rules/decisions.md`. A decision has to state its decision, and it already names the policy that owns the rule, so the overlap is the document model working rather than drift.
+    - Exclude an agent's preflight refusal line. Four agents refuse in the same words because they are performing the same act, and the rule behind it lives once, in `ai-rules/policy_workflow.md` -> Handoff rules. Wording a deliberate consistency differently to satisfy a word count makes the tree harder to read, not cleaner.
+    - Exclude any document outside the method tree. `docker/` is out of scope by the Scope section above, so half of such a pair can never be resolved from here, and the two texts are written for different readers: the policy states the rule for the agents, the README explains it to the operator running the stack. Check 5 already scopes itself to the method tree, and this is the same restriction for the same reason.
+    - Exclude a prohibition that a wrapper repeats from its canonical document. `ai-rules/policy_workflow.md` -> Agent documents permits that duplication by name and gives the reason: the wrapper is the one text whose reading is guaranteed. It is also the longest verbatim overlap in the tree, so a check that does not name it reports the permitted case before it reports a real one.
   - ## 10 - Version consistency
     - The top `CHANGELOG.md` entry names a version and a date.
     - Report any change in the method tree, staged or unstaged, whose file is named by no `CHANGELOG.md` entry.
@@ -71,8 +75,13 @@
     - If no document owns it, say so rather than inventing a place. Creating a policy file has its own bar in `CLAUDE.md` -> Adding a new policy file; meet it or put the rule in the closest existing home.
     - Search the tree for the rule before writing it. A rule that already exists elsewhere is amended in place, never restated in a second document.
     - When the change touches an agent, apply the four-file invariant of `ai-rules/policy_workflow.md` -> Agent documents: canonical document, wrapper, roster, dispatch list. Fewer than four is a defect.
-    - Write the `CHANGELOG.md` entry, including **why**, and what the previous state got wrong. An entry that only lists what moved is worthless six months later.
+    - Write the `CHANGELOG.md` entry: the shortest line per idea that is still useful in six months, never what the diff already shows. Add the **why** only where the line does not already carry it.
+    - Keep the section headings the file already uses - `## Fixed`, `## Added`, `## Changed`, `## Upgrading` - and group inside them, never instead of them. `## Upgrading` is one line and takes no subtitle.
+    - Inside a section, one subtitle per topic - `Retry policy reworked:` - and under it one line per idea, each a single sentence carrying its own reason. A topic with one idea is that line alone, no subtitle.
+    - A topic needing more than about four ideas is a version bundling changes that belong in separate ones.
+    - A flat list of six unrelated lines under one section is the failure this shape prevents: it reads as a diff summary, which is what the first rule forbids.
     - Set the version. MAJOR when a rule invalidates work already done under the old one; MINOR for a new rule, agent or section; PATCH for a clarification, a broken reference or a typo.
+    - One version, one release commit, one annotated tag: `git tag -a template/v<version>`. The tag is the only stable reference to the commits an entry covers, since squash-merge and rebase rewrite hashes - which is why an entry names files, specs and decisions and never a hash. The `template/` prefix keeps it clear of the `v*` tags `ai-rules/policy_commits.md` -> Releases gives a product release.
     - Run `check` again. Present the diff, the version, and both check results. Wait for approval.
   - ## 2 - Updating a project's copy
     - The project's current version is the top entry of its own `CHANGELOG.md`, frozen at the moment it was copied.
@@ -90,7 +99,7 @@
   - Applying any change in `update` mode before presenting it and receiving approval.
   - Inventing a rule to resolve an ambiguity. Raise it.
   - Issuing a judgment as a `check` finding. If it needs discernment, it is a finding for the user or for `@reviewer`, not a failed check.
-  - Bumping the version without a `CHANGELOG.md` entry, or writing an entry without its rationale.
+  - Bumping the version without a `CHANGELOG.md` entry.
   - Editing a published `CHANGELOG.md` entry. Correct it with a new one.
   - Overwriting a project's deliberate divergence during an upgrade.
   - Adding a rule to a second document because it seemed useful there too. That is the failure this agent exists to prevent.

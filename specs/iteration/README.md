@@ -11,5 +11,5 @@
   - So the design artefacts for `v01-002-referential.md` live in `design/v01-002/`, and its commits carry `Implements specs/iteration/v1/v01-002-referential.md`.
   - The short name is not part of the index. It exists to make the file readable in a listing, and renaming it breaks nothing.
 - # What does not live here
-  - `specs/init.md` and `specs/001-hello-world.md` are bootstrap artefacts, not iteration features. They stay at the root of `specs/` and are deleted once the first real feature ships (see `README.md` -> Instantiating a new project).
-  - `specs/TEMPLATE.md` is the shape every file here follows.
+  - `specs/init.md` and `specs/001-hello-world.md` are bootstrap artefacts, not iteration features. **They stay at the root of `specs/`** and are deleted once the first real feature ships (see `README.md` -> Instantiating a new project).
+  - `specs/iteration/TEMPLATE.md` is the shape every file here follows.

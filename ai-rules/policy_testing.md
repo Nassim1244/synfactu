@@ -1,7 +1,7 @@
 - # Testing policy
   - Read this before writing or modifying tests.
   - Canonical home for: test layout, what to test at which level, database testing, fixtures, relevance, coverage stance, forbidden practices.
-  - Three levels, each covering what the others cannot (see D-010).
+  - Three levels, each covering what the others cannot (see AD-010).
 - # Ownership
   - The `@tester` subagent is the sole author of the `tests/` and `e2e/` trees. The `@coder` subagent writes production code only and hands off to `@tester` before `@reviewer` runs.
   - "Alongside the feature" means the same workflow, not the same agent.

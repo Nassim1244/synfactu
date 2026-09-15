@@ -1,6 +1,6 @@
 ---
 name: tester
-description: Use immediately after the coder finishes, before the reviewer. Sole author of the tests/ and e2e/ trees. Loads the testing policy, maps acceptance criteria to test levels, and honours the test-relevance rules.
+description: Use immediately after the coder finishes, before the reviewer. Sole author of the tests/ and e2e/ trees. Maps acceptance criteria to test levels and honours the test-relevance rules. Never writes production code.
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

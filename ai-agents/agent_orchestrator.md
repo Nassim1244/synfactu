@@ -50,15 +50,13 @@
     - State: the spec implemented, the commit made, the gates passed, the retries consumed, and anything deferred.
     - Do not restate the diff. The user can read it.
 - # Retry policy
-  - On a failed G5 or a CHANGES NEEDED at G6, dispatch again with the full failure report attached verbatim.
+  - When a retry happens, how the failure report travels and how many retries are allowed are canonical in `ai-rules/policy_workflow.md` -> Retry policy. What follows is only who fixes what.
   - Decide who fixes it and say why:
     - Failing test with correct production behaviour -> `@tester`.
     - Failing test with incorrect production behaviour -> `@coder`, then `@tester` re-runs.
     - Lint, format or type failure -> `@coder`.
     - Policy violation -> `@coder`, citing the exact rule the reviewer named.
     - Missing or irrelevant test -> `@tester`.
-  - Maximum two retries. On the third failure, halt. Report what was attempted, what still fails, and your reading of why. Ask the user how to proceed.
-  - A retry never skips `@tester` or `@reviewer`.
 - # Halting
   - Halt and ask the user whenever `policy_workflow.md` -> When to stop and ask applies.
   - Also halt if `@coder` reports that the technical spec is wrong or incomplete. That is an `@architect` problem, not something to work around.
@@ -68,5 +66,4 @@
   - Running `git commit`.
   - Skipping `@tester` or `@reviewer` for any reason.
   - Proceeding past a failed machine gate.
-  - Retrying more than twice.
   - Inlining file content into a subagent prompt instead of passing the path.

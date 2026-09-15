@@ -5,7 +5,7 @@
 - # What this template is
   - Instructions, not code, with one deliberate exception: `docker/` and `.devcontainer/` ship skeletons, because container configuration is the one part that barely varies between projects and the one where a mistake is silent and expensive.
   - Opinionated and stack-specific. Next.js with the App Router, TypeScript, Prisma, SQLite, Better Auth, Tailwind, shadcn/ui, Vitest, Playwright, Docker Compose behind an existing Caddy instance.
-  - It is **not** stack-agnostic, and pretending otherwise would be the fastest way to ruin it. `ai-rules/policy_architecture.md` is built around Server Actions and the App Router; `ai-rules/decisions.md` D-001 to D-015 assume Prisma and SQLite; `specs/init.md` scaffolds a Next.js project. On a Python service or a CLI, the workflow and the gates transfer, and almost nothing else does.
+  - It is **not** stack-agnostic, and pretending otherwise would be the fastest way to ruin it. `ai-rules/policy_architecture.md` is built around Server Actions and the App Router; `ai-rules/decisions.md` AD-001 to AD-015 assume Prisma and SQLite; `specs/init.md` scaffolds a Next.js project. On a Python service or a CLI, the workflow and the gates transfer, and almost nothing else does.
   - What makes it worth copying is not the stack. It is that every rule is specific enough for `@reviewer` to cite it and refuse a change, which is what separates a policy from a wish.
 - # What it guarantees, and what it does not
   - It guarantees that a feature cannot reach a commit without: an approved functional spec, an approved design when it has an interface, a technical spec with its decisions recorded, tests written by someone other than the author, and a review that names the rule behind every finding.
@@ -19,19 +19,23 @@
     - `context/vision.md` ships full of bracketed placeholders. Fill every one before anything else. `specs/init.md` step 0 refuses to proceed otherwise, and it is right to: every later decision refers back to that file.
     - Leave the Roadmap's "Later" entry about continuous integration in place. It is the record of a debt, not filler.
   - ## 3 - Run the bootstrap
-    - Work through `specs/init.md` in order. Stop at every point marked **ASK**; those are the questions whose answers become D-XXX entries.
+    - Work through `specs/init.md` in order. Stop at every point marked **ASK**; those are the questions whose answers become AD-XXX entries.
     - Step 1 asks whether the bootstrap includes authentication. Answer it deliberately - it governs steps 4, 8 and 8b, and skipping it is a decision that gets recorded, not a step that gets forgotten.
     - The bootstrap ends by implementing `specs/001-hello-world.md` through the full agent chain. Do not shortcut it because the feature is trivial. The point is to prove the chain, and a chain proven on a trivial feature is far cheaper to debug than one first exercised on a real one.
-  - ## 4 - Delete the smoke test
+  - ## 4 - Fill the functional source
+    - `specs/functional/templates/` ships three skeletons: `functional-spec.md`, `data-model.md`, `functional-decisions.md`. Copy them into `specs/functional/` and fill them there. They describe the product, not the stack, so the bootstrap does not write them and no agent can invent them.
+    - Fill them before specifying the first iteration. `@product-owner` derives every feature spec from them, and stops if they are silent on the request.
+    - Keep them current afterwards. They outlive every iteration, and a feature spec derived from a stale functional source is wrong in a way no gate catches.
+  - ## 5 - Delete the smoke test
     - Once the first real feature ships, delete `specs/001-hello-world.md`, `design/001/`, and the route, component and tests it produced.
     - It is a bootstrap artefact. Leaving it in place means every future reader has to work out whether it is real.
 - # What to fill, what to delete, what never to touch
-  - Fill: `context/vision.md`, and `context/progress.md` as the bootstrap proceeds.
-  - Fill during the bootstrap: `LICENSE`, `package.json`, `.env.example`, and the D-XXX entries each **ASK** produces.
+  - Fill: `context/vision.md`, `specs/functional/`, and `context/progress.md` as the bootstrap proceeds.
+  - Fill during the bootstrap: `LICENSE`, `package.json`, `.env.example`, and the AD-XXX entries each **ASK** produces.
   - Delete after the first real feature: `specs/001-hello-world.md`, `design/001/`.
   - Delete on arrival, once read: this file, if you would rather not carry it into the project. Nothing references it.
   - Never edit by hand: `pnpm-lock.yaml`, and any migration already applied anywhere other than your own machine.
-  - Never edit retroactively: an existing `D-XXX`. Decisions are append-only. Supersede with a new number and say which one it replaces.
+  - Never edit retroactively: an existing `AD-XXX`. Decisions are append-only. Supersede with a new number and say which one it replaces.
 - # Document map
   - Every rule has exactly one home. When two documents seem to cover the same ground, the one named here wins and the other should be pointing at it.
   - `CLAUDE.md` - the entry point, read first at every session. Holds the folder layout and the short form of the workflow. Not a rule book.
@@ -43,16 +47,18 @@
   - `ai-rules/policy_security.md` - threat model, input validation, authorisation, tenant isolation, secrets, data exposure, container hardening.
   - `ai-rules/policy_commits.md` - pre-commit checks, branching, message format, versioning, the release procedure, progress tracking.
   - `ai-rules/decisions.md` - rationale for **product architecture** only, written by `@architect`. Each entry names the policy that owns the corresponding rule. When it may be read: `CLAUDE.md` -> Workflow.
-  - `CHANGELOG.md` - the version history and the rationale for **method** changes, written by `@ai-method`. It is to the method what `ai-rules/decisions.md` is to the architecture, which is why its entries carry a why and not only a what.
+  - `CHANGELOG.md` - the version history and the rationale for **method** changes, written by `@ai-method`. It is to the method what `ai-rules/decisions.md` is to the architecture, which is why an entry that changes a rule carries its why and not only a what.
   - `ai-agents/agent_*.md` - one workflow per agent, canonical.
   - `.claude/agents/*.md` - thin Claude Code wrappers. Frontmatter, then a pointer to the canonical doc. They exist so Claude Code can dispatch; they are not a second place to put rules.
-  - `specs/TEMPLATE.md` - the shape of a spec. `specs/init.md` - the bootstrap. `specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md` - one per feature, see `specs/iteration/README.md`.
-  - `docker/` - the production and development stacks, an entrypoint and two operating scripts, with their own `README.md`. A skeleton to adapt at bootstrap step 10, not a working configuration.
+  - `specs/functional/` - the functional source: `functional-spec.md`, `data-model.md`, `functional-decisions.md`. `specs/functional/templates/` ships the three skeletons to copy in and fill.
+  - `specs/iteration/README.md` - the iteration layout and the index convention. `specs/iteration/TEMPLATE.md` - the shape of a spec. `specs/iteration/v<NN>/` - one file per feature.
+  - `specs/init.md` - the bootstrap. `specs/001-hello-world.md` - the smoke test. **Both stay at the root of `specs/`**; neither is an iteration feature.
+  - `docker/` - what it holds: `CLAUDE.md` -> Folder layout. A skeleton to adapt at bootstrap step 10, not a working configuration.
   - `.devcontainer/` - the VS Code development container, adapted at bootstrap step 1b. It and `docker/` are the only code the template ships.
 - # Decision numbering
-  - `ai-rules/decisions.md` uses `D-001`, `D-002`, ... - three digits, zero-padded, allocated by `@architect`, append-only.
-  - Keep the three-digit form even when a project's own upstream documents use a `D-nn` series of their own. Two series sharing one prefix is a real source of confusion, and the digit count is the cheapest way to tell them apart at a glance.
-  - When a project arrives with an existing functional decision record, state the convention in `CLAUDE.md` on day one: which series lives where, and which one a bare `D-` reference means.
+  - `ai-rules/decisions.md` uses `AD-001`, `AD-002`, ... - `AD-` for architecture decision, three digits, zero-padded, allocated by `@architect`, append-only.
+  - Keep the `AD-` prefix even when a project's own upstream documents number decisions of their own. Two series sharing one prefix is a real source of confusion, and a distinct prefix - not a differing digit count - is what tells them apart at a glance. A functional decision record uses `FD-001`, `FD-002`, ... in the same three-digit form.
+  - When a project arrives with an existing functional decision record, state the convention in `CLAUDE.md` on day one: which series lives where, and that no unprefixed `D-` form is used.
 - # The gates
   - G1 functional spec, G2 design, G3 architecture: human, and they halt. A wrong answer here is judgment, gets more expensive the later it is caught, and a machine cannot detect it.
   - G5 build and tests, G8 pre-commit: machine. An exit code. The orchestrator may retry without asking.

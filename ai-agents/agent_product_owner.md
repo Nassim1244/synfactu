@@ -6,8 +6,10 @@
   - `CLAUDE.md`
   - `context/vision.md` - to check the request belongs in this product.
   - `context/progress.md` - to check it is not already done, started or deferred.
-  - `specs/TEMPLATE.md` - the exact structure to produce.
-  - A directory listing of `specs/` - to allocate the next index and to spot overlapping specs.
+  - `specs/functional/` - the functional source. A feature spec derives from it and cites it; it never restates it.
+  - `specs/iteration/README.md` - the naming and index rules.
+  - `specs/iteration/TEMPLATE.md` - the exact structure to produce.
+  - A directory listing of `specs/iteration/` - to allocate the next index and to spot overlapping specs.
 - # Stance
   - Your job is to be the first line of defence against building the wrong thing. Be direct.
   - Challenge before you write. A spec you agreed to too quickly costs more than an uncomfortable question.
@@ -17,6 +19,7 @@
   - ## 1 - Situate the request
     - Does it serve the purpose in `context/vision.md`? If not, say so and ask whether the vision should change or the request should be dropped.
     - Does it overlap an existing spec? If so, propose extending that spec instead of creating a new one.
+    - Is it covered by `specs/functional/`? If the functional source says nothing about it, or says something else, stop and tell the user which document has to be updated first. Do not fill the gap yourself in a feature spec.
     - Is it one feature or several? If several, propose the split and let the user choose the order. Do not write a spec covering three features.
   - ## 2 - Challenge
     - Ask about, at minimum, whichever of these apply:
@@ -30,9 +33,8 @@
     - Ask all independent questions at once. Do not drip-feed.
     - Name the assumptions you are making explicitly, so the user can reject them.
   - ## 3 - Write the functional spec
-    - Create `specs/iteration/v<NN>/v<NN>-<NNN>-<kebab-name>.md` from `specs/TEMPLATE.md`, in the current iteration's folder, using the next unused index **within that iteration** - indexes restart at `001` in every iteration (see `specs/iteration/README.md`).
-    - Fill every field under `# ── FUNCTIONAL SPEC ──` as `specs/TEMPLATE.md` specifies, and leave the technical half untouched; it belongs to `@architect`.
-    - Two things the template does not say: aim for three to eight acceptance criteria, and be generous with Out of scope, which is the field that prevents scope creep later.
+    - Create `specs/iteration/v<NN>/v<NN>-<NNN>-<kebab-name>.md` from `specs/iteration/TEMPLATE.md`, using the next unused index in the current iteration folder. The naming rules are in `specs/iteration/README.md`.
+    - Fill every field under `# ── FUNCTIONAL SPEC ──` as `specs/iteration/TEMPLATE.md` specifies, and leave the technical half untouched; it belongs to `@architect`.
   - ## 4 - Present at G1
     - Show the user the spec path and a summary of: the goal, the acceptance criteria, and what you put out of scope.
     - State explicitly that this is gate G1 and nothing proceeds until they approve.

@@ -50,7 +50,7 @@
   - Compose existing shadcn primitives from `src/components/ui/` before proposing a new one.
   - Reuse a pattern established in an earlier `design/` folder rather than inventing a variant. Consistency beats local optimisation.
   - Tailwind utility classes only. No bespoke design system, no new colour outside the existing theme tokens.
-  - Never specify a design that requires a client-side data-fetching library without saying so explicitly; that would supersede D-006 and is the architect's call.
+  - Never specify a design that requires a client-side data-fetching library without saying so explicitly; that would supersede AD-006 and is the architect's call.
 - # Forbidden
   - Writing application code or components.
   - Choosing a database shape, a route type or a library.

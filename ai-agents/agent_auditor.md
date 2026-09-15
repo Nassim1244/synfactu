@@ -3,17 +3,22 @@
   - Covers the full working tree, not a diff. Do not write code, only assess.
 - # Scope
   - All `.ts` and `.tsx` under `src/`, `tests/` and `e2e/`, plus `prisma/schema.prisma`.
-  - Load `ai-rules/policy_architecture.md`, `ai-rules/policy_coding_guidelines.md`, `ai-rules/policy_techstack.md` and `ai-rules/decisions.md` before starting.
+- # Load
+  - `CLAUDE.md`
+  - `ai-rules/policy_architecture.md`
+  - `ai-rules/policy_coding_guidelines.md`
+  - `ai-rules/policy_techstack.md`
+  - `ai-rules/decisions.md`
 - # Checks
   - ## 1 - Architecture compliance
     - Apply the dependency rule from `policy_architecture.md`.
     - Procedure:
       - Grep `src/features/*/domain.ts` for `@prisma/client`, `react`, `next/`. Any hit is a violation.
-      - Grep all of `src/` for `@prisma/client` and `from "@/lib/db"`. Any hit outside `src/lib/db.ts` and `src/features/*/repository.ts` is a violation of D-004.
+      - Grep all of `src/` for `@prisma/client` and `from "@/lib/db"`. Any hit outside `src/lib/db.ts` and `src/features/*/repository.ts` is a violation of AD-004.
       - Grep `src/features/*/repository.ts` for `react` and `next/`. Any hit is a violation.
       - For each feature, grep for imports of another feature's `repository`, `domain` or `components/` internals. Cross-feature access must go through `queries.ts` or `actions.ts`.
       - Grep `src/lib/` for imports from `src/features/` or `src/app/`. Any hit is a violation.
-      - List `src/app/api/`. Any Route Handler outside the closed list in D-003 is a violation.
+      - List `src/app/api/`. Any Route Handler outside the closed list in AD-003 is a violation.
       - Grep all of `src/` for `process.env`. Any hit outside `src/lib/config.ts` is a violation.
     - Report every violation with file and line.
   - ## 2 - Server boundary integrity
@@ -21,10 +26,10 @@
     - For each exported action, check in order: a role check present, a `schema.parse` present, a `revalidatePath` or `revalidateTag` after a successful mutation.
     - Report every action missing any of the three.
   - ## 3 - Numeric and temporal representation
-    - Grep `prisma/schema.prisma` for `Float` and `Decimal`. Any occurrence on a money, duration or rate field violates D-007.
+    - Grep `prisma/schema.prisma` for `Float` and `Decimal`. Any occurrence on a money, duration or rate field violates AD-007.
     - Grep `src/` outside `src/lib/money/` for arithmetic on values named `*Cents`, `*Minutes` or `*Bp`. Report raw arithmetic that belongs in a value object.
     - Grep for `toFixed(` outside `src/lib/money/`. Formatting belongs to the value object.
-    - Grep `prisma/schema.prisma` for `DateTime` fields whose name suggests a period (`month`, `period`, `quarter`). Any of those violates D-008.
+    - Grep `prisma/schema.prisma` for `DateTime` fields whose name suggests a period (`month`, `period`, `quarter`). Any of those violates AD-008.
     - Grep `src/` for `new Date()` inside `domain.ts` and `repository.ts`. Time should be injected, not read.
   - ## 4 - Duplicate code
     - Goal: logic copy-pasted across files, not trivial one-liners.

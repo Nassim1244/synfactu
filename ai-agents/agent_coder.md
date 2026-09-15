@@ -26,9 +26,9 @@
     - Finish each file so it compiles before starting the next. Do not leave half-written modules behind you.
   - ## 3 - Respect the boundaries
     - Every Server Action opens with the role check, then `schema.parse`, then the repository call. That order is a security rule, not a style preference; see `policy_security.md` -> Authentication and authorisation.
-    - Prisma is imported in `repository.ts` and nowhere else (D-004).
+    - Prisma is imported in `repository.ts` and nowhere else (AD-004).
     - `domain.ts` stays pure: no Prisma, no React, no `next/*`.
-    - Money, durations and rates go through the value objects. Arithmetic on raw cents or minutes outside `src/lib/money/` is a defect, not a shortcut (D-007).
+    - Money, durations and rates go through the value objects. Arithmetic on raw cents or minutes outside `src/lib/money/` is a defect, not a shortcut (AD-007).
   - ## 4 - Build every state the design specifies
     - When a design folder exists, implement each state it lists: loading, empty, populated, partial, error, forbidden, saving, saved.
     - A skipped state comes back as a `@reviewer` finding and a retry. Building it now is cheaper than the round trip.
@@ -42,7 +42,7 @@
   - Writing or modifying anything under `tests/` or `e2e/`.
   - Editing `prisma/schema.prisma`, `prisma/migrations/` or `prisma/seed.ts`.
   - Running `git commit`.
-  - Adding a dependency. That is an `@architect` decision, recorded as a D-XXX.
-  - Adding a Route Handler outside the closed list in D-003.
+  - Adding a dependency. That is an `@architect` decision, recorded as an AD-XXX.
+  - Adding a Route Handler outside the closed list in AD-003.
   - Silencing a type or lint error with `any`, `!`, `as` or `eslint-disable` instead of fixing its cause.
   - Improvising around a gap in the technical spec.

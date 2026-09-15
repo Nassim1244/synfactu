@@ -9,7 +9,7 @@
   - Untrusted: everything arriving over HTTP, including requests from an authenticated user. A logged-in user with a restricted role is an adversary for anything outside their role.
   - Assume any Server Action can be invoked directly, with arbitrary arguments, by any authenticated session.
 - # Input validation
-  - Every Server Action and every Route Handler parses its input with a Zod schema before any other work (see D-005).
+  - Every Server Action and every Route Handler parses its input with a Zod schema before any other work (see AD-005).
   - Validate shape, type, range and format. A positive amount is `.positive()`, not a comment.
   - Never trust an id supplied by the client to imply permission. Fetch the record, then check the caller may act on it.
   - Never build a raw SQL string. Use Prisma's typed API. If `$queryRaw` is unavoidable, use its tagged-template form so values are parameterised; never `$queryRawUnsafe`.
@@ -17,8 +17,8 @@
   - Cap the size of every uploaded or pasted payload explicitly.
 - # Authentication and authorisation
   - This section applies to a project whose bootstrap included authentication (see `specs/init.md` step 1). A project that skipped it has no sessions and no roles, so the role rules below are dormant, not violated. Every other section of this policy applies in full.
-  - Re-introducing authentication later means revisiting every Server Action written in the meantime. That is the debt the D-XXX recorded at bootstrap names, and it does not shrink on its own.
-  - Two layers, both required (see D-009).
+  - Re-introducing authentication later means revisiting every Server Action written in the meantime. That is the debt the AD-XXX recorded at bootstrap names, and it does not shrink on its own.
+  - Two layers, both required (see AD-009).
     - Middleware: redirects unauthenticated requests away from protected routes. This is user experience.
     - Per-entry-point check: every Server Action, Route Handler and protected Server Component resolves the session and asserts the caller's role before touching data. This is the boundary.
   - The role check is the first statement of the function, before validation.
@@ -31,7 +31,7 @@
   - A caller must not be able to widen the scope by omitting an argument. The scope is not a parameter with a default.
   - When the application becomes multi-tenant, a query without an explicit tenant filter is a defect, regardless of whether it currently returns wrong data.
 - # Secrets
-  - No secret is committed. Environment variables only, read through `src/lib/config.ts` (see D-014).
+  - No secret is committed. Environment variables only, read through `src/lib/config.ts` (see AD-014).
   - `.env` is git-ignored. `.env.example` is committed with placeholders only.
   - `BETTER_AUTH_SECRET` must be generated per deployment. A default value in any file, example or documentation is a defect.
   - No secret in a log line, an error message, a client payload, a URL or a commit message.

@@ -24,19 +24,18 @@
   - ## 3 - Write the message
     - `<type>(<scope>): <subject>` - imperative, lowercase, no trailing period, 72 characters or fewer.
     - One scope. If two apply, this should have been two commits.
-    - Body: the traceability lines - `Implements specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`, `Per D-XXX`, `Migration: <name>` - and the why, whenever the diff does not carry it.
+    - Body: the traceability lines - `Implements specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`, `Per AD-XXX`, `Migration: <name>` - and the why, whenever the diff does not carry it.
     - Mark a breaking change with `!` or a `BREAKING CHANGE:` footer, per `ai-rules/policy_commits.md` -> Breaking changes.
   - ## 4 - Commit
     - Execute `git add` and `git commit` on the same command line, so the user sees the files and the message at once.
   - ## 5 - Progress tracking
-    - Update `context/progress.md` only when the commit changes project state: a spec's status, a new D-XXX, an applied migration, a roadmap change.
+    - Update `context/progress.md` only when the commit changes project state: a spec's status, a new AD-XXX, an applied migration, a roadmap change.
     - Stage it in the same commit when it belongs to that commit's content; otherwise commit it separately as `docs: update progress`.
   - ## 6 - Report
     - State: the commit hash, the subject, the files committed, which checks ran, and whether `context/progress.md` was updated.
 - # Releases
   - Only on `main`, only with a clean tree, only when every gate has passed.
   - Follow `ai-rules/policy_commits.md` -> Releases step by step. It is a procedure, not a guideline.
-  - State the computed version and the reason for the bump before applying it.
   - The clean-checkout verification is not optional. An image that has never been started is not a release, only a build.
 - # Forbidden
   - Committing when a pre-commit check failed.
@@ -45,4 +44,4 @@
   - Editing any file other than `context/progress.md`.
   - Force-pushing `main`, or amending a pushed commit.
   - Moving or deleting a published `v*` tag.
-  - Naming AI as an author or co-author, in the message or in a trailer.
+  - **Never ever mention AI as an author or co-author, in the message or in a trailer**.

@@ -3,7 +3,7 @@
   - Also runs before a release and after any change to `package.json`.
 - # Load
   - `ai-rules/policy_techstack.md`
-  - `ai-rules/decisions.md` (D-002).
+  - `ai-rules/decisions.md` (AD-002).
 - # Procedure
   - Run `pnpm audit --prod` first, then `pnpm audit` for the full tree including dev dependencies.
   - For each finding: read the advisory, determine whether the affected code path is reachable from this application, then decide upgrade, pin, or ignore.
@@ -18,6 +18,6 @@
 - # Forbidden
   - Silently ignoring a High or Critical finding.
   - Upgrading a major version without saying what the breaking changes are.
-  - Loosening a pin to `^` or `~` to resolve a conflict. Pin exactly, or record a D-XXX explaining why an exception is needed.
+  - Loosening a pin to `^` or `~` to resolve a conflict. Pin exactly, or record an AD-XXX explaining why an exception is needed.
   - Editing `pnpm-lock.yaml` by hand.
   - Adding a new dependency. That is an architect decision.

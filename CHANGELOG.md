@@ -2,6 +2,81 @@
   - Versions of the spec-driven template itself, independent of any project built from it. SemVer.
   - How a project catches up on a newer version, and why there is no link back to this repository: `README.md` -> Versioning and back-porting.
   - Most recent version first.
+- # 2.9.0 - 2026-09-04
+  - ## Changed
+    - Functional source:
+      - The three skeletons move to `specs/functional/templates/`: `functional-spec.md`, `data-model.md`, `functional-decisions.md`. Copy them into `specs/functional/` and fill them there.
+      - Keeps the blank skeleton available as a reference after the real files are filled in, and separates it from the durable functional source it seeds.
+  - ## Upgrading
+    - MINOR, but it moves files. Move `specs/functional/*.md` into `specs/functional/templates/` if the project has not yet filled them; leave a project's already-filled functional source where it is.
+- # 2.8.0 - 2026-09-04
+  - ## Added
+    - Functional source:
+      - `specs/functional/` holds what the product does, its data model and the `FD-nnn` decisions behind both, as three skeletons to fill.
+      - It sits outside the iteration folders because it outlives every one of them.
+      - `@product-owner` loads it and stops when it is silent on a request, naming the document to update first.
+      - `specs/init.md` step 15 reminds the user to fill it and keep it current, since the bootstrap cannot write what describes the product rather than the stack.
+  - ## Changed
+    - Feature specs move into iteration folders:
+      - `specs/NNN-<name>.md` becomes `specs/iteration/v<NN>/v<NN>-<NNN>-<name>.md`, the feature number restarting each iteration.
+      - A flat sequence said nothing about which scope a feature belonged to, and kept climbing across scopes with nothing to do with each other.
+      - The index becomes `v<NN>-<NNN>`, so a design folder is `design/v01-002/`.
+      - `specs/iteration/README.md` is canonical for the naming and index rules; `ai-rules/policy_workflow.md` -> Spec numbering points at it.
+    - `ai-agents/agent_ai_method.md` -> update now says the changelog's topic subtitles group inside the existing sections rather than replacing them, which is where every entry so far read the rule as optional.
+  - ## Upgrading
+    - MINOR, but it moves files.
+- # 2.7.0 - 2026-09-04
+  - ## Changed
+    - Decisions carry their series as a prefix: functional `FD-001`, architecture `AD-001`, placeholders `FD-XXX` and `AD-XXX`. Bare `D-001` is gone; numbers unchanged.
+    - Prefix, not digit count, separates the two: `D-16` and `D-016` meant unrelated things.
+  - ## Upgrading
+    - MINOR. Rename `D-nnn` to `AD-nnn`, and any functional series to `FD-nnn`. Older entries keep the `D-` form, annotated after publication.
+- # 2.6.0 - 2026-09-04
+  - ## Added
+    - Each version is one release commit carrying one annotated `template/v<version>` tag, recorded in `ai-agents/agent_ai_method.md` -> update. Until now nothing tagged the template's history, so an entry's commits could only be found by reading subject lines, and two commits carried two versions each. A tag survives the squash-merge and rebase that `ai-rules/policy_commits.md` -> Branching requires, which is why it is the reference and a commit hash is not.
+  - ## Upgrading
+    - MINOR. Nothing already done is invalidated. Tags for 1.1.0 and 2.3.0 onward were added retroactively; earlier versions map to no unambiguous commit and stay untagged.
+- # 2.5.3 - 2026-09-04
+  - ## Changed
+    - Acceptance-criteria count and "be generous with Out of scope" moved from `ai-agents/agent_product_owner.md` to `specs/TEMPLATE.md`.
+    - Changelog entries carry a why only where the line does not already give one; a move or a rename is one line.
+  - ## Upgrading
+    - PATCH.
+- # 2.5.2 - 2026-09-04
+  - ## Fixed
+    - Retry policy reworked:
+      - Who-fixes-what dropped from `ai-rules/policy_workflow.md` and left only in `ai-agents/agent_orchestrator.md`, because the policy sent every retry to `@coder` where the orchestrator routes two of five to `@tester`.
+      - `@reviewer` added to the policy's never-skip line, which only the orchestrator's copy carried.
+      - Never-skip line and retry ceiling dropped from the orchestrator's Forbidden: both restate the policy it points at.
+  - ## Changed
+    - Changelog entries now carry the gist and the why in one line per idea, because they had become a second copy of the diff.
+  - ## Upgrading
+    - PATCH. Nothing changes in substance.
+- # 2.5.1 - 2026-09-03
+  - ## Fixed
+    - `@ai-method` check 9 excludes documents outside the method tree. It reported `ai-rules/policy_architecture.md` against `docker/README.md`, which is out of scope - the finding could only be cleared by breaking a Forbidden line. The two are not one rule twice: the policy states it for the agents, the README explains it to the operator running the stack. Check 5 already scopes itself this way.
+    - Check 9 also excludes a prohibition a wrapper repeats from its canonical document. `ai-rules/policy_workflow.md` -> Agent documents permits that duplication by name, and it is the longest verbatim overlap in the tree at twelve words. An exclusion list missing the biggest permitted case reports it before it reports a real one.
+    - Check 3 no longer fails a wrapper for saying what its agent does. "An enumeration of three or more items" condemns seven of the twelve wrappers, because a frontmatter `description:` is what Claude Code matches on to dispatch - `auditor`'s names all eight of its checks. It now says documents rather than items, which is what 2.3.0 and 2.5.0 actually removed from `.claude/agents/coder.md` and `.claude/agents/tester.md`.
+  - ## Known and unfixed
+    - Check 9's "near-verbatim" is still undefined, and the calibration failed rather than being skipped. The nine duplicates 2.5.0 removed share identical runs of five to ten words; overlaps the tree permits run longer - twelve for the wrapper prohibition above, eleven at 0.83 vocabulary overlap between `CLAUDE.md` -> Workflow and `ai-rules/policy_workflow.md`:2. Catching all nine costs about fifty-eight further pairs. No cutoff separates the two sets, and a number that looks reproducible without separating anything is worse than the stated ambiguity. The measurements are here so the next pass starts from evidence.
+    - `ai-rules/policy_workflow.md`:34 and `ai-agents/agent_designer.md`:5 both state the design-skip rule, sharing eleven identical words - longer than any of the nine. No check has ever reported it and none will: it sits inside the band above. Recorded as that gap's concrete cost. Fixing it edits the tree, which is past PATCH.
+  - ## Upgrading
+    - PATCH. All three edits state what the checks were already being run as, so a tree that passed check 3 or check 9 before still passes. Nothing outside `ai-agents/agent_ai_method.md` changes.
+- # 2.5.0 - 2026-09-03
+  - ## Changed
+    - Eight rules stated in full in two documents now live in one, with the other pointing at it: the release bump to `ai-rules/policy_commits.md`, the retry rule to `ai-rules/policy_workflow.md`, the mocking boundaries and the tester's ownership of `tests/` and `e2e/` to `ai-rules/policy_testing.md`, the synced-folder and config-failure rules to `ai-rules/policy_architecture.md`, and the contents of `docker/` to `CLAUDE.md` -> Folder layout.
+    - The rule they follow is `README.md` -> Document map's, unchanged since 1.1.0: the policy owns the rule, the document that merely needs it points. The previous state had it backwards in the costliest direction. An agent document is read at the moment the agent acts, so its copy is the one obeyed, and it outranks the policy it copies the second the two disagree. `CLAUDE.md` is worse still, being read first in every session by every agent.
+    - Each pointer keeps what its document genuinely owns, which is why none is a bare cross-reference. `CLAUDE.md` keeps "Never skip `@tester`", `specs/init.md` its **ASK** and the argument for asking now rather than later, `README.md` that `docker/` is a skeleton to adapt at step 10, `ai-agents/agent_orchestrator.md` its routing table.
+    - `ai-agents/agent_orchestrator.md` also loses the retry ceiling it restated. No check reported that one; it became a defect the moment the pointer landed four lines above a second statement of the ceiling. A pointer that overclaims is worse than the duplicate it replaced, because a reader who finds it false once stops checking the others.
+    - The runtime image's non-root user and absent dev dependencies stood in both `ai-rules/policy_architecture.md` -> Deployment shape and `ai-rules/policy_security.md` -> Container and dependency hardening. The sentence welded two rules together: a multi-stage build is deployment shape, running non-root with no dev tooling is attack-surface reduction. Architecture keeps the build stages and points for the rest, so neither document hosts a rule it never asked for.
+  - ## Fixed
+    - `ai-agents/agent_auditor.md` states what it loads in a `Load` section. Its four policies sat under `# Scope` as prose - the last agent document with no `Load` section at all, and shaped so that check 4, which exists to catch exactly this, read it as scope.
+    - `.claude/agents/tester.md`'s description no longer names the policy the tester loads. Same defect 2.3.0 removed from `.claude/agents/coder.md`, missed here because the coder's named three policies and the tester's one - and a single stale name reads as a fact rather than as an inventory.
+    - Check 9 no longer reports an agent's preflight refusal line. Four agents refuse in the same words because they are doing the same thing, and the rule lives once already, in `ai-rules/policy_workflow.md` -> Handoff rules. The check flagged one of six identical pairs because a word count decided it rather than anything about the text.
+  - ## Known and unfixed
+    - `ai-agents/agent_committer.md` -> Releases still restates `ai-rules/policy_commits.md`'s clean-checkout rule, reworded past check 9's word count. Left deliberately: it was outside this version's approved change set, and nothing here makes the document contradict itself the way the orchestrator's retry ceiling would have. `ai-rules/policy_architecture.md`'s multi-stage image and start-up migration are misfiled under Development environment while describing production; a section move is a different kind of change and gets its own version.
+  - ## Upgrading
+    - MINOR. Nothing invalidates work already done - every rule reads the same after the move, in one place instead of two. The value is not in any single edit but in there being one text to change the next time one of these rules is revised. A project that adapted a pointing document keeps its version; local divergence wins.
 - # 2.4.0 - 2026-09-03
   - ## Fixed
     - `.devcontainer/devcontainer.json` sets `"dockerDashComposeVersion": "none"` and `"installDockerComposeSwitch": false` on the `docker-outside-of-docker` feature. Left at their `latest` defaults the feature resolves versions through GitHub with `git ls-remote`, and an unauthenticated request that gets rate limited returns an auth challenge rather than a version list - the build then fails with `Invalid compose_version value: latest`, which names nothing that would lead anyone to the cause. Nothing is lost by pinning them off: the moby packages installed from apt already provide the `docker compose` plugin, and compose-switch only shims the hyphenated spelling that nothing here types.
@@ -76,7 +151,7 @@
     - `agents/agent_coder.md`, `agents/agent_tester.md`, `agents/agent_committer.md`. These three agents were the only ones with no canonical workflow document: their instructions lived entirely in the Claude Code wrappers, so they were shaped differently from the other eight and had nowhere to state a preflight, a procedure or a handoff. The roster is now symmetric, eleven for eleven.
     - `README.md`, the instantiation guide. Replaces `template.md`, which held a name, a version and a date. Covers what the template is and is not, the copy-fill-bootstrap-delete procedure, the document map, the decision-numbering convention, why the gate numbering has holes, how to add an agent, and the known limits.
     - `CHANGELOG.md`, this file.
-    - An authentication switch at `specs/init.md` step 1. The bootstrap previously wired Better Auth unconditionally, which was wrong for a single-operator tool on a private network and impossible to decline without editing the bootstrap. The choice is now explicit, governs steps 4, 8 and 8b, and is recorded as a D-XXX either way - skipping authentication is a decision, not the absence of one.
+    - An authentication switch at `specs/init.md` step 1. The bootstrap previously wired Better Auth unconditionally, which was wrong for a single-operator tool on a private network and impossible to decline without editing the bootstrap. The choice is now explicit, governs steps 4, 8 and 8b, and is recorded as an AD-XXX (ex D-XXX) either way - skipping authentication is a decision, not the absence of one.
   - ## Changed
     - `specs/001-hello-world.md` rewritten. The smoke test was a per-user greetings feature with sign-in redirection, ownership scoping and an administrator-only delete: six of its eight acceptance criteria depended on authentication, so it could not run at all once step 8 became optional. It is now a page rendering "Hello world" with a button that cycles the heading colour. No database, no server boundary, no roles.
     - The new spec carries a "What this deliberately does not prove" section. The old smoke test claimed to prove the whole chain; the new one proves less, and says so, so that a green bootstrap is not mistaken for a validated stack.
@@ -101,7 +176,7 @@
     - The rationale for a **method** change belongs in this file, not in `rules/decisions.md`. That file stays single-writer, `@architect`, and records product architecture only. `CHANGELOG.md` is to the method what `rules/decisions.md` is to the architecture, which is why every entry here carries a why and not only a what. Recorded in `README.md` -> Document map.
     - `agent_reviewer.md` now redirects rather than reviews: a diff touching `rules/`, `agents/`, `.claude/agents/`, `CLAUDE.md`, `README.md` or `specs/TEMPLATE.md` is reported and handed to `@ai-method`, and the rest of the range is reviewed normally.
     - `rules/policy_commits.md`: `.claude/` appeared in no list at all, so a wrapper change was classified by no rule. It is now part of the docs-only set, alongside `README.md` and `CHANGELOG.md`. A second clause was added: a change to the method requires `@ai-method` in `check` mode to have returned PASS. Machine checks have nothing to say about Markdown, but the method governs every feature built afterwards, so it is the one docs change that is not exempt from review.
-    - `agents/agent_architect.md` -> Populate the technical spec no longer restates `specs/TEMPLATE.md`. It listed all ten technical sections and what each holds, word for word from the template placeholders, adding nothing. It now points at the template, which is canonical for the shape of a spec, and keeps only the two things a placeholder cannot carry: that an inapplicable section reads "N/A" **with its reason**, and that every claim traces to a D-XXX, a policy or an answer given at G3. Surfaced by check 9, which caught one sentence of the ten.
+    - `agents/agent_architect.md` -> Populate the technical spec no longer restates `specs/TEMPLATE.md`. It listed all ten technical sections and what each holds, word for word from the template placeholders, adding nothing. It now points at the template, which is canonical for the shape of a spec, and keeps only the two things a placeholder cannot carry: that an inapplicable section reads "N/A" **with its reason**, and that every claim traces to an AD-XXX (ex D-XXX), a policy or an answer given at G3. Surfaced by check 9, which caught one sentence of the ten.
     - Two wrapper lines kept by judgment in the pass above were rewritten as prohibitions rather than waived. `committer.md` said "execute `git add` and `git commit` on the same command line"; `reviewer.md` restated the advisory rule from the wrong section of its own document. Both were procedures by phrasing and prohibitions by substance, so the fix was the wording, not an exemption. No waiver mechanism was added: after this pass no irreducible exception remains, and machinery for zero cases is how a rule starts being ignored.
     - Checks 5, 6 and 10 of `@ai-method` were calibrated by running all ten against this tree, twice. Of the first run's 17 findings, 10 were the checks' own blind spots rather than defects, which is the ratio a check has to earn its way out of before it is worth running.
     - Check 5 now resolves the house shorthand for wrappers and agent workflows, not only for policies, and excludes `specs/NNN-*.md`, which the method names only as examples.
@@ -111,5 +186,5 @@
   - ## Removed
     - `template.md`. Superseded by `README.md`; nothing referenced it.
 - # 1.0.0 - 2026-07-31
-  - Initial template: eleven Claude Code subagents, seven policies, fifteen architecture decisions (D-001 to D-015), the gated workflow with its retry policy, the spec and design templates, and the bootstrap procedure.
+  - Initial template: eleven Claude Code subagents, seven policies, fifteen architecture decisions (AD-001 to AD-015, ex D-001 to D-015), the gated workflow with its retry policy, the spec and design templates, and the bootstrap procedure.
   - Recorded here retrospectively. This version was never tagged; the date is the one carried by the `template.md` it shipped with.
