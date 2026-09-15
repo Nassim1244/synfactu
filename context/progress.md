@@ -3,7 +3,7 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
-  - [Specs currently being worked on.]
+  - 2026-09-15 - bootstrap at step 6 of 15, value objects written, steps 7 to 15 outstanding - specs/init.md
 - # Completed
   - [Move spec entries here when they reach READY (see `ai-agents/agent_reviewer.md`).]
 - # Blocked or deferred
@@ -13,4 +13,7 @@
 - # Migrations applied
   - [One line per migration: date, migration name, what it changed.]
 - # Recent events
-  - [Decisions recorded, roadmap changes, dependency upgrades that changed behaviour.]
+  - 2026-09-15 - AD-019 recorded, database backups in ./backups relative to docker/, ten kept - ai-rules/decisions.md
+  - 2026-09-15 - AD-018 recorded, money rounds half up, 420 minutes as the bootstrap day length - ai-rules/decisions.md
+  - 2026-09-15 - AD-017 recorded, authentication skipped at bootstrap, AD-009 carried as debt - ai-rules/decisions.md
+  - 2026-09-15 - AD-016 recorded, AGPL-3.0 as the project license - ai-rules/decisions.md
