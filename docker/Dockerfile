@@ -9,7 +9,7 @@
 # Requires output: "standalone" in next.config. Without it the runtime stage
 # has no server.js to copy and the build fails at the last COPY.
 
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 
 # --- dependencies ------------------------------------------------------------
 FROM node:${NODE_VERSION}-slim AS deps

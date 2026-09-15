@@ -14,7 +14,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       args:
-        NODE_VERSION: ${NODE_VERSION:-22}
+        NODE_VERSION: ${NODE_VERSION:-24}
     image: synfactu:latest
     restart: unless-stopped
 

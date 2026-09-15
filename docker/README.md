@@ -13,7 +13,7 @@ project-specific.
 | | Development | Production |
 |---|---|---|
 | File | `docker-compose.dev.yml` | `docker-compose.yml` |
-| Image | plain `node:22-bookworm` | built from `Dockerfile` |
+| Image | plain `node:24-bookworm` | built from `Dockerfile` |
 | Source | bind-mounted, live | baked into the image |
 | Port | `127.0.0.1:3000` | not published; Caddy proxies |
 | Database | named volume `dev_data` | named volume `data` |
