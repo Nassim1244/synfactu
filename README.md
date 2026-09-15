@@ -1,11 +1,11 @@
 - # Spec-driven template
-  - A working method for building a self-hosted web application with Claude Code: twelve agents, seven policies, fifteen architecture decisions and a gated workflow that stops for a human where a wrong answer is expensive.
+  - A working method for building a self-hosted web application with Claude Code: twelve agents, seven policies, the architecture decisions recorded in `ai-rules/decisions.md`, and a gated workflow that stops for a human where a wrong answer is expensive.
   - Copy this folder into an empty repository, run `specs/init.md`, and you have a containerised application with the whole chain proven before the first real feature is specified.
   - Version and history: `CHANGELOG.md`.
 - # What this template is
   - Instructions, not code, with one deliberate exception: `docker/` and `.devcontainer/` ship skeletons, because container configuration is the one part that barely varies between projects and the one where a mistake is silent and expensive.
   - Opinionated and stack-specific. Next.js with the App Router, TypeScript, Prisma, SQLite, Better Auth, Tailwind, shadcn/ui, Vitest, Playwright, Docker Compose behind an existing Caddy instance.
-  - It is **not** stack-agnostic, and pretending otherwise would be the fastest way to ruin it. `ai-rules/policy_architecture.md` is built around Server Actions and the App Router; `ai-rules/decisions.md` AD-001 to AD-015 assume Prisma and SQLite; `specs/init.md` scaffolds a Next.js project. On a Python service or a CLI, the workflow and the gates transfer, and almost nothing else does.
+  - It is **not** stack-agnostic, and pretending otherwise would be the fastest way to ruin it. `ai-rules/policy_architecture.md` is built around Server Actions and the App Router; the architecture decisions in `ai-rules/decisions.md` assume Prisma and SQLite; `specs/init.md` scaffolds a Next.js project. On a Python service or a CLI, the workflow and the gates transfer, and almost nothing else does.
   - What makes it worth copying is not the stack. It is that every rule is specific enough for `@reviewer` to cite it and refuse a change, which is what separates a policy from a wish.
 - # What it guarantees, and what it does not
   - It guarantees that a feature cannot reach a commit without: an approved functional spec, an approved design when it has an interface, a technical spec with its decisions recorded, tests written by someone other than the author, and a review that names the rule behind every finding.

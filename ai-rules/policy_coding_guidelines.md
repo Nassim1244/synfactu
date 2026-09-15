@@ -41,6 +41,8 @@
 - # Value objects
   - Money, durations and rates are handled through `Money`, `Duration` and `Rate` (see AD-007). Arithmetic on raw cents or raw minutes outside `src/lib/money/` is forbidden.
   - Rounding happens inside the value object. A rounding rule written anywhere else is a bug.
+  - Money rounds half up: a half-cent rounds away from zero (see AD-018).
+  - The day length used to convert a `Duration` into a decimal number of days is a parameter of that conversion, not a constant: `Duration` takes it as an argument and never hardcodes it. Its bootstrap default is 420 minutes, seven hours (see AD-018).
   - Formatting for display is a value-object method, not a scattered `toFixed(2)`.
   - The application has one interface language and one locale, declared as a single constant in `src/lib/money/`. Formatting methods take no locale argument and read that constant.
   - This is a deliberate closing of the door: there is no locale plumbing, no message catalogue and no fallback chain. Re-opening it means changing one constant and the methods that read it, which is cheaper than maintaining a variation point nothing uses.
