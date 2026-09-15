@@ -1,0 +1,119 @@
+# .dockerignore - what never enters the Docker build context.
+#
+# Lives at the repository root because Docker resolves it against the build
+# context, and `docker/docker-compose.yml` sets that context to the root
+# (see `CLAUDE.md` -> Root files, `docker/README.md`).
+#
+# This is not a copy of `.gitignore`. That file answers "what must never be
+# committed"; this one answers "what must never reach the image". The two
+# overlap on secrets and build output and diverge everywhere else: the method
+# and documentation trees are committed on purpose and have no business in a
+# build context, while `.env` is git-ignored yet was still being baked into
+# the shipped image.
+#
+# `docker/Dockerfile` build stage runs `COPY . .`, so everything not listed
+# here is copied, and `next build` copies the root `.env` into
+# `.next/standalone` (Next copies `.env` and `.env.production` verbatim into
+# the standalone output). The runtime stage then copies that standalone
+# directory into the distributed image. Excluding `.env` here is what breaks
+# that chain: the file never reaches the build stage, so there is nothing for
+# Next to copy.
+#
+# Before adding a line, check what each Dockerfile stage consumes. The build
+# stage runs the real Next build, and the runtime stage reads
+# `docker/entrypoint.sh` from this context. Excluding something the build
+# needs trades a secrets leak for a broken build, which is worse.
+
+# --- Secrets - the reason this file exists (see AD-014) -----------------------
+# Real values, never distributed. `.env.example` is re-included below: it is
+# the documented template and must stay available.
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+# .npmrc can carry a registry token. Nothing needs it: the deps stage installs
+# from `package.json` and `pnpm-lock.yaml` only.
+.npmrc
+**/.npmrc
+# Keys and certificates.
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/*.pfx
+
+# --- Local data - the database lives in a volume, never in an image ----------
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+**/*.db
+**/*.db-journal
+**/*.db-wal
+**/*.db-shm
+backups/
+
+# --- Build output and dependencies -------------------------------------------
+# node_modules is installed in the deps stage and copied from it; a host
+# node_modules would be both stale and the wrong platform.
+node_modules
+**/node_modules
+.pnpm-store
+# A stale .next from a host build, including the standalone output that
+# carries the leaked .env.
+.next
+out
+*.tsbuildinfo
+.eslintcache
+
+# --- Version control ----------------------------------------------------------
+.git
+.gitignore
+.gitattributes
+.github
+
+# --- Method, specification and documentation trees ----------------------------
+# Prose, not application code. Nothing in any stage reads them.
+# `docker/` is deliberately absent from this list: the runtime stage runs
+# `COPY docker/entrypoint.sh`, which reads from this context.
+ai-rules
+ai-agents
+specs
+design
+context
+.devcontainer
+.claude
+README.md
+CHANGELOG.md
+CLAUDE.md
+AGENTS.md
+# LICENSE stays in the context on purpose: the project ships as a distributed
+# image and the license travels with it.
+
+# --- Tests --------------------------------------------------------------------
+# The image runs the application; it never runs the suites.
+tests
+e2e
+playwright.config.ts
+vitest.config.mts
+vitest.setup.ts
+coverage
+test-results
+playwright-report
+blob-report
+.playwright
+
+# --- Logs, OS and editor noise ------------------------------------------------
+*.log
+**/*.log
+.DS_Store
+Thumbs.db
+*.swp
+.idea
+.vscode
