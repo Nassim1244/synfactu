@@ -27,15 +27,16 @@
     - The VS Code **Dev Containers** extension, `ms-vscode-remote.remote-containers`. It is what provides the "Reopen in Container" command; without it this step has no entry point at all.
     - The daemon must be able to reach the drive holding the repository. A repository outside the system drive is fine, and is the first thing to check when the container fails to start.
   - ## Adapt the skeleton
-    - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names and set `NODE_VERSION`.
-    - `NODE_VERSION` must match `ARG NODE_VERSION` in `docker/Dockerfile`. Development and production are deliberately different images, but a version skew between them produces failures that appear only in production.
+    - `.devcontainer/devcontainer.json` and `docker/docker-compose.dev.yml` ship with the template. Replace their `CHANGEME` names, and set the Node major directly in the dev stack's `image:` tag - it is written out rather than taken from a variable, and the file says why.
+    - That tag must match `ARG NODE_VERSION` in `docker/Dockerfile`. Development and production are deliberately different images, but a version skew between them produces failures that appear only in production.
     - Claude Code has to run **inside the container**, or the instruction below cannot be followed. The skeleton already carries the official feature, `ghcr.io/anthropics/devcontainer-features/claude-code:1`, and the `anthropic.claude-code` extension in `customizations.vscode.extensions`. Confirm both are there rather than adding them.
       - It installs at image build time as root, so it works with a non-root `remoteUser` and needs no npm prefix arrangement.
       - It installs Node itself only when the base image has none, and that fallback is Node 18. The development image is a `node:` image, so the fallback never fires - do not add the `node` feature beside it, or it contends with the pinned version.
   - ## Build and verify
     - Open the repository in VS Code and choose **Reopen in Container**. The first build pulls the base image and runs every feature; expect minutes, not seconds.
-    - Verify inside the container, treating each as a gate rather than a formality: `node --version` matches the pin, `pnpm --version` answers, `claude --version` answers.
+    - Verify inside the container, treating each as a gate rather than a formality: `node --version` matches the pin, `pnpm --version` answers, `claude --version` answers, and `stat -c %U /workspace/node_modules` answers `node`.
     - `pnpm` is the one that most often fails to arrive. `postCreateCommand` runs as `remoteUser`, and `corepack enable` writes its shims into a root-owned directory. If it fails, `pnpm` does not exist, step 2 cannot start, and no machine gate can pass afterwards.
+    - The fourth gate is the other way `pnpm` fails - permission rather than absence. `node_modules` is a named volume, and a root-owned mount point stops `pnpm install` at `Failed to write cafs ... Permission denied`. `docker/docker-compose.dev.yml` takes ownership at every container start, so `root` there means that command did not run.
   - **Run Claude Code from the container's terminal from this point on.** `@tester` runs `pnpm test` and `@committer` runs `pnpm lint`; dispatched from a shell outside the container, those commands do not exist and the machine gates cannot pass.
   - Commit: `build: add development container`.
 - # 2 - Scaffold

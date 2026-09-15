@@ -38,9 +38,6 @@
     // Git
     "ghcr.io/devcontainers/features/git:1": {},
 
-    //Node
-    "ghcr.io/devcontainers/features/node:1": {},
-
     // Gives the "node" user passwordless sudo. Needed because
     // postCreateCommand runs as remoteUser and "corepack enable" writes its
     // shims into root-owned /usr/local/bin.

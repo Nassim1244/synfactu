@@ -14,14 +14,48 @@ services:
     # A plain Node image, not the project's Dockerfile. The production image
     # is non-root, carries no dev dependencies and needs a built application;
     # none of that exists yet at bootstrap, and none of it is wanted here.
-    image: node:${NODE_VERSION:-22}-bookworm
+    #
+    # The tag is written out rather than taken from ${NODE_VERSION}. Every
+    # official node: image defines NODE_VERSION in its own environment, so
+    # compose run from inside this container interpolates that value and the
+    # default never applies - the stack then rebuilds itself on whatever major
+    # the running image happens to carry. Nothing ever set the variable
+    # deliberately: there is no docker/.env and no env_file here. Change the
+    # major by editing this line, and keep it matching ARG NODE_VERSION in
+    # docker/Dockerfile.
+    image: node:24-bookworm
     working_dir: /workspace
-    # VS Code attaches and drives the container. Without this it would exit
-    # immediately, having nothing to run.
-    command: sleep infinity
+    # VS Code attaches and drives the container. Without something that keeps
+    # running it would exit immediately, having nothing to run.
+    #
+    # This runs as root - there is no "user:" here, and "remoteUser" only
+    # applies to the shells VS Code opens - which is what lets it fix the
+    # node_modules mount point before anything needs to write there. A named
+    # volume inherits the ownership of its mount point on first creation, and
+    # the base image has no /workspace/node_modules, so Docker creates it
+    # root-owned and "pnpm install" stops at "Failed to write cafs ...
+    # Permission denied". docker/Dockerfile chowns /data for the same reason.
+    #
+    # The ownership test makes it a no-op once the volume is correct, so a
+    # populated node_modules is not walked on every start.
+    command: >-
+      sh -c '
+      mkdir -p /workspace/node_modules;
+      [ "$$(stat -c %u /workspace/node_modules)" = "$$(id -u node)" ] || chown -R node:node /workspace/node_modules;
+      exec sleep infinity
+      '
 
     environment:
-      NODE_ENV: development
+      # NODE_ENV is deliberately absent, and there is no narrower place to put
+      # it: a value in this block is the container's environment, inherited by
+      # every shell VS Code opens and every command an agent runs, and
+      # "remoteEnv" in devcontainer.json would be the same leak by another
+      # route. Next respects an ambient NODE_ENV and only defaults when it is
+      # unset, so pinned to "development" it makes "next build" mix React's
+      # development and production builds, and prerendering dies with "Cannot
+      # read properties of null (reading 'useContext')". Nothing needs it set
+      # here - "next dev" sets development, "next build" and "next start" set
+      # production, and Vitest sets test.
       DATABASE_URL: "file:/data/dev.db"
 
     volumes:
