@@ -40,6 +40,7 @@
   - **Run Claude Code from the container's terminal from this point on.** `@tester` runs `pnpm test` and `@committer` runs `pnpm lint`; dispatched from a shell outside the container, those commands do not exist and the machine gates cannot pass.
   - Commit: `build: add development container`.
 - # 2 - Scaffold
+  - Create `AGENTS.md` at the root, empty, before running anything below. Both `create-next-app` and `next dev` write the Next.js managed agent-rules block, and with no `AGENTS.md` present they target `CLAUDE.md` - `next dev` appends the block to it, `create-next-app` replaces it outright with a one-line `@AGENTS.md` stub. An empty file is enough to divert both, and the first `next dev` fills it in (see `CLAUDE.md` -> Root files).
   - Create the Next.js application in the repository root:
     - `pnpm create next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm`
   - Set `"strict": true` and `"noUncheckedIndexedAccess": true` in `tsconfig.json`.

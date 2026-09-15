@@ -11,6 +11,7 @@
     - "Reachable" means an actual call path exists, not merely that the package is installed. State the evidence.
   - When upgrading: change the exact version in `package.json`, run `pnpm install`, then `pnpm typecheck`, `pnpm test` and `pnpm build`, then `pnpm audit` again.
   - Commit `package.json` and `pnpm-lock.yaml` together, never separately (see `policy_commits.md`).
+  - Upgrading Next rewrites the managed block in `AGENTS.md`, its text being built from the installed version. The diff is expected and belongs in the upgrade commit; reverting it only has the next `next dev` write it again (see `CLAUDE.md` -> Root files).
   - Run `pnpm outdated` separately from the security audit. Report available upgrades, but do not bundle a feature-driven upgrade into a security fix commit.
 - # Reporting
   - One line per finding: advisory id, package, severity, whether it is a direct or transitive dependency, reachable or not, and the decision with a one-line rationale.

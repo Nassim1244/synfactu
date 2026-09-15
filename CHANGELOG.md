@@ -2,6 +2,16 @@
   - Versions of the spec-driven template itself, independent of any project built from it. SemVer.
   - How a project catches up on a newer version, and why there is no link back to this repository: `README.md` -> Versioning and back-porting.
   - Most recent version first.
+- # 2.10.0 - 2026-09-15
+  - ## Added
+    - `AGENTS.md` at the repository root, holding the agent-rules block Next generates, with the rule that governs it in `CLAUDE.md` -> Root files: committed, never deleted, never hand-edited between its markers, and framework reference rather than method where the two disagree. Next 16.3+ writes that block into `CLAUDE.md` when no `AGENTS.md` exists, which put an unattended build tool inside the method's declared entry point - the one file `@ai-method` alone may edit. The generator checks only that `AGENTS.md` exists, so the file's presence is the whole fix: it upserts `AGENTS.md` and never opens `CLAUDE.md` for writing.
+    - `specs/init.md` step 2 creates `AGENTS.md` before the scaffold runs. `create-next-app` does not append to `CLAUDE.md` the way `next dev` does - it overwrites it with a one-line `@AGENTS.md` stub - so on a template copy the bootstrap's first command is also the destructive one.
+    - `ai-agents/agent_dependency.md` says a Next upgrade rewrites that block, its text being built from the installed version. The diff belongs in the upgrade commit; reverting it only has the next `next dev` write it again.
+  - ## Changed
+    - `ai-agents/agent_ai_method.md` -> Scope takes `docker/docker-compose.dev.yml` in and names the production stack out. Putting all of `docker/` out of scope contradicted `CLAUDE.md` -> Workflow, which gives this agent the development container: the dev compose file is half of that container. The `Dockerfile`, the production compose file, the entrypoint and the operating scripts stay out, and `@coder` adapts them at `specs/init.md` step 10.
+    - The same section adds `AGENTS.md`, owned as `CLAUDE.md` is except that its block is authored by the tool: this agent may create or move the file and may never write its content.
+  - ## Upgrading
+    - MINOR. The symptom is a `<!-- BEGIN:nextjs-agent-rules -->` block that appeared at the bottom of your `CLAUDE.md` after running `next dev`. Create `AGENTS.md` at the root - empty is enough, the next `next dev` fills it - and if that block is in your `CLAUDE.md`, delete it in the same commit: while `CLAUDE.md` still hosts it, the generator keeps `CLAUDE.md` as the managed file and ignores `AGENTS.md` entirely.
 - # 2.9.1 - 2026-09-15
   - ## Fixed
     - `ghcr.io/devcontainers/features/node:1` removed from `.devcontainer/devcontainer.json` and its entry from `.devcontainer/devcontainer-lock.json`. The feature installs `lts/*` into nvm and prepends that to `PATH`, so `node` and `pnpm` resolve to whatever is current LTS instead of the version the base image tag pins, and it floats, carrying the project to the next major on its own. The comment in `devcontainer.json` and `specs/init.md` step 1b both already said not to add it beside the claude-code feature; the Node version has one home, the image tag in `docker/docker-compose.dev.yml`.

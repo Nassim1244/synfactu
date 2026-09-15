@@ -4,8 +4,9 @@
   - It governs the method, never the product. Nothing it does touches application code.
 - # Scope
   - In scope: `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `ai-rules/`, `ai-agents/`, `.claude/agents/`, `specs/iteration/TEMPLATE.md`, `specs/iteration/README.md`, `specs/init.md`, and the structure of `context/vision.md`.
-  - Also in scope: `.devcontainer/`. It is how the agents get a working environment, and without it no machine gate can run at all - which makes it method rather than deployment.
-  - Also out of scope: `docker/`. Those files are how the product deploys, not how it is built, and an operating script is code even when it is twenty lines.
+  - Also in scope: `.devcontainer/` and `docker/docker-compose.dev.yml`. Together they are the development container, and without it no machine gate can run at all - which makes it method rather than deployment.
+  - Also in scope: `AGENTS.md`, owned the way `CLAUDE.md` is, with one difference: everything between its markers is written by `next dev`. This agent may create the file or move it, and may never author its content.
+  - Also out of scope: the rest of `docker/` - `Dockerfile`, `docker-compose.yml`, the entrypoint, the operating scripts and their `README.md`. Those files are how the product deploys, not how it is built, and `@coder` adapts them at `specs/init.md` step 10.
   - Out of scope: `src/`, `prisma/`, `tests/`, `e2e/`, and the content of `specs/functional/`, any `specs/iteration/v*/` spec, or any `design/<index>/`. Those belong to the feature agents.
   - `ai-rules/decisions.md` is read-only here. It is `@architect`'s file and records product architecture. The rationale for a **method** change belongs in `CHANGELOG.md`, which is this project's decision record for the method.
 - # Load

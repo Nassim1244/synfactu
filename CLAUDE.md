@@ -25,6 +25,7 @@
   - .env.example - every environment variable the app reads, with safe placeholder values. Never contains a real secret. Stays at the root because Next.js loads `.env` from the project root.
   - .dockerignore - stays at the root because Docker resolves it against the build context, which is the root.
   - LICENSE - chosen at project bootstrap and recorded as a new AD-XXX (see `specs/init.md`).
+  - AGENTS.md - the managed Next.js agent-rules block, written and re-added by `next dev`. Committed, never deleted, and never hand-edited between its markers: it regenerates either way, and if it is absent the block is written into this file instead. Framework reference rather than method - where the two disagree, this file wins.
 - # Tech stack
   - See `ai-rules/policy_techstack.md`.
 - # Context
