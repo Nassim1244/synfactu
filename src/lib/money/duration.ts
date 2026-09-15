@@ -206,14 +206,19 @@ export class Duration {
   }
 
   /**
-   * Renders the duration as hours and minutes in the French convention:
-   * 450 minutes becomes "7 h 30", 420 becomes "7 h", 45 becomes "45 min" and
-   * -450 becomes "-7 h 30". Zero is "0 min".
+   * Renders the duration as hours and minutes in the compact, unspaced form:
+   * 450 minutes becomes "7h30", 420 becomes "7h", 45 becomes "45min" and -450
+   * becomes "-7h30". Zero is "0min".
    *
-   * The minutes are padded to two digits only when hours are shown, so "7 h 05"
-   * cannot be misread as "7 h 5". Plain spaces are used and the number is not
-   * grouped: a duration is read, not totalled by eye, and grouping would make
-   * the string depend on `Intl` data for no benefit.
+   * The form is unspaced because the time journal is the daily-use screen and
+   * it is a dense table where column width decides how much fits on one line.
+   * The spaced French convention ("7 h 30") reads slightly better in prose and
+   * costs two characters per cell, which is the wrong trade here.
+   *
+   * The minutes are padded to two digits only when hours are shown, so "7h05"
+   * cannot be misread as "7h5". The number is not grouped: a duration is read,
+   * not totalled by eye, and grouping would make the string depend on `Intl`
+   * data for no benefit.
    */
   format(): string {
     const magnitude = Math.abs(this.minutes);
@@ -222,11 +227,11 @@ export class Duration {
     const sign = this.minutes < 0 ? "-" : "";
 
     if (hours === 0) {
-      return `${sign}${minutes} min`;
+      return `${sign}${minutes}min`;
     }
     if (minutes === 0) {
-      return `${sign}${hours} h`;
+      return `${sign}${hours}h`;
     }
-    return `${sign}${hours} h ${minutes.toString().padStart(2, "0")}`;
+    return `${sign}${hours}h${minutes.toString().padStart(2, "0")}`;
   }
 }
