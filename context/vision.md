@@ -43,8 +43,8 @@
     - CI pipeline (GitHub Actions) running `format:check`, `lint`, `typecheck`, `test` and `build` on every push, so gates G5 and G8 are enforced rather than conventional. See `ai-rules/policy_workflow.md` -> Gates.
     - **Phase 2** - payments, payslips, URSSAF, and the whole dashboard, statistics and charts. This is where estimated-versus-real reconciliation becomes possible, and where the historized charge rate table arrives.
     - **Phase 3** - CSV import, which is also the Excel history migration path, and data export to CSV/JSON. Depends on Phase 2: historical charge rates are back-computed from URSSAF records, not hand-entered.
-    - **Authentication and user management** - Better Auth, roles, the assistant permission matrix. Until this ships, D-009 is outstanding debt across every V1 feature and the instance stays off any public URL.
+    - **Authentication and user management** - Better Auth, roles, the assistant permission matrix. Until this ships, AD-009 is outstanding debt across every V1 feature and the instance stays off any public URL.
     - Audit log and data versioning - distinct concerns, both wanted.
     - WYSIWYG PDF report builder.
     - AI analysis against a self-hosted Ollama / Mistral instance - prestation descriptions, follow-up emails, client history summaries.
-    - PostgreSQL migration, if concurrent access or row-level security ever becomes a real requirement (see D-013). At the expected volumetry - around 10 000 time entries and under 100 clients - SQLite is comfortable and stays comfortable.
+    - PostgreSQL migration, if concurrent access or row-level security ever becomes a real requirement (see AD-013). At the expected volumetry - around 10 000 time entries and under 100 clients - SQLite is comfortable and stays comfortable.

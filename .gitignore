@@ -7,7 +7,7 @@ node_modules/
 out/
 next-env.d.ts
 
-# Environment - never commit a real value (see D-014)
+# Environment - never commit a real value (see AD-014)
 .env
 .env.*
 !.env.example
@@ -20,7 +20,7 @@ next-env.d.ts
 *.p12
 *.pfx
 
-# Database - lives in a Docker volume, never in the tree (see D-013)
+# Database - lives in a Docker volume, never in the tree (see AD-013)
 *.db
 *.db-journal
 *.db-wal
