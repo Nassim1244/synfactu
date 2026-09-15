@@ -2,6 +2,21 @@
   - Versions of the spec-driven template itself, independent of any project built from it. SemVer.
   - How a project catches up on a newer version, and why there is no link back to this repository: `README.md` -> Versioning and back-porting.
   - Most recent version first.
+- # 2.11.0 - 2026-09-15
+  - ## Added
+    - Generated code is build output:
+      - `ai-rules/policy_architecture.md` -> Data access rules that the Prisma client is emitted into `src/generated/prisma/`, is ignored by git, Prettier and ESLint alike, and is never hand-edited (AD-020). AD-004 governed who may import the client and nothing governed who may edit it, so a directory of machine-written TypeScript sat inside `src/` with no rule saying it was not source.
+      - The same file's -> Structure gains a one-line pointer to that rule, since a reader opening the tree looks there for what a directory is.
+      - `.gitignore` ignores `src/generated/`, beside the other build-output entries; the `.prettierignore` and `eslint.config.mjs` counterparts belong to `@coder` at bootstrap.
+    - `ai-agents/agent_ai_method.md` -> Scope takes `.gitignore` in and names those two out. Twice now a change to it has required a one-off exception from the dispatching agent, which is the signal that Scope was wrong rather than that the cases were unusual; the toolchain ignore files stay `@coder`'s because he authors and tunes them.
+  - ## Changed
+    - `ai-rules/policy_techstack.md` -> Database states that Prisma reaches SQLite through the `@prisma/adapter-better-sqlite3` driver adapter and that the connection URL lives in `prisma.config.ts`, not in `schema.prisma` (AD-020). The adapter is not a preference: it is the only way the current major opens a connection.
+    - The same section's AD-013 migration bullet now names the adapter swap to `@prisma/adapter-pg` alongside the `postgres` service and the `DATABASE_URL` change, rather than leaving a second bullet to describe the same migration differently.
+  - ## Fixed
+    - `specs/init.md` step 7 no longer instructs two things Prisma declines to do: putting `DATABASE_URL` in the schema file, which fails validation with P1012, and creating an initial migration, which `prisma migrate dev` will not produce from a model-less schema. `migrate deploy` given no migrations directory exits 0 and provisions the database file anyway, which is why the entrypoint and the step 9 health check still hold; the first migration arrives with the first real model (AD-020).
+    - `docker/docker-compose.dev.yml` takes ownership of `/data` at container start, alongside `/workspace/node_modules`. Identical cause and identical repair to 2.9.1's, applied to the mount point that one left out: `/data` was root-owned, so `db:migrate`, the step 8b seed and the step 9 health check all died with Permission denied. `docker/Dockerfile` does chown it, but only in the production image, which this stack never builds - which is what 2.9.1's comment obscured by citing it.
+  - ## Upgrading
+    - MINOR. Take the `/data` chown if your dev stack's `command` still covers only `node_modules`; an existing `dev_data` volume is repaired in place on the next container start, so confirm `stat -c %U /data` answers `node` and no manual chown is needed. The Prisma changes apply only once you are on a major that requires a driver adapter; if your `schema.prisma` still carries `url = env("DATABASE_URL")` and validates, nothing here is urgent, and an initial migration you already created is harmless and can stay.
 - # 2.10.0 - 2026-09-15
   - ## Added
     - `AGENTS.md` at the repository root, holding the agent-rules block Next generates, with the rule that governs it in `CLAUDE.md` -> Root files: committed, never deleted, never hand-edited between its markers, and framework reference rather than method where the two disagree. Next 16.3+ writes that block into `CLAUDE.md` when no `AGENTS.md` exists, which put an unattended build tool inside the method's declared entry point - the one file `@ai-method` alone may edit. The generator checks only that `AGENTS.md` exists, so the file's presence is the whole fix: it upserts `AGENTS.md` and never opens `CLAUDE.md` for writing.

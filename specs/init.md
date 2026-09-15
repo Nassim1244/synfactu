@@ -79,9 +79,9 @@
   - Tests are mandatory here and are written by `@tester`: boundaries, negatives, the half-way case, and the remainder distribution.
   - Commit: `feat(lib): add money, duration and rate value objects`.
 - # 7 - Database
-  - Add Prisma. Datasource `sqlite`, `DATABASE_URL` from the environment (see AD-013).
+  - Add Prisma. Datasource `sqlite` in `prisma/schema.prisma`; the connection URL goes in `prisma.config.ts` at the root, since Prisma 7 removed `url` from the schema file. The client is constructed with a driver adapter (see AD-013, AD-020).
   - Create `src/lib/db.ts`: the Prisma client singleton, guarded against hot-reload duplication in development.
-  - Create the initial migration with `prisma migrate dev`. Never `prisma db push`.
+  - Do NOT create an initial migration. `prisma migrate dev` creates nothing from a model-less schema, and `prisma migrate deploy` exits 0 without a migrations directory while still creating the SQLite file, so the entrypoint and the health check both work without one. The first migration arrives with the first real model (see AD-020). Never `prisma db push`.
   - Add `db:migrate` and `db:studio` scripts.
   - Confirm the database file path resolves inside the volume mount point, not inside the source tree.
   - Commit: `feat(db): add prisma with sqlite datasource`.

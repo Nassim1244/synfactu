@@ -7,6 +7,9 @@ node_modules/
 out/
 next-env.d.ts
 
+# Generated Prisma client - build output, recreated by `prisma generate` (AD-020)
+src/generated/
+
 # Environment - never commit a real value (see AD-014)
 .env
 .env.*

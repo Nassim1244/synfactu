@@ -20,6 +20,7 @@
     - `config.ts` - environment variables, parsed and validated once at startup (see AD-014).
     - `logger.ts` - the pino root logger (see AD-012).
     - `money/` - the `Money`, `Duration` and `Rate` value objects (see AD-007).
+  - `src/generated/` - build output. Not source; see Data access.
   - `prisma/` - `schema.prisma` and `migrations/`. Owned by the architect.
   - `tests/` - mirrors `src/`. `e2e/` - Playwright journeys.
 - # Dependency rule
@@ -41,7 +42,7 @@
   - A Server Action returns a plain serialisable result. It never returns a Prisma model directly and never returns an `Error` instance.
   - After a successful mutation, call `revalidatePath` or `revalidateTag` for the affected route. Do not refetch on the client.
 - # Data access
-  - The Prisma client is importable only from `src/lib/db.ts` and from `src/features/<domain>/repository.ts` (see AD-004).
+  - The Prisma client is importable only from `src/lib/db.ts` and from `src/features/<domain>/repository.ts` (see AD-004). The client itself is generated into `src/generated/prisma/` and is build output, not source: it is git-, Prettier- and ESLint-ignored and is never edited (see AD-020).
   - A repository function takes and returns domain types, not Prisma types. It converts at its own boundary.
   - Repository functions are named for intent: `listUnpaidInvoices`, not `findMany`.
   - Every repository function that reads or writes tenant-scoped data applies the scope itself. A caller must not be able to omit it.

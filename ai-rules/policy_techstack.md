@@ -26,7 +26,8 @@
 - # Database
   - SQLite while a single operator and an occasional assistant are the only users.
   - Migrate to PostgreSQL when concurrent write access, scalability or row-level security becomes a requirement (see AD-013).
-  - The migration adds a `postgres` service to `docker-compose.yml` and changes `DATABASE_URL`. AD-004 and AD-007 exist so that nothing else changes.
+  - Prisma reaches SQLite through the `@prisma/adapter-better-sqlite3` driver adapter; the connection URL lives in `prisma.config.ts` at the repository root, not in `schema.prisma` (see AD-020).
+  - The migration adds a `postgres` service to `docker-compose.yml`, swaps the driver adapter for `@prisma/adapter-pg` and changes `DATABASE_URL`. AD-004 and AD-007 exist so that nothing else changes.
 - # Dev and build
   - pnpm - package manager. `pnpm install --frozen-lockfile` in Docker (see AD-002).
   - Vitest - unit and integration test runner.

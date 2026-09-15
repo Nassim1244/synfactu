@@ -29,19 +29,24 @@ services:
     # running it would exit immediately, having nothing to run.
     #
     # This runs as root - there is no "user:" here, and "remoteUser" only
-    # applies to the shells VS Code opens - which is what lets it fix the
-    # node_modules mount point before anything needs to write there. A named
-    # volume inherits the ownership of its mount point on first creation, and
-    # the base image has no /workspace/node_modules, so Docker creates it
-    # root-owned and "pnpm install" stops at "Failed to write cafs ...
-    # Permission denied". docker/Dockerfile chowns /data for the same reason.
+    # applies to the shells VS Code opens - which is what lets it fix both
+    # mount points before anything needs to write there. A named volume
+    # inherits the ownership of its mount point on first creation, and the
+    # base image has neither /workspace/node_modules nor /data, so Docker
+    # creates both root-owned: "pnpm install" then stops at "Failed to write
+    # cafs ... Permission denied", and everything that touches the database -
+    # "db:migrate", the seed, the health check - stops at the same error.
     #
-    # The ownership test makes it a no-op once the volume is correct, so a
-    # populated node_modules is not walked on every start.
+    # /data has to be repaired here and not left to docker/Dockerfile. That
+    # chown is in the production image, which this stack never builds.
+    #
+    # The ownership test makes each one a no-op once the volume is correct, so
+    # a populated node_modules is not walked on every start.
     command: >-
       sh -c '
-      mkdir -p /workspace/node_modules;
+      mkdir -p /workspace/node_modules /data;
       [ "$$(stat -c %u /workspace/node_modules)" = "$$(id -u node)" ] || chown -R node:node /workspace/node_modules;
+      [ "$$(stat -c %u /data)" = "$$(id -u node)" ] || chown -R node:node /data;
       exec sleep infinity
       '
 
