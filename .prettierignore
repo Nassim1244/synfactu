@@ -1,0 +1,35 @@
+# Generated or vendored - never hand-written.
+node_modules/
+.next/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+next-env.d.ts
+pnpm-lock.yaml
+
+# Documentation and method artefacts.
+#
+# These are prose owned by other agents and by the user, not application
+# code: `ai-rules/` and `ai-agents/` are the method (owned by @ai-method),
+# `specs/functional/` is the functional source (owned by the user),
+# `context/` is project state (maintained by @committer), and `docker/` and
+# `.devcontainer/` ship as skeletons under @ai-method.
+#
+# Prettier reflows markdown - list markers, wrapping, table padding - which
+# would rewrite documents this agent does not own and produce conflicts
+# between agents editing the tree at the same time. The formatting gate
+# exists for code, so it is scoped to code.
+ai-rules/
+ai-agents/
+specs/
+context/
+design/
+docker/
+.devcontainer/
+.claude/
+README.md
+CHANGELOG.md
+CLAUDE.md
+LICENSE
