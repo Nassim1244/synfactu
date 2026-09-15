@@ -3,16 +3,17 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
-  - 2026-09-15 - bootstrap at step 6 of 15, value objects written, steps 7 to 15 outstanding - specs/init.md
+  - 2026-09-15 - bootstrap at step 12 of 15, database, health check, shadcn primitives and the first test coverage landed; steps 8b, 10, 10b, 11, 13, 14 and 15 outstanding - specs/init.md
 - # Completed
   - [Move spec entries here when they reach READY (see `ai-agents/agent_reviewer.md`).]
 - # Blocked or deferred
-  - [List items waiting on a decision or paused, with the reason.]
+  - 2026-09-15 - production image build broken, with @architect: `prisma generate` and `next build` both exit 1 without DATABASE_URL in the Dockerfile build stage. Blocks step 10 (containerisation), not step 14 (hello world) - specs/init.md
 - # Releases
   - [One line per release: date, version, and the specs included since the previous tag.]
 - # Migrations applied
   - [One line per migration: date, migration name, what it changed.]
 - # Recent events
+  - 2026-09-15 - AD-020 recorded, Prisma 7 with a driver adapter, generated client in `src/generated/` as build output, no initial migration at bootstrap - ai-rules/decisions.md
   - 2026-09-15 - AD-019 recorded, database backups in ./backups relative to docker/, ten kept - ai-rules/decisions.md
   - 2026-09-15 - AD-018 recorded, money rounds half up, 420 minutes as the bootstrap day length - ai-rules/decisions.md
   - 2026-09-15 - AD-017 recorded, authentication skipped at bootstrap, AD-009 carried as debt - ai-rules/decisions.md
