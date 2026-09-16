@@ -3,9 +3,9 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
-  - 2026-09-16 - v01-001 functional spec approved at G1 (hamburger nav + partners/clients CRUD, RG-01 relation); awaiting @designer at G2 - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
+  - 2026-09-16 - v01-001 completed, READY at G6 and committed at G8: hamburger nav shell plus partners/clients CRUD (create, edit, deactivate/reactivate, RG-01 relation), 687 unit/integration/component tests and 3 Playwright journeys - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-15 - hello world completed, READY at G6 and committed at G8: `/hello-world` renders the heading and the colour-cycling button, with 11 component tests and the first Playwright journey - specs/001-hello-world.md
   - 2026-09-15 - bootstrap step 14 complete, the full agent chain ran end to end - @architect (G3), @orchestrator, @coder, @tester, G5, @reviewer (G6, one CHANGES NEEDED and one retry), @committer (G8) - specs/init.md
   - 2026-09-15 - bootstrap step 11 complete, five security headers set once in `next.config.ts`; landed inside the step 14 retry, because @reviewer blocked the first G6 pass on their absence - specs/init.md
@@ -15,8 +15,12 @@
 - # Releases
   - [One line per release: date, version, and the specs included since the previous tag.]
 - # Migrations applied
-  - [One line per migration: date, migration name, what it changed.]
+  - 2026-09-16 - 20260916112115_add_partners_and_clients - adds `partners` and `clients` tables (PARTNER, CLIENT, RG-01 relation), additive only - specs/iteration/v1/v01-001-nav-partners-clients.md
 - # Recent events
+  - 2026-09-16 - v01-001 committed at G8: nav shell, partners/clients CRUD, AD-021/AD-022/AD-023 recorded, migration 20260916112115_add_partners_and_clients applied - specs/iteration/v1/v01-001-nav-partners-clients.md
+  - 2026-09-16 - AD-023 recorded, Prisma naming convention: camelCase in schema, mapped to snake_case tables/columns; rule added to `policy_architecture.md` -> Data model conventions - ai-rules/decisions.md
+  - 2026-09-16 - AD-022 recorded, `Client.regime` as a Prisma enum, not a lookup table - ai-rules/decisions.md
+  - 2026-09-16 - AD-021 recorded, Partner and Client as two separate feature-sliced domains - ai-rules/decisions.md
   - 2026-09-16 - V1 roadmap renumbered: v01-001 is now the nav shell plus partners/clients, Settings moves to v01-002, the referential remainder to v01-003, later entries shifted down one - context/vision.md
   - 2026-09-16 - specs/functional/MCD v2.md synced to D-46 and D-47: added a required CLIENT.short_label and MISSION.short_label, removed the redundant MICRO_INVOICE.id_client FK - specs/functional/MCD v2.md
   - 2026-09-15 - AD-020 recorded, Prisma 7 with a driver adapter, generated client in `src/generated/` as build output, no initial migration at bootstrap - ai-rules/decisions.md
