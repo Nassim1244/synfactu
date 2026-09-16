@@ -13,6 +13,7 @@ import {
   assertPositiveInteger,
   assertSafeInteger,
   divideWithRemainder,
+  fromDecimalString,
   normaliseZero,
   scaleHalfUp,
   toDecimalString,
@@ -51,6 +52,27 @@ export class Money {
   static fromCents(cents: number): Money {
     assertSafeInteger(cents, "cents");
     return new Money(normaliseZero(cents));
+  }
+
+  /**
+   * Builds an amount from a decimal string, such as a form field's raw value
+   * before it reaches a Server Action - e.g. `"12.5"` becomes 1250 cents.
+   *
+   * Parsed by digit-shifting the text itself (`fromDecimalString` in
+   * `arithmetic.ts`), never `parseFloat` and never a multiplication of a
+   * `number` by 100: either would first turn the value into a float, and a
+   * float can misrepresent a decimal like 0.1 before any rounding rule of
+   * this class ever sees it (AD-007, `policy_coding_guidelines.md` -> Value
+   * objects).
+   *
+   * @param value a decimal string, optionally signed, with at most two
+   * fraction digits.
+   * @throws RangeError when the string is not shaped like a decimal number,
+   * carries more than two fraction digits, or overflows the safe integer
+   * range once expressed in cents.
+   */
+  static fromDecimalString(value: string): Money {
+    return Money.fromCents(fromDecimalString(value, FRACTION_DIGITS, "value"));
   }
 
   /** The zero amount. */
@@ -219,6 +241,20 @@ export class Money {
   /** True when the amount is strictly above zero. */
   isPositive(): boolean {
     return this.cents > 0;
+  }
+
+  /**
+   * Renders the amount as a plain, exact decimal string with no currency
+   * symbol and no locale grouping - e.g. 45000 cents becomes `"450.00"`.
+   *
+   * This is the boundary conversion the other direction from
+   * `fromDecimalString`: it exists to pre-fill an editable form field (a
+   * `type="number"` input expects a plain decimal, never a formatted
+   * currency string) with the exact current amount, without the caller ever
+   * touching `cents / 100` (AD-007).
+   */
+  toDecimalString(): string {
+    return toDecimalString(this.cents, FRACTION_DIGITS);
   }
 
   /**

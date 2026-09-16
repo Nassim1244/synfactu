@@ -37,3 +37,51 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+// v01-001 - the first real models. PascalCase model names, camelCase fields,
+// mapped to snake_case tables/columns via @map/@@map (AD-023). Money is an
+// integer number of cents (AD-007); createdAt/updatedAt are UTC (AD-008).
+
+/// An intermediary who refers end clients. It may also be billed directly
+/// under either regime - that case is represented by a separate Client
+/// record, not by this model (specs/functional/MCD v2.md -> PARTNER, RG-01).
+model Partner {
+  id        Int      @id @default(autoincrement())
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clients Client[]
+
+  @@map("partners")
+}
+
+/// Billing regime a client defaults to (specs/functional/MCD v2.md ->
+/// REGIME). A fixed, closed pair - not user-managed by v01-001 (AD-022).
+/// Becomes a lookup table if a later feature adds REGIME_RATE historization.
+enum Regime {
+  MICRO
+  PORTAGE
+}
+
+/// An end client, optionally linked to a referring Partner
+/// (specs/functional/MCD v2.md -> CLIENT, RG-01). `defaultRateCents` is the
+/// TJM that pre-fills new missions (D-06), stored as an integer number of
+/// cents (AD-007) - see `Money` in `src/lib/money/`. `shortLabel` feeds the
+/// invoice numbering pattern (D-47).
+model Client {
+  id               Int      @id @default(autoincrement())
+  name             String
+  shortLabel       String   @map("short_label")
+  billable         Boolean  @default(true)
+  active           Boolean  @default(true)
+  defaultRateCents Int      @map("default_rate_cents")
+  regime           Regime?
+  partnerId        Int?     @map("partner_id")
+  partner          Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("clients")
+}

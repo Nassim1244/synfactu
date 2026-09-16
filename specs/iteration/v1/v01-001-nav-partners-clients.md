@@ -69,31 +69,106 @@ The following were judgment calls, not confirmed with the user. Each is a defaul
 - Filled by @architect after the functional spec is approved. Do not edit by hand.
 
 # Architecture decisions
--
+- AD-001 - feature-sliced structure: this feature lands as two domains under `src/features/` (see AD-021).
+- AD-003 - every mutation is a Server Action; no Route Handler is needed (nothing here matches the closed list).
+- AD-004 - the repository is the only Prisma call site in each domain; `clients/repository.ts` reads `Partner` data through its own Prisma `include`, never through `partners/repository.ts`.
+- AD-005 - every Server Action parses its input with Zod before touching the repository.
+- AD-006 - reads stay async Server Components awaiting `queries.ts`; no client-side data-fetching library is introduced. The row-level active `Switch`'s pending/settle/revert look (design v01-001, screens 2 and 4) is plain `useTransition` around the Server Action call plus local component state - it is not an optimistic update (nothing changes before the response), so it does not need TanStack Query and AD-006 is not superseded.
+- AD-007 - `Client.defaultRateCents` is stored as an integer number of cents and handled through `Money`, never a raw number; see Numeric and temporal representation.
+- AD-008 - `createdAt`/`updatedAt` on both models are UTC `DateTime`; nothing in this feature is a period.
+- AD-009 / AD-017 - the per-action role check is dormant, not written: V1 carries no session and no role (bootstrap debt, AD-017). See Authorisation.
+- AD-020 - the two new models are built on the Prisma 7 + driver-adapter baseline already in `prisma/schema.prisma`; no change to the generator or datasource block.
+- **AD-021** (new, this feature) - `Partner` and `Client` are two separate domains, `src/features/partners/` and `src/features/clients/`, not one combined domain.
+- **AD-022** (new, this feature) - `Client.regime` is a Prisma `enum Regime { MICRO PORTAGE }`, not a lookup table.
+- **AD-023** (new, project-wide) - Prisma naming convention for every future model: PascalCase model names, camelCase fields, mapped to snake_case tables/columns via `@map`/`@@map`. Recorded in `ai-rules/decisions.md`; the rule itself now lives in `policy_architecture.md` -> Data model conventions.
 
 # Feature slice
--
+- `src/features/partners/`
+  - `schema.ts` - `createPartnerSchema` (`name`), `updatePartnerSchema` (`id`, `name`, `active`), `setPartnerActiveSchema` (`id`, `active`). Exports the inferred types.
+  - `repository.ts` - `listPartners`, `listActivePartners`, `getPartnerById`, `createPartner`, `updatePartner`, `setPartnerActive`. The only file importing `Partner` from `src/generated/prisma`.
+  - `actions.ts` - `createPartner`, `updatePartner`, `setPartnerActive`, each `"use server"`, each: `schema.parse` (no role check to perform yet, AD-017) -> repository call -> `revalidatePath`.
+  - `queries.ts` - `listPartners`, `listActivePartners`, `getPartnerById`, called by `/partners`' Server Component and, cross-feature, by `clients/components/` for the referring-partner `Select`.
+  - `components/` - `PartnerList` (table, loading/empty/error states per design screen 2), `PartnerFormDialog` (create/edit, design screen 3).
+- `src/features/clients/`
+  - `schema.ts` - `createClientSchema`, `updateClientSchema`, `setClientActiveSchema` - see Validation.
+  - `domain.ts` - `deriveShortLabel(name: string): string`, the pure function behind the auto-suggestion (D-47). No Prisma, no React. The exact derivation (truncation, initials, slug) is left to `@coder`; the design (`Interaction detail` -> "Short-label auto-suggestion") only fixes the pristine/dirty tracking around it, not the algorithm.
+  - `repository.ts` - `listClients` (joins `Partner` via Prisma `include` for the list's Partner column), `getClientById` (same join), `createClient`, `updateClient`, `setClientActive`. The only file importing `Client`/`Regime` from `src/generated/prisma`.
+  - `actions.ts` - `createClient`, `updateClient`, `setClientActive`, same shape as partners' actions.
+  - `queries.ts` - `listClients`, `getClientById`.
+  - `components/` - `ClientList` (design screen 4), `ClientFormDialog` (design screen 5), consuming `partners/queries.ts` for the active-partner options.
+- `src/components/nav/` (shared, not a domain - no schema, no repository)
+  - `nav-items.ts` - the static, hardcoded array `[{ label: "Partners", href: "/partners" }, { label: "Clients", href: "/clients" }]` the design calls for; grows one literal entry per future spec, per the functional spec's own framing.
+  - `nav-shell.tsx` - the hamburger trigger + `Sheet`, mounted once in `src/app/layout.tsx` (design's "Decisions to confirm at G2" #1).
+- Routes: `src/app/partners/page.tsx`, `src/app/clients/page.tsx` - each an async Server Component awaiting its domain's `queries.ts`. Both wire in the shared `NavShell` already mounted at the root layout, nothing route-specific.
 
 # Data model
--
+- Additive only. First models in `prisma/schema.prisma`; migration `20260916112115_add_partners_and_clients`, already generated and applied to the dev database via `prisma migrate dev --name add_partners_and_clients` (approved at G3). Nothing existing is dropped, retyped or backfilled - there was no prior data.
+- `Partner` (`@@map("partners")`): `id` PK autoincrement, `name String`, `active Boolean @default(true)`, `createdAt`/`updatedAt`. Relation: `clients Client[]`.
+- `enum Regime { MICRO PORTAGE }` (AD-022) - no backing table.
+- `Client` (`@@map("clients")`): `id` PK autoincrement, `name String`, `shortLabel String @map("short_label")`, `billable Boolean @default(true)`, `active Boolean @default(true)`, `defaultRateCents Int @map("default_rate_cents")`, `regime Regime?`, `partnerId Int? @map("partner_id")` with `partner Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)`, `createdAt`/`updatedAt`.
+- `onDelete: SetNull` on `Client.partnerId`: this feature never hard-deletes a `Partner` (no delete action exists at all, per Out of scope (functional)), so the action is currently unreachable in practice; it is specified so the schema is correct if a maintenance-only hard delete is ever added later.
+- Reversal: drop `clients` then `partners` (FK order) - safe today because both tables are new and empty in every environment that has not yet run this migration.
 
 # Numeric and temporal representation
--
+- `Client.defaultRateCents` - the TJM (`specs/functional/MCD v2.md` D-06), a currency amount, not a percentage - is `Money` (AD-007), stored as an integer number of cents. It is not a `Rate`: a day rate in euros is money, basis points are for percentages like a charge rate.
+- The client form's "Default rate (TJM)" field reaches the Server Action as a decimal string (see Validation), not a JS number - a native `type="number"` input's float value is never multiplied or divided to reach cents. `@coder` adds `Money.fromDecimalString(value: string): Money` to `src/lib/money/money.ts`, parsing by digit-shifting (mirroring the existing `toDecimalString`), never `parseFloat`/multiplication, consistent with `policy_coding_guidelines.md` -> Value objects ("rounding happens inside the value object"). The repository is the boundary that calls it, per AD-007.
+- `createdAt`/`updatedAt` on both models: UTC `DateTime` (AD-008), audit-only, never rendered to the user in this feature.
+- No `Duration`, no `Rate`, no period (`YYYY-MM`) field anywhere in this feature.
 
 # Server boundary
--
+Every action below: `schema.parse` first (no role check to perform - AD-017), then the repository call, then `revalidatePath`. Each returns `{ ok: true, data }` or `{ ok: false, error }` (`policy_coding_guidelines.md` -> Error handling and logging), `error` being a stable code, never a raw Prisma message (`policy_security.md` -> Data exposure).
+
+- `partners/actions.ts`
+  - `createPartner` - schema: `createPartnerSchema`. Revalidates `/partners`.
+  - `updatePartner` - schema: `updatePartnerSchema`. Revalidates `/partners` and `/clients` (a renamed or reactivated partner is embedded in the client list's Partner column).
+  - `setPartnerActive` - schema: `setPartnerActiveSchema`. Revalidates `/partners` and `/clients` (same reason).
+- `clients/actions.ts`
+  - `createClient` - schema: `createClientSchema`. Revalidates `/clients`.
+  - `updateClient` - schema: `updateClientSchema`. Revalidates `/clients`.
+  - `setClientActive` - schema: `setClientActiveSchema`. Revalidates `/clients`.
+- No Route Handler: nothing here is the Better Auth catch-all, the health check, an inbound webhook, or a non-JSON file download (AD-003's closed list).
 
 # Data access
--
+- `partners/repository.ts`
+  - `listPartners()` - every partner, ordered by name. No scoping: V1 is single-operator, nothing to scope by yet (AD-017).
+  - `listActivePartners()` - same, filtered to `active: true`; feeds the client form's referring-partner `Select` (design screen 5, "options: every active partner").
+  - `getPartnerById(id)` - one partner or `null`.
+  - `createPartner({ name })` - inserts with `active: true` (functional spec: "created active").
+  - `updatePartner(id, { name, active })`.
+  - `setPartnerActive(id, active)` - the row-level toggle's target.
+- `clients/repository.ts`
+  - `listClients()` - every client, ordered by name, `include: { partner: { select: { id: true, name: true } } }` for the list's Partner column and the edit dialog's "still shows the (inactive) partner" requirement. No scoping (AD-017).
+  - `getClientById(id)` - same include, one client or `null`.
+  - `createClient({ name, shortLabel, billable, defaultRateCents, regime, partnerId })` - inserts with `active: true`, `billable` defaulting to `true` when omitted (functional spec defaults).
+  - `updateClient(id, { ...all fields })`.
+  - `setClientActive(id, active)`.
+- Note for when authentication ships (AD-017's debt): these ten functions are exactly the set that then needs a session-derived scope added; none exists to omit today.
 
 # Authorisation
--
+- N/A beyond AD-017: V1 has no sessions and no roles, so the per-entry-point role check `policy_security.md` -> Authentication and authorisation describes is dormant, not violated, for every action and query in this feature. No screen, action or query here carries any role restriction (functional spec: "No permission distinctions", D-40).
 
 # Validation
--
+- `partners/schema.ts`
+  - `createPartnerSchema`: `name` - `z.string().trim().min(1)` ("Name is required.").
+  - `updatePartnerSchema`: `id` - positive int; `name` - same rule as create; `active` - boolean.
+  - `setPartnerActiveSchema`: `id` - positive int; `active` - boolean.
+- `clients/schema.ts`
+  - `name` - `z.string().trim().min(1)` ("Name is required.").
+  - `shortLabel` - `z.string().trim().min(1)` ("Short label is required.").
+  - `defaultRate` - a decimal string, `^\d+(\.\d{1,2})?$`, further rejected when the parsed amount is zero ("Enter a positive number." - covers empty, non-numeric and non-positive in one message per the design's error copy).
+  - `billable` - boolean, defaults to `true` when absent.
+  - `active` - boolean, edit only, defaults to `true` on create.
+  - `regime` - `z.enum(["MICRO", "PORTAGE"]).nullable().optional()`.
+  - `partnerId` - `z.number().int().positive().nullable().optional()`. The repository relies on the FK constraint for existence (an unknown id surfaces as a stable generic error, never the raw SQLite constraint name - `policy_security.md` -> Data exposure). No server-side "must currently be active" re-check: the acceptance criteria require an existing link to a since-deactivated partner to keep saving unchanged, and restricting new selections to active partners is the `Select`'s own option list (design screen 5), not a permission boundary, so AD-005/`policy_security.md` do not require re-asserting it server-side.
 
 # Dependencies
--
+- None new. The ten shadcn primitives (`Sheet`, `Table`, `Dialog`, `Input`, `Label`, `Switch`, `Select`, `Badge`, `Skeleton`, `Alert`) are added as files under `src/components/ui/` by `@coder`, via the already-pinned `shadcn` CLI, built on the already-pinned `radix-ui`, `class-variance-authority` and `lucide-react`.
+- `Money.fromDecimalString()` is a new method on the existing `Money` class in `src/lib/money/money.ts` - an addition to already-owned code, not a new package.
 
 # Out of scope (technical)
--
+- No `deletedAt` / soft-delete column on either model - this feature has no delete concept, hard or soft; `active` is the only reversible state the approved functional spec defines.
+- No tenant/session scoping in either repository - none exists yet (AD-017's carried debt); this feature neither introduces nor resolves it.
+- No `Regime` table, no `REGIME_RATE` - deferred by AD-022 until a later spec needs charge-rate historization; that spec supersedes AD-022.
+- No TanStack Query or other client-fetching/optimistic-update library - covered under Architecture decisions (AD-006 not superseded).
+- No character or format restriction on `shortLabel` beyond "required" - the invoice-numbering pattern that consumes it (RG-14, D-47) is a later, separate spec's concern.
+- The exact short-label derivation algorithm - left to `@coder` as a pure function in `clients/domain.ts`; not an architecture decision (see Feature slice).

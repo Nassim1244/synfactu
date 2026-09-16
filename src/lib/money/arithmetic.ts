@@ -164,6 +164,66 @@ export function divideWithRemainder(
 }
 
 /**
+ * Parses a decimal string into a signed integer in its smallest unit, by
+ * moving the point rather than by dividing - the exact reverse of
+ * `toDecimalString`.
+ *
+ * The string is never passed through `parseFloat` or multiplied by a power of
+ * ten as a `number`: it is split into an integer part and a fraction part on
+ * the text itself, the fraction is padded to `fractionDigits` with trailing
+ * zeros, and the two parts are concatenated into a digit string that is
+ * parsed once as a `bigint`. No float is ever constructed from the input.
+ *
+ * @param value the decimal string, e.g. `"12.5"` or `"-3.40"`. Optional sign,
+ * one or more integer digits, and an optional fraction of up to
+ * `fractionDigits` digits - anything else is rejected.
+ * @param fractionDigits how many fraction digits the smallest unit represents
+ * - 2 for cents. A value with more fraction digits than this is rejected
+ * rather than truncated, so precision is never silently dropped.
+ * @param label used in the error message.
+ * @throws RangeError when the string is not shaped like a decimal number,
+ * when it carries more fraction digits than `fractionDigits`, or when the
+ * result overflows the safe integer range.
+ */
+export function fromDecimalString(
+  value: string,
+  fractionDigits: number,
+  label: string,
+): number {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value);
+  if (!match) {
+    throw new RangeError(
+      `${label} must be a decimal number, received ${JSON.stringify(value)}`,
+    );
+  }
+
+  const [, sign, integerPart, fractionPart] = match;
+  // `sign` and `integerPart` are always captured when `match` is non-null -
+  // the first group matches the empty string at worst and the second is not
+  // marked optional in the pattern. The check exists only because
+  // `noUncheckedIndexedAccess` cannot see that, so it is a narrowing, not an
+  // assertion.
+  if (sign === undefined || integerPart === undefined) {
+    throw new RangeError(
+      `${label} must be a decimal number, received ${JSON.stringify(value)}`,
+    );
+  }
+
+  const fraction = fractionPart ?? "";
+  if (fraction.length > fractionDigits) {
+    throw new RangeError(
+      `${label} must have at most ${String(fractionDigits)} fraction digit(s), received ${JSON.stringify(value)}`,
+    );
+  }
+
+  const digits = `${integerPart}${fraction.padEnd(fractionDigits, "0")}`;
+  const magnitude = BigInt(digits);
+  const signed = sign === "-" ? -magnitude : magnitude;
+
+  return toSafeInteger(signed, label);
+}
+
+/**
  * True when a string is shaped like a decimal number.
  *
  * A type predicate rather than a cast: `Intl.NumberFormat.prototype.format`

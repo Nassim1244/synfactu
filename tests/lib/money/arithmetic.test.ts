@@ -16,6 +16,7 @@ import {
   assertPositiveInteger,
   assertSafeInteger,
   divideWithRemainder,
+  fromDecimalString,
   normaliseZero,
   scaleHalfUp,
   toDecimalString,
@@ -232,5 +233,83 @@ describe("toDecimalString", () => {
     // Zero fraction digits would assemble "5." - the guard is what stops that
     // reaching Intl as a malformed number.
     expect(() => toDecimalString(5, 0)).toThrow(RangeError);
+  });
+});
+
+describe("fromDecimalString", () => {
+  // The exact reverse of `toDecimalString`: every pair here is the same pair
+  // used above, read the other way, so the two functions are proven to be
+  // inverses rather than independently "plausible".
+  it.each([
+    { value: "0", digits: 2, expected: 0 },
+    { value: "1", digits: 2, expected: 100 }, // whole input, no fraction part
+    { value: "1.5", digits: 2, expected: 150 }, // one fraction digit
+    { value: "1.50", digits: 2, expected: 150 }, // two fraction digits
+    { value: "0.1", digits: 2, expected: 10 }, // the classic float-drift trap
+    { value: "0.01", digits: 2, expected: 1 },
+    { value: "450.50", digits: 2, expected: 45_050 },
+    { value: "-1234.56", digits: 2, expected: -123_456 },
+    { value: "-0.05", digits: 2, expected: -5 },
+    { value: "1234.56", digits: 2, expected: 123_456 },
+    { value: "0.2460", digits: 4, expected: 2460 },
+    { value: "1", digits: 4, expected: 10_000 },
+  ])(
+    "parses $value with $digits fraction digits to $expected",
+    ({ value, digits, expected }) => {
+      expect(fromDecimalString(value, digits, "value")).toBe(expected);
+    },
+  );
+
+  it("never drifts through a float: 0.1 is exactly 10 cents, not 9 or 11", () => {
+    // `parseFloat("0.1") * 100` is 10.000000000000002 in IEEE-754 double
+    // precision. Digit-shifting the text never constructs that float at all.
+    expect(fromDecimalString("0.1", 2, "value")).toBe(10);
+    expect(Object.is(fromDecimalString("0.1", 2, "value"), 10)).toBe(true);
+  });
+
+  it("round-trips through toDecimalString for a representative set of amounts", () => {
+    for (const cents of [0, 1, 10, 45_050, -45_050, 123_456, -5]) {
+      expect(fromDecimalString(toDecimalString(cents, 2), 2, "value")).toBe(
+        cents,
+      );
+    }
+  });
+
+  it.each([
+    "",
+    "abc",
+    "1.",
+    ".5",
+    "1,50",
+    "+5",
+    "5 ",
+    " 5",
+    "1.5.6",
+    "1e5",
+    "--5",
+    "5-",
+  ])("rejects the malformed string %j", (value) => {
+    expect(() => fromDecimalString(value, 2, "value")).toThrow(RangeError);
+  });
+
+  it("rejects a string carrying more fraction digits than allowed", () => {
+    expect(() => fromDecimalString("1.234", 2, "value")).toThrow(RangeError);
+    expect(() => fromDecimalString("1.234", 2, "value")).toThrow(
+      /at most 2 fraction digit/,
+    );
+  });
+
+  it("accepts a fraction with fewer digits than the maximum", () => {
+    expect(fromDecimalString("1.2", 4, "value")).toBe(12_000);
+  });
+
+  it("names the argument in the overflow message", () => {
+    expect(() => fromDecimalString("1.234", 2, "rate")).toThrow(/^rate /);
+  });
+
+  it("refuses a magnitude that overflows the safe integer range", () => {
+    expect(() => fromDecimalString("90071992547409.92", 2, "value")).toThrow(
+      RangeError,
+    );
   });
 });

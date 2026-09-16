@@ -44,6 +44,60 @@ describe("Money.fromCents", () => {
   });
 });
 
+describe("Money.fromDecimalString", () => {
+  // v01-001's TJM field: `Money.fromDecimalString` is the boundary that turns
+  // a form's decimal string into cents by digit-shifting, never `parseFloat`
+  // or a multiplication that would first build a float (AD-007).
+  it.each([
+    { value: "450", expected: 45_000 }, // whole
+    { value: "450.5", expected: 45_050 }, // one decimal digit
+    { value: "450.50", expected: 45_050 }, // two decimal digits
+    { value: "0.1", expected: 10 }, // exactly 10 cents, never 9 or 11
+    { value: "0.01", expected: 1 },
+    { value: "0", expected: 0 },
+    { value: "-12.34", expected: -1234 },
+  ])("parses $value into $expected cents", ({ value, expected }) => {
+    expect(Money.fromDecimalString(value).toCents()).toBe(expected);
+  });
+
+  it('never drifts through a float for 0.1, unlike parseFloat("0.1") * 100', () => {
+    expect(Money.fromDecimalString("0.1").toCents()).toBe(10);
+  });
+
+  it.each(["", "abc", "1.", ".5", "1,50", "1.234", "1e5", "5 "])(
+    "rejects the malformed string %j",
+    (value) => {
+      expect(() => Money.fromDecimalString(value)).toThrow(RangeError);
+    },
+  );
+
+  it("rejects a string with more than two fraction digits", () => {
+    expect(() => Money.fromDecimalString("450.505")).toThrow(RangeError);
+  });
+
+  it.each(["450", "450.5", "450.50", "0.10", "0.01", "1234.56"])(
+    "round-trips %s through toDecimalString",
+    (value) => {
+      const cents = Money.fromDecimalString(value).toCents();
+
+      expect(Money.fromCents(cents).toDecimalString()).toBe(
+        Money.fromDecimalString(value).toDecimalString(),
+      );
+    },
+  );
+
+  it("round-trips 0.1 to the exact two-decimal form 0.10", () => {
+    expect(Money.fromDecimalString("0.1").toDecimalString()).toBe("0.10");
+  });
+
+  it("round-trips 450.50 to exactly 45050 cents and back to 450.50", () => {
+    const money = Money.fromDecimalString("450.50");
+
+    expect(money.toCents()).toBe(45_050);
+    expect(money.toDecimalString()).toBe("450.50");
+  });
+});
+
 describe("Money.zero", () => {
   it("is zero cents", () => {
     expect(Money.zero().toCents()).toBe(0);
