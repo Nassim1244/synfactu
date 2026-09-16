@@ -31,14 +31,15 @@
     - 001 - Hello world (template bootstrap, see `specs/001-hello-world.md`).
   - ## Next
     - V1 is CRUD and views only. It records what you invoice, not what you are paid: estimated figures throughout, no real net, no outstanding-to-pay, no payment delay.
-    - v01-001 - Settings and company profile. First because `hours_per_day`, the rounding step and the estimated charge rate are settings, not constants, and v01-004 reads all three.
-    - v01-002 - Referential: partners, clients, mission categories, portage contracts, tags.
-    - v01-003 - Missions, including the time adjustment coefficient.
-    - v01-004 - Time entry journal. The daily-use screen; speed of entry is its acceptance criterion.
-    - v01-005 - Partner consolidation view and generated billing text.
-    - v01-006 - Micro invoicing.
-    - v01-007 - Portage declarations.
-    - v01-008 - Billing backlog.
+    - v01-001 - Global navigation shell, plus referential: partners, clients, and the relation between them (RG-01). First because every other V1 screen needs a real client to point at, and every screen after it lives inside the nav shell it introduces.
+    - v01-002 - Settings and company profile. `hours_per_day`, the rounding step and the estimated charge rate are settings, not constants, and v01-005 reads all three.
+    - v01-003 - Referential: mission categories, portage contracts, tags.
+    - v01-004 - Missions, including the time adjustment coefficient.
+    - v01-005 - Time entry journal. The daily-use screen; speed of entry is its acceptance criterion.
+    - v01-006 - Partner consolidation view and generated billing text.
+    - v01-007 - Micro invoicing.
+    - v01-008 - Portage declarations.
+    - v01-009 - Billing backlog.
   - ## Later
     - CI pipeline (GitHub Actions) running `format:check`, `lint`, `typecheck`, `test` and `build` on every push, so gates G5 and G8 are enforced rather than conventional. See `ai-rules/policy_workflow.md` -> Gates.
     - **Phase 2** - payments, payslips, URSSAF, and the whole dashboard, statistics and charts. This is where estimated-versus-real reconciliation becomes possible, and where the historized charge rate table arrives.

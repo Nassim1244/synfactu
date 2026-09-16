@@ -22,7 +22,6 @@ erDiagram
     CLIENT ||--o{ MISSION : "holds"
     MISSION_CATEGORY |o--o{ MISSION : "classifies"
     MISSION ||--o{ TIME_ENTRY : "contains"
-    CLIENT ||--o{ MICRO_INVOICE : "billed to"
     MISSION ||--o{ MICRO_INVOICE : "billed for"
     PORTAGE_CONTRACT ||--o{ PORTAGE_DECLARATION : "declared under"
     PORTAGE_DECLARATION ||--o{ PORTAGE_DECLARATION_LINE : "breaks down into"
@@ -46,6 +45,7 @@ erDiagram
     CLIENT {
         int id_client PK
         string name
+        string short_label "required, auto-suggested from name, user-editable (D-47)"
         bool billable
         bool active
         decimal default_tjm "single default rate, pre-fills new missions"
@@ -84,6 +84,7 @@ erDiagram
         int id_contract FK "0,1 — mandatory for portage missions"
         int id_category FK "0,1"
         string label
+        string short_label "required, auto-suggested from label, user-editable (D-47)"
         string billing_type "temps passé / temps sur site / forfait"
         string pricing_mode "tjm / hourly"
         decimal tjm "nullable — used when pricing_mode = tjm"
@@ -116,9 +117,8 @@ erDiagram
     }
     MICRO_INVOICE {
         int id_invoice PK
-        int id_client FK
         int id_mission FK
-        string number "nullable until sent — YYYY-MM-NNN_Client_mission"
+        string number "nullable until sent — YYYY-MM-NNN_Client_mission, built from CLIENT/MISSION short_label"
         date sent_date "nullable — drives numbering, rate freeze and payment delay"
         string invoicing_period "YYYY-MM"
         decimal amount_ht
@@ -210,7 +210,7 @@ Two configuration entities complete the model, outside the diagram because they 
 
 **PARTNER** — An intermediary who refers end clients. It is the party invoiced under the portage flow, and it may also be billed directly under either regime (RG-01).
 
-**CLIENT** — An end client, optionally linked to a referring PARTNER. Carries `billable` (some clients are non-billable, e.g. internal or commercial time) and a **single default TJM** that pre-fills new missions *(D-06)*.
+**CLIENT** — An end client, optionally linked to a referring PARTNER. Carries `billable` (some clients are non-billable, e.g. internal or commercial time), a **single default TJM** that pre-fills new missions *(D-06)*, and a required `short_label` — auto-suggested from `name`, user-editable — that feeds the invoice numbering pattern *(D-47)*.
 
 **REGIME** — Billing regime: micro-entreprise or portage.
 
@@ -220,11 +220,11 @@ Two configuration entities complete the model, outside the diagram because they 
 
 **MISSION_CATEGORY** — Reference table classifying missions: Formation école, Formation pro, Conseil — extensible *(D-33)*.
 
-**MISSION** — An engagement for a client under one regime. `billing_type` is how it is billed (`temps passé` / `temps sur site` / `forfait`); `pricing_mode` is whether its time is priced by TJM or by the hour *(D-03)*. `is_training` and `id_category` classify it, both orthogonal to billing. `billable` allows a whole mission to be non-billable independently of its client *(D-04)*.
+**MISSION** — An engagement for a client under one regime. `billing_type` is how it is billed (`temps passé` / `temps sur site` / `forfait`); `pricing_mode` is whether its time is priced by TJM or by the hour *(D-03)*. `is_training` and `id_category` classify it, both orthogonal to billing. `billable` allows a whole mission to be non-billable independently of its client *(D-04)*. Carries a required `short_label` — auto-suggested from `label`, user-editable — that feeds the invoice numbering pattern *(D-47)*.
 
 **TIME_ENTRY** — A single line of the "Temps passé" journal. Carries **three durations** *(D-02)*: worked, rounded (auto, upward) and billed (default = rounded, editable, may exceed worked). All revenue derives from the billed duration. When not billable, `unbilled_reason` distinguishes preparation on a paying mission from internal or commercial overhead. Client and partner are **not** stored: they are read through the mission *(D-10)*. A billable entry linked to neither an invoice nor a declaration is part of the billing backlog.
 
-**MICRO_INVOICE** — A micro-entreprise invoice for one client and **one mission** *(D-22)*. Its `sent_date` drives the numbering, the charge-rate freeze and the payment-delay statistic; there are **no due dates** *(D-20)*. The real charge rate and net are not stored here — they live on the linked payments.
+**MICRO_INVOICE** — A micro-entreprise invoice for one client and **one mission** *(D-22)*. The client is not stored directly: it is read through `MISSION → CLIENT`, the same D-10 argument applied here *(D-46)*. Its `sent_date` drives the numbering, the charge-rate freeze and the payment-delay statistic; there are **no due dates** *(D-20)*. The real charge rate and net are not stored here — they live on the linked payments.
 
 **PORTAGE_DECLARATION** — **One declaration per portage contract per month** *(D-18)*, holding the month's totals, the frozen contract rate and the estimated net. A single monthly salary settles one declaration.
 
@@ -250,7 +250,6 @@ Two configuration entities complete the model, outside the diagram because they 
 - MISSION_CATEGORY (0,1) — classifies — MISSION (0,n)
 - CLIENT (1,1) — holds — MISSION (0,n)
 - MISSION (1,1) — contains — TIME_ENTRY (0,n)
-- CLIENT (1,1) — billed to — MICRO_INVOICE (0,n)
 - MISSION (1,1) — billed for — MICRO_INVOICE (0,n)
 - MICRO_INVOICE (0,1) — bills — TIME_ENTRY (0,n)
 - PORTAGE_CONTRACT (1,1) — declared under — PORTAGE_DECLARATION (0,n)

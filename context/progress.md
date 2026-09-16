@@ -3,6 +3,7 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
+  - 2026-09-16 - v01-001 functional spec approved at G1 (hamburger nav + partners/clients CRUD, RG-01 relation); awaiting @designer at G2 - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
   - 2026-09-15 - hello world completed, READY at G6 and committed at G8: `/hello-world` renders the heading and the colour-cycling button, with 11 component tests and the first Playwright journey - specs/001-hello-world.md
@@ -16,6 +17,8 @@
 - # Migrations applied
   - [One line per migration: date, migration name, what it changed.]
 - # Recent events
+  - 2026-09-16 - V1 roadmap renumbered: v01-001 is now the nav shell plus partners/clients, Settings moves to v01-002, the referential remainder to v01-003, later entries shifted down one - context/vision.md
+  - 2026-09-16 - specs/functional/MCD v2.md synced to D-46 and D-47: added a required CLIENT.short_label and MISSION.short_label, removed the redundant MICRO_INVOICE.id_client FK - specs/functional/MCD v2.md
   - 2026-09-15 - AD-020 recorded, Prisma 7 with a driver adapter, generated client in `src/generated/` as build output, no initial migration at bootstrap - ai-rules/decisions.md
   - 2026-09-15 - AD-019 recorded, database backups in ./backups relative to docker/, ten kept - ai-rules/decisions.md
   - 2026-09-15 - AD-018 recorded, money rounds half up, 420 minutes as the bootstrap day length - ai-rules/decisions.md
