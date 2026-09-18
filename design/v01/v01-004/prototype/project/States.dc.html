@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reference — Loading / Empty / Error states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c-bg: oklch(1 0 0);
+  --c-fg: oklch(0.147 0.004 49.25);
+  --c-border: oklch(0.923 0.003 48.717);
+  --c-muted: oklch(0.97 0.001 106.424);
+  --c-muted-fg: oklch(0.553 0.013 58.071);
+  --c-primary: oklch(0.216 0.006 56.043);
+  --c-primary-fg: oklch(0.985 0.001 106.423);
+  --c-secondary: oklch(0.97 0.001 106.424);
+  --c-destructive: oklch(0.577 0.245 27.325);
+  --radius: 10px;
+}
+*{box-sizing:border-box;}
+body{margin:0;}
+button{font-family:inherit;border:none;background:none;cursor:default;color:inherit;}
+.btn-outline{background:#fff;color:var(--c-fg);border:1px solid var(--c-border);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:500;}
+.row-head{display:flex;padding:10px 16px;background:var(--c-muted);font-size:12px;font-weight:600;color:var(--c-muted-fg);text-transform:uppercase;letter-spacing:.03em;}
+.skel{background:var(--c-muted);border-radius:6px;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+.panel{flex:1;display:flex;flex-direction:column;gap:12px;}
+.panel-label{font-size:12px;font-weight:600;color:var(--c-muted-fg);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</helmet>
+
+<div style="width:1440px;height:700px;padding:40px;display:flex;flex-direction:column;gap:20px;background:var(--c-bg);color:var(--c-fg);font-family:'Geist',system-ui,sans-serif;font-size:14px;">
+
+  <div>
+    <h1 style="margin:0 0 4px 0;font-size:20px;font-weight:600;">Section states — reference</h1>
+    <p style="margin:0;color:var(--c-muted-fg);font-size:13px;">Shown for Portage contracts; Mission categories and Tags use the same treatment (Mission categories never reaches Empty — the bootstrap seed guarantees three rows).</p>
+  </div>
+
+  <div style="display:flex;gap:24px;flex:1;">
+
+    <div class="panel">
+      <span class="panel-label">Loading</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h2 style="margin:0;font-size:16px;font-weight:600;">Portage contracts</h2>
+        <button class="btn-outline" disabled>New portage contract</button>
+      </div>
+      <div role="status" style="border:1px solid var(--c-border);border-radius:var(--radius);overflow:hidden;">
+        <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Loading portage contracts&hellip;</span>
+        <div class="row-head">
+          <div style="flex:1.2;">Label</div>
+          <div style="flex:1.2;">Company</div>
+          <div style="width:90px;">Rate</div>
+          <div style="width:120px;">Validity</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px 16px;border-top:1px solid var(--c-border);">
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="width:90px;height:14px;"></div>
+          <div class="skel" style="width:120px;height:14px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px 16px;border-top:1px solid var(--c-border);">
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="width:90px;height:14px;"></div>
+          <div class="skel" style="width:120px;height:14px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px 16px;border-top:1px solid var(--c-border);">
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="flex:1.2;height:14px;"></div>
+          <div class="skel" style="width:90px;height:14px;"></div>
+          <div class="skel" style="width:120px;height:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="panel-label">Empty</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h2 style="margin:0;font-size:16px;font-weight:600;">Portage contracts</h2>
+        <button class="btn-outline" disabled>New portage contract</button>
+      </div>
+      <div style="border:1px solid var(--c-border);border-radius:var(--radius);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px;text-align:center;">
+        <span style="color:var(--c-muted-fg);">No portage contracts yet.</span>
+        <button class="btn-outline" disabled>New portage contract</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="panel-label">Error</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h2 style="margin:0;font-size:16px;font-weight:600;">Portage contracts</h2>
+        <button class="btn-outline" disabled>New portage contract</button>
+      </div>
+      <div role="alert" style="border:1px solid color-mix(in oklch, var(--c-destructive) 40%, var(--c-border));background:color-mix(in oklch, var(--c-destructive) 8%, white);border-radius:var(--radius);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px;text-align:center;">
+        <span style="color:var(--c-destructive);font-weight:500;">Portage contracts could not be loaded.</span>
+        <button class="btn-outline" style="cursor:pointer;" disabled>Try again</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

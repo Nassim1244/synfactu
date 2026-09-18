@@ -1,0 +1,13 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-09-18T00:00:00Z" },
+  "title": "Referential — v01-004 prototype",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1440, "h": 1500, "title": "Referential — populated & interactive", "is_interactive": true },
+    "States.dc.html": { "x": 1600, "y": 0, "w": 1440, "h": 700, "title": "Reference: Loading / Empty / Error states" }
+  },
+  "order": ["Main.dc.html", "States.dc.html"],
+  "notes": {}
+}

@@ -126,3 +126,68 @@ model Setting {
 
   @@map("settings")
 }
+
+// v01-004 - the three remaining referential entities every later V1 screen
+// reads: mission categories, portage contracts, tags. MissionCategory and
+// PortageContract live in one feature slice, src/features/referential/, with
+// per-entity files (AD-032); Tag is its own domain, src/features/tags/.
+
+/// A classification for a mission, e.g. "Formation école"
+/// (specs/functional/MCD v2.md -> MISSION_CATEGORY, RG-18). Unlike
+/// CompanyProfile/Setting (AD-031), a category is a first-class,
+/// user-editable, deactivatable row visible on the very first screen visit,
+/// so it cannot be a computed default - the three bootstrap rows (Formation
+/// école, Formation pro, Conseil) are inserted by the migration itself
+/// (AD-033).
+model MissionCategory {
+  id        Int      @id @default(autoincrement())
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("mission_categories")
+}
+
+/// The relationship with a portage company: its own contractual charge rate
+/// and validity period (specs/functional/MCD v2.md -> PORTAGE_CONTRACT,
+/// RG-19, RG-28). Several may be active at once by design - overlapping
+/// periods, including two for the same company, are allowed with no warning.
+/// `chargeRateBasisPoints` is an integer number of basis points (AD-007;
+/// 2460 = 24.60%). No bootstrap seed - the operator's own real data.
+model PortageContract {
+  id                    Int       @id @default(autoincrement())
+  label                 String
+  companyName           String    @map("company_name")
+  chargeRateBasisPoints Int       @map("charge_rate_basis_points")
+  validFrom             DateTime  @map("valid_from")
+  validTo               DateTime? @map("valid_to")
+  active                Boolean   @default(true)
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@map("portage_contracts")
+}
+
+/// A predefined, hierarchical label applied to time entries
+/// (specs/functional/MCD v2.md -> TAG, D-33). `path` is the parent's own
+/// path, `::`, then `label` - or just `label` at the top level - composed by
+/// `src/features/tags/domain.ts` on create and cascaded to every descendant
+/// on rename; the user never types `::` directly. `path` is unique so the
+/// prefix-query behaviour it exists for ("every entry under `commercial`")
+/// stays unambiguous. No bootstrap seed - the operator builds the hierarchy
+/// from scratch.
+model Tag {
+  id        Int      @id @default(autoincrement())
+  label     String
+  path      String   @unique
+  parentId  Int?     @map("parent_id")
+  parent    Tag?     @relation("TagHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Tag[]    @relation("TagHierarchy")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([parentId])
+  @@map("tags")
+}

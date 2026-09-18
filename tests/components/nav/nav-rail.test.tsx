@@ -32,6 +32,7 @@ describe("NavRail - visibility and items", () => {
 
     expect(screen.getByRole("link", { name: "Partners" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Clients" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Referential" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Settings" })).toBeVisible();
   });
 
@@ -80,6 +81,20 @@ describe("NavRail - visibility and items", () => {
       "page",
     );
     expect(screen.getByRole("link", { name: "Partners" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("marks Referential as current on its own route (v01-004)", () => {
+    mockedUsePathname.mockReturnValue("/referential");
+
+    render(<NavRail />);
+
+    expect(screen.getByRole("link", { name: "Referential" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
       "aria-current",
     );
   });

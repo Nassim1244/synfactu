@@ -72,32 +72,62 @@ function parseMode(argv: readonly string[]): Mode {
  * come from a real user edit - which is exactly the pre-existing data this
  * guard exists to catch.
  *
- * @throws Error naming the first non-empty model found, with its row count.
+ * `missionCategory` (v01-004) is checked differently from every other model:
+ * its three bootstrap rows are inserted by the migration itself (AD-033), not
+ * by this script, so a freshly migrated, otherwise-untouched database always
+ * holds exactly 3 - zero would mean the migration never ran, and any other
+ * count means the operator already edited the list (renamed, deactivated, or
+ * added one) or a mission started referencing it, either of which is exactly
+ * the pre-existing state this guard exists to catch. `portageContract` and
+ * `tag` (v01-004) get the ordinary zero-rows check: neither is seeded at all
+ * (Open questions, `v01-004`).
+ *
+ * @throws Error naming the first model found outside its expected bootstrap
+ * count, with its actual row count.
  */
 async function assertDatabaseIsEmpty(): Promise<void> {
-  const [partnerCount, clientCount, companyProfileCount, settingCount] =
-    await Promise.all([
-      prisma.partner.count(),
-      prisma.client.count(),
-      prisma.companyProfile.count(),
-      prisma.setting.count(),
-    ]);
+  const [
+    partnerCount,
+    clientCount,
+    companyProfileCount,
+    settingCount,
+    missionCategoryCount,
+    portageContractCount,
+    tagCount,
+  ] = await Promise.all([
+    prisma.partner.count(),
+    prisma.client.count(),
+    prisma.companyProfile.count(),
+    prisma.setting.count(),
+    prisma.missionCategory.count(),
+    prisma.portageContract.count(),
+    prisma.tag.count(),
+  ]);
 
   // One entry per current model (`prisma/schema.prisma`). Add a line here
-  // for each model a future spec introduces.
-  const counts: ReadonlyArray<readonly [table: string, count: number]> = [
-    ["partners", partnerCount],
-    ["clients", clientCount],
-    ["company_profile", companyProfileCount],
-    ["settings", settingCount],
+  // for each model a future spec introduces. `expected` is the row count a
+  // fresh, untouched database is allowed to hold for that table - 0 for
+  // every ordinary model, 3 for `mission_categories` (AD-033's migration-time
+  // bootstrap rows).
+  const counts: ReadonlyArray<
+    readonly [table: string, count: number, expected: number]
+  > = [
+    ["partners", partnerCount, 0],
+    ["clients", clientCount, 0],
+    ["company_profile", companyProfileCount, 0],
+    ["settings", settingCount, 0],
+    ["mission_categories", missionCategoryCount, 3],
+    ["portage_contracts", portageContractCount, 0],
+    ["tags", tagCount, 0],
   ];
 
-  for (const [table, count] of counts) {
-    if (count > 0) {
+  for (const [table, count, expected] of counts) {
+    if (count !== expected) {
       throw new Error(
-        `Refusing to seed: table "${table}" already holds ${count} row(s). ` +
-          "The seed script only runs against a fresh, freshly migrated " +
-          "database (ai-rules/policy_testing.md -> Seed data).",
+        `Refusing to seed: table "${table}" holds ${count} row(s), expected ` +
+          `exactly ${expected} on a fresh, freshly migrated database. The ` +
+          "seed script only runs against a database with no pre-existing " +
+          "user data (ai-rules/policy_testing.md -> Seed data).",
       );
     }
   }

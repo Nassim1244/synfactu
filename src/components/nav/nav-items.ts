@@ -12,6 +12,7 @@
 import {
   Building2,
   Settings as SettingsIcon,
+  Tags,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -33,6 +34,7 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Partners", href: "/partners", icon: Users },
   { label: "Clients", href: "/clients", icon: Building2 },
+  { label: "Referential", href: "/referential", icon: Tags },
 ];
 
 /** The footer sections, pinned to the bottom of the nav rail. */
