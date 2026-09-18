@@ -68,6 +68,12 @@ FROM node:${NODE_VERSION}-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Docker sets HOSTNAME to the container ID for every container unless
+# overridden. The standalone server.js binds to HOSTNAME when set, so left
+# unset here it binds to an address nothing (including the healthcheck below,
+# which hits 127.0.0.1) can reach. Forcing it to 0.0.0.0 makes the server
+# listen on all interfaces regardless of what Docker injects at run time.
+ENV HOSTNAME=0.0.0.0
 
 # openssl: Prisma's query engine needs it on the slim image.
 # sqlite3: update.sh runs ".backup" inside the container, the only way to
