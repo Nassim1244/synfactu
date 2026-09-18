@@ -9,7 +9,7 @@
 // this Client Component reads from, not the unit under test
 // (`ai-rules/policy_testing.md` -> Relevance).
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -82,6 +82,46 @@ describe("NavRail - visibility and items", () => {
     expect(screen.getByRole("link", { name: "Partners" })).not.toHaveAttribute(
       "aria-current",
     );
+  });
+});
+
+describe("NavRail - footer grouping", () => {
+  it("renders Settings in its own bottom-pinned list, separate from and after Partners/Clients", () => {
+    mockedUsePathname.mockReturnValue("/partners");
+
+    render(<NavRail />);
+
+    const lists = screen.getAllByRole("list");
+    expect(lists).toHaveLength(2);
+    const [primaryList, footerList] = lists;
+    if (!primaryList || !footerList) {
+      throw new Error("expected exactly two nav lists");
+    }
+
+    expect(
+      within(primaryList).getByRole("link", { name: "Partners" }),
+    ).toBeInTheDocument();
+    expect(
+      within(primaryList).getByRole("link", { name: "Clients" }),
+    ).toBeInTheDocument();
+    expect(
+      within(primaryList).queryByRole("link", { name: "Settings" }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(footerList).getByRole("link", { name: "Settings" }),
+    ).toBeInTheDocument();
+    expect(
+      within(footerList).queryByRole("link", { name: "Partners" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(footerList).queryByRole("link", { name: "Clients" }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      primaryList.compareDocumentPosition(footerList) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });
 

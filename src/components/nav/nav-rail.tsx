@@ -17,11 +17,49 @@ import { ChevronLeftIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { NAV_ITEMS } from "./nav-items";
+import { NAV_FOOTER_ITEMS, NAV_ITEMS, type NavItem } from "./nav-items";
 
 /**
- * Renders the navigation rail: the collapse/expand control and every section
- * link, its current item visually distinguished in both the collapsed and
+ * Renders one nav item as a link, its current-route and collapsed state
+ * visually reflected, shared by the rail's primary and footer lists so both
+ * keep identical markup and active-state logic.
+ *
+ * @param item - the nav item to render.
+ * @param isCurrent - whether `item` matches the current route.
+ * @param collapsed - whether the rail is in its icon-only state.
+ * @returns the item's list entry.
+ */
+function renderNavItem(
+  item: NavItem,
+  isCurrent: boolean,
+  collapsed: boolean,
+): JSX.Element {
+  const Icon = item.icon;
+  return (
+    <li key={item.href}>
+      <Link
+        href={item.href}
+        aria-current={isCurrent ? "page" : undefined}
+        title={item.label}
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium",
+          collapsed && "justify-center",
+          isCurrent
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        )}
+      >
+        <Icon className="size-5 flex-none" aria-hidden="true" />
+        {!collapsed && <span>{item.label}</span>}
+      </Link>
+    </li>
+  );
+}
+
+/**
+ * Renders the navigation rail: the collapse/expand control, the primary
+ * section links and, pinned to the bottom, the footer section links - every
+ * link's current item visually distinguished in both the collapsed and
  * expanded state.
  *
  * @returns the rail.
@@ -29,6 +67,9 @@ import { NAV_ITEMS } from "./nav-items";
 export function NavRail(): JSX.Element {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+
+  const isCurrentRoute = (href: string): boolean =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <nav
@@ -58,31 +99,18 @@ export function NavRail(): JSX.Element {
       </div>
 
       <ul className="flex flex-col gap-1">
-        {NAV_ITEMS.map((item) => {
-          const isCurrent =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                aria-current={isCurrent ? "page" : undefined}
-                title={item.label}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium",
-                  collapsed && "justify-center",
-                  isCurrent
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                )}
-              >
-                <Icon className="size-5 flex-none" aria-hidden="true" />
-                {!collapsed && <span>{item.label}</span>}
-              </Link>
-            </li>
-          );
-        })}
+        {NAV_ITEMS.map((item) =>
+          renderNavItem(item, isCurrentRoute(item.href), collapsed),
+        )}
       </ul>
+
+      <div className="border-sidebar-border mt-auto border-t pt-2">
+        <ul className="flex flex-col gap-1">
+          {NAV_FOOTER_ITEMS.map((item) =>
+            renderNavItem(item, isCurrentRoute(item.href), collapsed),
+          )}
+        </ul>
+      </div>
     </nav>
   );
 }

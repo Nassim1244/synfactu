@@ -1,9 +1,13 @@
-// The static list of sections the app-wide navigation rail offers
+// The static lists of sections the app-wide navigation rail offers
 // (`ai-rules/policy_architecture.md` -> Structure - shared, not a domain: no
-// schema, no repository). Grows one literal entry per future spec, in the
-// order the functional spec's own user flow introduces them; no placeholder
-// entry for a section that does not exist yet (functional spec -> Out of
-// scope).
+// schema, no repository). Two groups, rendered as two separate lists by
+// `nav-rail.tsx`: `NAV_ITEMS`, the primary top group, and
+// `NAV_FOOTER_ITEMS`, pinned to the bottom of the rail. Each grows one
+// literal entry per future spec, in the order the functional spec's own user
+// flow introduces them; no placeholder entry for a section that does not
+// exist yet (functional spec -> Out of scope). A future spec's entry goes in
+// `NAV_ITEMS` unless the spec says otherwise - `NAV_FOOTER_ITEMS` is reserved
+// for cross-cutting, non-content sections such as Settings.
 
 import {
   Building2,
@@ -25,9 +29,13 @@ export type NavItem = {
   readonly icon: LucideIcon;
 };
 
-/** The sections that exist in the product at this point in the roadmap. */
+/** The primary sections, rendered at the top of the nav rail. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Partners", href: "/partners", icon: Users },
   { label: "Clients", href: "/clients", icon: Building2 },
+];
+
+/** The footer sections, pinned to the bottom of the nav rail. */
+export const NAV_FOOTER_ITEMS: readonly NavItem[] = [
   { label: "Settings", href: "/settings", icon: SettingsIcon },
 ];
