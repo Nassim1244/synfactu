@@ -3,6 +3,7 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
+  - 2026-09-18 - design/v01-001 renamed to design/v01-002 to match the revising spec's index; prototype content carried over unchanged, pending the designer's actual G2 revision - specs/iteration/v1/v01-002-nav-partner-client-detail.md
   - 2026-09-18 - v01-002 spec approved at G1 (revises v01-001): collapsible nav panel, permanent title bar, partner/client detail views, active toggle moved into the edit form, visited-history breadcrumb with independent back/forward; awaiting @designer at G2 - specs/iteration/v1/v01-002-nav-partner-client-detail.md
   - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
