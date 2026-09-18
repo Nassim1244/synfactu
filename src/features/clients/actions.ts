@@ -2,8 +2,8 @@
 //
 // Each action, in order: `schema.parse` (no role check to perform yet - V1
 // carries no session, AD-017), then the repository call, then
-// `revalidatePath("/clients")` (`ai-rules/policy_architecture.md` -> Server
-// boundary).
+// `revalidatePath` for every route the change is now visible on
+// (`ai-rules/policy_architecture.md` -> Server boundary).
 //
 // Every action returns `{ ok: true, data }` or `{ ok: false, error }`, never
 // throws for an expected failure, and never returns a raw Prisma/DB error
@@ -24,10 +24,8 @@ import { z } from "zod";
 import * as repository from "./repository";
 import {
   createClientSchema,
-  setClientActiveSchema,
   updateClientSchema,
   type CreateClient,
-  type SetClientActive,
   type UpdateClient,
 } from "./schema";
 import { Money } from "@/lib/money/money";
@@ -53,10 +51,6 @@ type CreateClientResult =
 
 type UpdateClientResult =
   | { ok: true; data: Awaited<ReturnType<typeof repository.updateClient>> }
-  | { ok: false; error: ClientActionError };
-
-type SetClientActiveResult =
-  | { ok: true; data: Awaited<ReturnType<typeof repository.setClientActive>> }
   | { ok: false; error: ClientActionError };
 
 /**
@@ -105,6 +99,11 @@ export async function createClient(
  * status, its linked partner and its default regime. No role required
  * (AD-017).
  *
+ * Revalidates `/clients`, this client's own detail page and, when
+ * `parsed.partnerId` is not `null`, that partner's detail page: a renamed,
+ * reactivated or deactivated client is shown by name and status on its
+ * referring partner's detail page.
+ *
  * @param input the raw, unvalidated edit-client form input.
  * @returns the updated client (with its referring partner joined in), or a
  * stable error code.
@@ -133,43 +132,13 @@ export async function updateClient(
       partnerId: parsed.partnerId ?? null,
     });
     revalidatePath("/clients");
+    revalidatePath(`/clients/${parsed.id}`);
+    if (parsed.partnerId !== null && parsed.partnerId !== undefined) {
+      revalidatePath(`/partners/${parsed.partnerId}`);
+    }
     return { ok: true, data: client };
   } catch (error) {
     log.error({ err: error, clientId: parsed.id }, "failed to update client");
-    return { ok: false, error: "SAVE_FAILED" };
-  }
-}
-
-/**
- * Flips a client's active status from the list row's `Switch`. No role
- * required (AD-017).
- *
- * @param input the row's id and the target active value.
- * @returns the updated client (with its referring partner joined in), or a
- * stable error code.
- */
-export async function setClientActive(
-  input: SetClientActive,
-): Promise<SetClientActiveResult> {
-  let parsed: SetClientActive;
-  try {
-    parsed = setClientActiveSchema.parse(input);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { ok: false, error: "VALIDATION_ERROR" };
-    }
-    throw error;
-  }
-
-  try {
-    const client = await repository.setClientActive(parsed.id, parsed.active);
-    revalidatePath("/clients");
-    return { ok: true, data: client };
-  } catch (error) {
-    log.error(
-      { err: error, clientId: parsed.id },
-      "failed to set client active status",
-    );
     return { ok: false, error: "SAVE_FAILED" };
   }
 }

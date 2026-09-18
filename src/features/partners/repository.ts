@@ -76,14 +76,50 @@ export function updatePartner(
   });
 }
 
-/** The row-level active toggle's target: flips `active` alone. */
-export function setPartnerActive(
+/** One client of `getPartnerWithClients`'s linked-clients list. */
+export type PartnerLinkedClient = {
+  id: number;
+  name: string;
+  active: boolean;
+};
+
+/** One partner together with its linked clients, or `null` when it does not exist. */
+export type PartnerWithClients = PartnerRecord & {
+  clients: PartnerLinkedClient[];
+};
+
+/**
+ * One partner plus its linked clients (id, name, active), ordered by name,
+ * or `null` when the id does not resolve - the partner detail view's
+ * dataset. No scoping (AD-017).
+ */
+export function getPartnerWithClients(
   id: number,
-  active: boolean,
-): Promise<PartnerRecord> {
-  return prisma.partner.update({
+): Promise<PartnerWithClients | null> {
+  return prisma.partner.findUnique({
     where: { id },
-    data: { active },
-    select: PARTNER_SELECT,
+    select: {
+      ...PARTNER_SELECT,
+      clients: {
+        select: { id: true, name: true, active: true },
+        orderBy: { name: "asc" },
+      },
+    },
   });
+}
+
+/**
+ * Every client id currently linked to a partner. Not a domain read: feeds
+ * only `updatePartner`'s revalidation of each linked client's detail page,
+ * so it returns a plain `number[]`, not a `PartnerLinkedClient[]`. No
+ * scoping (AD-017).
+ */
+export async function listClientIdsByPartner(
+  partnerId: number,
+): Promise<number[]> {
+  const clients = await prisma.client.findMany({
+    where: { partnerId },
+    select: { id: true },
+  });
+  return clients.map((client) => client.id);
 }

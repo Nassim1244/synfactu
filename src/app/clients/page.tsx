@@ -9,6 +9,7 @@
 
 import type { JSX } from "react";
 
+import { RegisterVisit } from "@/components/nav/register-visit";
 import { Button } from "@/components/ui/button";
 import { ClientFormDialog } from "@/features/clients/components/ClientFormDialog";
 import { ClientList } from "@/features/clients/components/ClientList";
@@ -37,6 +38,7 @@ export default async function ClientsPage(): Promise<JSX.Element> {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
+      <RegisterVisit href="/clients" label="Clients" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Clients</h1>
         <ClientFormDialog

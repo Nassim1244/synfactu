@@ -1,83 +1,42 @@
-// The app-wide navigation shell (design v01-001, screen 1): a persistent
-// hamburger control opening a `Sheet` that lists every section that exists at
-// this point in the roadmap. Mounted once in `src/app/layout.tsx` (design's
-// "Decisions to confirm at G2" #1), so it applies to every route, including
-// ones this feature does not add.
+// The app-wide navigation shell (design v01-002 prototype, screen 1):
+// composes the permanent title bar, the persistent collapsible nav rail, and
+// the breadcrumb/back-forward bar. Mounted once in `src/app/layout.tsx`
+// (same precedent as v01-001's `NavShell`), so it applies to every route.
+// Replaces v01-001's `Sheet`/hamburger implementation entirely - not kept
+// alongside.
 //
-// "use client": it holds the Sheet's open/closed state and reads the current
-// pathname to mark the active nav item - neither is available to a Server
-// Component (`ai-rules/policy_coding_guidelines.md` -> React and Next
-// idioms).
+// A plain Server Component: it holds no state of its own. `TitleBar` stays a
+// Server Component; `NavRail` and `BreadcrumbBar` are Client Components
+// mounted as children, per `ai-rules/policy_architecture.md` -> Defaults
+// ("use client" pushed as far down the tree as possible).
 
-"use client";
+import type { JSX, ReactNode } from "react";
 
-import type { JSX } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { NAV_ITEMS } from "./nav-items";
+import { BreadcrumbBar } from "./breadcrumb-bar";
+import { NavRail } from "./nav-rail";
+import { TitleBar } from "./title-bar";
 
 /**
- * Renders the sticky header holding the hamburger trigger and its Sheet.
+ * Renders the navigation shell around the routed page content: the title
+ * bar on top, the nav rail on the left, and the breadcrumb/back-forward bar
+ * above the page's own content.
  *
- * The hamburger is reachable by Tab from the top of any page; Enter/Space
- * opens the Sheet; Escape closes it and returns focus to the trigger - all
- * native `Sheet` (Radix `Dialog`) behaviour, nothing re-implemented (design's
- * Keyboard section).
- *
- * @returns the navigation shell.
+ * @param props.children the routed page content.
+ * @returns the shell.
  */
-export function NavShell(): JSX.Element {
-  const pathname = usePathname();
-
+export function NavShell({ children }: { children: ReactNode }): JSX.Element {
   return (
-    <header className="bg-background sticky top-0 z-40 flex h-12 items-center border-b px-2">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Open navigation menu">
-            <Menu />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left">
-          <SheetHeader>
-            {/* Not shown in the design, which lists only the close affordance
-                and the nav list; kept for assistive technology since Radix's
-                `Dialog.Content` (which `Sheet` is built on) requires a title
-                to announce the dialog's purpose. */}
-            <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-          </SheetHeader>
-          <nav>
-            <ul className="flex flex-col gap-1 px-4">
-              {NAV_ITEMS.map((item) => {
-                const isCurrent = pathname === item.href;
-                return (
-                  <li key={item.href}>
-                    <SheetClose asChild>
-                      <Link
-                        href={item.href}
-                        aria-current={isCurrent ? "page" : undefined}
-                        className="hover:bg-muted block rounded-lg px-2.5 py-2 text-sm font-medium"
-                      >
-                        {item.label}
-                      </Link>
-                    </SheetClose>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </SheetContent>
-      </Sheet>
-    </header>
+    <div className="flex min-h-full flex-1 flex-col">
+      <TitleBar />
+      <div className="flex min-h-0 flex-1">
+        <NavRail />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex-none border-b px-6 py-3">
+            <BreadcrumbBar />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        </div>
+      </div>
+    </div>
   );
 }

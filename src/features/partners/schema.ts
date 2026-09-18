@@ -20,12 +20,5 @@ export const updatePartnerSchema = z.object({
   active: z.boolean(),
 });
 
-/** Input for `setPartnerActive`: the row-level active toggle. */
-export const setPartnerActiveSchema = z.object({
-  id: z.number().int().positive(),
-  active: z.boolean(),
-});
-
 export type CreatePartner = z.infer<typeof createPartnerSchema>;
 export type UpdatePartner = z.infer<typeof updatePartnerSchema>;
-export type SetPartnerActive = z.infer<typeof setPartnerActiveSchema>;

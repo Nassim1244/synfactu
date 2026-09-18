@@ -67,12 +67,5 @@ export const updateClientSchema = z.object({
   partnerId: partnerIdSchema,
 });
 
-/** Input for `setClientActive`: the row-level active toggle. */
-export const setClientActiveSchema = z.object({
-  id: z.number().int().positive(),
-  active: z.boolean(),
-});
-
 export type CreateClient = z.infer<typeof createClientSchema>;
 export type UpdateClient = z.infer<typeof updateClientSchema>;
-export type SetClientActive = z.infer<typeof setClientActiveSchema>;

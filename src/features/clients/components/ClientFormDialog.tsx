@@ -374,6 +374,7 @@ function EditClientForm({
   const defaultRateId = useId();
   const defaultRateErrorId = useId();
   const billableId = useId();
+  const activeId = useId();
   const partnerIdSelectId = useId();
   const regimeSelectId = useId();
 
@@ -492,6 +493,21 @@ function EditClientForm({
           )}
         />
         <Label htmlFor={billableId}>Billable</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Controller
+          control={control}
+          name="active"
+          render={({ field }) => (
+            <Switch
+              id={activeId}
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
+        <Label htmlFor={activeId}>Active</Label>
       </div>
 
       <div className="flex flex-col gap-1.5">

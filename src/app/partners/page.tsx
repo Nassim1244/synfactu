@@ -7,6 +7,7 @@
 
 import type { JSX } from "react";
 
+import { RegisterVisit } from "@/components/nav/register-visit";
 import { Button } from "@/components/ui/button";
 import { PartnerFormDialog } from "@/features/partners/components/PartnerFormDialog";
 import { PartnerList } from "@/features/partners/components/PartnerList";
@@ -31,6 +32,7 @@ export default async function PartnersPage(): Promise<JSX.Element> {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-6">
+      <RegisterVisit href="/partners" label="Partners" />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Partners</h1>
         <PartnerFormDialog

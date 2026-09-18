@@ -51,6 +51,9 @@ describe("ClientFormDialog - create mode", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("");
     expect(screen.getByLabelText("Short label")).toHaveValue("");
     expect(screen.getByLabelText("Billable")).toBeChecked();
+    expect(
+      screen.queryByRole("switch", { name: "Active" }),
+    ).not.toBeInTheDocument();
   });
 
   it("suggests a short label as the user types the name, while the field is pristine", async () => {
@@ -286,7 +289,7 @@ describe("ClientFormDialog - edit mode", () => {
     expect(within(listbox).getByText("Partner B")).toBeInTheDocument();
   });
 
-  it("submits every editable field, including the toggled active state and a chosen regime", async () => {
+  it("submits every editable field, including the pre-filled active flag and a chosen regime", async () => {
     const user = userEvent.setup();
     mockedActions.updateClient.mockResolvedValue({
       ok: true,
@@ -316,6 +319,45 @@ describe("ClientFormDialog - edit mode", () => {
         partnerId: null,
         regime: null,
       }),
+    );
+  });
+
+  // Functional spec (`specs/iteration/v1/v01-002-nav-partner-client-detail.md`)
+  // acceptance criterion: "The active/inactive toggle appears in the edit
+  // form when editing an existing partner or client, and is absent when
+  // creating a new one." `PartnerFormDialog`'s edit mode carries this
+  // control (see `PartnerFormDialog.test.tsx` -> "shows the Active switch");
+  // this is its client-side equivalent. It is expected to fail: the
+  // technical spec assumed `ClientFormDialog` already carried this control
+  // "unchanged" from v01-001, but no such control exists in
+  // `EditClientForm` - `active` reaches `updateClient` only as the value
+  // the record already had when the dialog opened, with nothing in the UI
+  // that can ever change it. A production defect - see handoff report; not
+  // fixed here (`@tester` never writes production code).
+  it("shows an Active toggle that lets the user change the client's active status", async () => {
+    const user = userEvent.setup();
+    mockedActions.updateClient.mockResolvedValue({
+      ok: true,
+      data: {} as never,
+    });
+    render(
+      <ClientFormDialog
+        mode="edit"
+        client={baseClient as never}
+        activePartners={ACTIVE_PARTNERS}
+        trigger={<button>Edit Old name</button>}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Edit Old name" }));
+
+    const activeToggle = screen.getByRole("switch", { name: "Active" });
+    expect(activeToggle).toBeChecked();
+
+    await user.click(activeToggle);
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(mockedActions.updateClient).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 5, active: false }),
     );
   });
 });

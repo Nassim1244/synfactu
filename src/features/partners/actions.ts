@@ -19,10 +19,8 @@ import { z } from "zod";
 import * as repository from "./repository";
 import {
   createPartnerSchema,
-  setPartnerActiveSchema,
   updatePartnerSchema,
   type CreatePartner,
-  type SetPartnerActive,
   type UpdatePartner,
 } from "./schema";
 import { logger } from "@/lib/logger";
@@ -47,13 +45,6 @@ type CreatePartnerResult =
 
 type UpdatePartnerResult =
   | { ok: true; data: Awaited<ReturnType<typeof repository.updatePartner>> }
-  | { ok: false; error: PartnerActionError };
-
-type SetPartnerActiveResult =
-  | {
-      ok: true;
-      data: Awaited<ReturnType<typeof repository.setPartnerActive>>;
-    }
   | { ok: false; error: PartnerActionError };
 
 /**
@@ -88,8 +79,10 @@ export async function createPartner(
 /**
  * Updates a partner's name and active status. No role required (AD-017).
  *
- * Revalidates `/partners` and `/clients`: a renamed or reactivated partner is
- * embedded in the client list's Partner column.
+ * Revalidates `/partners`, this partner's own detail page, `/clients` (its
+ * list's Partner column) and every currently-linked client's detail page: a
+ * renamed or reactivated partner is shown by name and status on each of
+ * them.
  *
  * @param input the raw, unvalidated edit-partner form input.
  * @returns the updated partner, or a stable error code.
@@ -108,51 +101,22 @@ export async function updatePartner(
   }
 
   try {
-    const partner = await repository.updatePartner(parsed.id, {
-      name: parsed.name,
-      active: parsed.active,
-    });
+    const [partner, linkedClientIds] = await Promise.all([
+      repository.updatePartner(parsed.id, {
+        name: parsed.name,
+        active: parsed.active,
+      }),
+      repository.listClientIdsByPartner(parsed.id),
+    ]);
     revalidatePath("/partners");
+    revalidatePath(`/partners/${parsed.id}`);
     revalidatePath("/clients");
+    for (const clientId of linkedClientIds) {
+      revalidatePath(`/clients/${clientId}`);
+    }
     return { ok: true, data: partner };
   } catch (error) {
     log.error({ err: error, partnerId: parsed.id }, "failed to update partner");
-    return { ok: false, error: "SAVE_FAILED" };
-  }
-}
-
-/**
- * Flips a partner's active status from the list row's `Switch`. No role
- * required (AD-017).
- *
- * Revalidates `/partners` and `/clients`, same reason as `updatePartner`.
- *
- * @param input the row's id and the target active value.
- * @returns the updated partner, or a stable error code.
- */
-export async function setPartnerActive(
-  input: SetPartnerActive,
-): Promise<SetPartnerActiveResult> {
-  let parsed: SetPartnerActive;
-  try {
-    parsed = setPartnerActiveSchema.parse(input);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { ok: false, error: "VALIDATION_ERROR" };
-    }
-    throw error;
-  }
-
-  try {
-    const partner = await repository.setPartnerActive(parsed.id, parsed.active);
-    revalidatePath("/partners");
-    revalidatePath("/clients");
-    return { ok: true, data: partner };
-  } catch (error) {
-    log.error(
-      { err: error, partnerId: parsed.id },
-      "failed to set partner active status",
-    );
     return { ok: false, error: "SAVE_FAILED" };
   }
 }

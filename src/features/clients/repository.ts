@@ -126,15 +126,3 @@ export function updateClient(
     select: CLIENT_SELECT,
   });
 }
-
-/** The row-level active toggle's target: flips `active` alone. */
-export function setClientActive(
-  id: number,
-  active: boolean,
-): Promise<ClientRecord> {
-  return prisma.client.update({
-    where: { id },
-    data: { active },
-    select: CLIENT_SELECT,
-  });
-}

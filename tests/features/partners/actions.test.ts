@@ -15,11 +15,7 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { revalidatePath } from "next/cache";
 
-import {
-  createPartner,
-  setPartnerActive,
-  updatePartner,
-} from "@/features/partners/actions";
+import { createPartner, updatePartner } from "@/features/partners/actions";
 import * as repository from "@/features/partners/repository";
 
 const mockedRepository = vi.mocked(repository);
@@ -68,8 +64,9 @@ describe("createPartner", () => {
 describe("updatePartner", () => {
   const validInput = { id: 1, name: "Acme", active: true };
 
-  it("revalidates both /partners and /clients on success", async () => {
+  it("revalidates /partners, its own detail page and /clients, in that order, when no client is linked", async () => {
     mockedRepository.updatePartner.mockResolvedValue(FAKE_PARTNER);
+    mockedRepository.listClientIdsByPartner.mockResolvedValue([]);
 
     const result = await updatePartner(validInput);
 
@@ -78,9 +75,22 @@ describe("updatePartner", () => {
       name: "Acme",
       active: true,
     });
-    expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
+    expect(mockedRevalidatePath).toHaveBeenCalledTimes(3);
     expect(mockedRevalidatePath).toHaveBeenNthCalledWith(1, "/partners");
-    expect(mockedRevalidatePath).toHaveBeenNthCalledWith(2, "/clients");
+    expect(mockedRevalidatePath).toHaveBeenNthCalledWith(2, "/partners/1");
+    expect(mockedRevalidatePath).toHaveBeenNthCalledWith(3, "/clients");
+  });
+
+  it("also revalidates every currently-linked client's own detail page", async () => {
+    mockedRepository.updatePartner.mockResolvedValue(FAKE_PARTNER);
+    mockedRepository.listClientIdsByPartner.mockResolvedValue([5, 9]);
+
+    await updatePartner(validInput);
+
+    expect(mockedRepository.listClientIdsByPartner).toHaveBeenCalledWith(1);
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/clients/5");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/clients/9");
+    expect(mockedRevalidatePath).toHaveBeenCalledTimes(5);
   });
 
   it("rejects an empty name without calling the repository", async () => {
@@ -99,42 +109,11 @@ describe("updatePartner", () => {
 
   it("returns SAVE_FAILED when the repository throws, and does not revalidate", async () => {
     mockedRepository.updatePartner.mockRejectedValue(new Error("boom"));
+    mockedRepository.listClientIdsByPartner.mockResolvedValue([]);
 
     const result = await updatePartner(validInput);
 
     expect(result).toEqual({ ok: false, error: "SAVE_FAILED" });
     expect(mockedRevalidatePath).not.toHaveBeenCalled();
-  });
-});
-
-describe("setPartnerActive", () => {
-  it("revalidates both /partners and /clients on success", async () => {
-    mockedRepository.setPartnerActive.mockResolvedValue(FAKE_PARTNER);
-
-    const result = await setPartnerActive({ id: 1, active: false });
-
-    expect(result).toEqual({ ok: true, data: FAKE_PARTNER });
-    expect(mockedRepository.setPartnerActive).toHaveBeenCalledWith(1, false);
-    expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
-    expect(mockedRevalidatePath).toHaveBeenNthCalledWith(1, "/partners");
-    expect(mockedRevalidatePath).toHaveBeenNthCalledWith(2, "/clients");
-  });
-
-  it("rejects a non-boolean active flag without calling the repository", async () => {
-    const result = await setPartnerActive({
-      id: 1,
-      active: "yes" as unknown as boolean,
-    });
-
-    expect(result).toEqual({ ok: false, error: "VALIDATION_ERROR" });
-    expect(mockedRepository.setPartnerActive).not.toHaveBeenCalled();
-  });
-
-  it("returns SAVE_FAILED when the repository throws", async () => {
-    mockedRepository.setPartnerActive.mockRejectedValue(new Error("boom"));
-
-    const result = await setPartnerActive({ id: 1, active: false });
-
-    expect(result).toEqual({ ok: false, error: "SAVE_FAILED" });
   });
 });

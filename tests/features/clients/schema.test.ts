@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   createClientSchema,
-  setClientActiveSchema,
   updateClientSchema,
 } from "@/features/clients/schema";
 
@@ -198,26 +197,6 @@ describe("updateClientSchema", () => {
     expect(
       updateClientSchema.safeParse({ ...validUpdate, defaultRate: "0" })
         .success,
-    ).toBe(false);
-  });
-});
-
-describe("setClientActiveSchema", () => {
-  it("accepts a valid id/active pair", () => {
-    expect(
-      setClientActiveSchema.safeParse({ id: 1, active: false }).success,
-    ).toBe(true);
-  });
-
-  it.each([0, -1, 1.5])("rejects a non-positive-integer id %p", (id) => {
-    expect(setClientActiveSchema.safeParse({ id, active: true }).success).toBe(
-      false,
-    );
-  });
-
-  it("rejects a non-boolean active flag", () => {
-    expect(
-      setClientActiveSchema.safeParse({ id: 1, active: "yes" }).success,
     ).toBe(false);
   });
 });

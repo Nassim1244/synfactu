@@ -29,3 +29,13 @@ export function getPartnerById(
 ): ReturnType<typeof repository.getPartnerById> {
   return repository.getPartnerById(id);
 }
+
+/**
+ * One partner plus its linked clients, or `null` when it does not exist -
+ * the partner detail view's full dataset.
+ */
+export function getPartnerWithClients(
+  id: number,
+): ReturnType<typeof repository.getPartnerWithClients> {
+  return repository.getPartnerWithClients(id);
+}

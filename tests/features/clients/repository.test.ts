@@ -213,23 +213,3 @@ describe("updateClient", () => {
     expect(found?.partner).toBeNull();
   });
 });
-
-describe("setClientActive", () => {
-  it("flips active without touching other fields", async () => {
-    const client = await repository.createClient(baseClientInput);
-
-    const updated = await repository.setClientActive(client.id, false);
-
-    expect(updated.active).toBe(false);
-    expect(updated.name).toBe("Acme");
-  });
-
-  it("flips active back to true", async () => {
-    const client = await repository.createClient(baseClientInput);
-    await repository.setClientActive(client.id, false);
-
-    const updated = await repository.setClientActive(client.id, true);
-
-    expect(updated.active).toBe(true);
-  });
-});
