@@ -1,0 +1,13 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-09-18T12:00:00Z" },
+  "title": "Synfactu — Nav, Partners & Clients",
+  "launch": { "view": "focused", "file": "App.dc.html" },
+  "pages": [],
+  "boards": {
+    "App.dc.html": { "x": 0, "y": 0, "w": 1560, "h": 960, "title": "Synfactu — Partners & Clients", "is_interactive": true, "expand": "fill" }
+  },
+  "order": ["App.dc.html"],
+  "notes": {},
+  "designSystems": []
+}

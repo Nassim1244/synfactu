@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Synfactu — Partners &amp; Clients</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#F7F6F3;color:#211F1C;font-family:'IBM Plex Sans',system-ui,sans-serif;}
+  h1,h2{font-family:'IBM Plex Serif',Georgia,serif;}
+  button,input,select{font-family:inherit;}
+  .row-link{background:none;border:none;padding:0;text-align:left;color:#211F1C;font:inherit;cursor:pointer;}
+  .row-link:hover{color:#2F5D50;text-decoration:underline;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;border:none;background:none;cursor:pointer;color:#211F1C;width:100%;text-align:left;}
+  .nav-item:hover{background:#EFEDE8;}
+  .nav-item.active{background:#E4EEE9;color:#2F5D50;font-weight:600;}
+  .icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid #E2DFD9;background:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;}
+  .icon-btn:hover{background:#EFEDE8;}
+  .icon-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .icon-btn:disabled:hover{background:#FFFFFF;}
+  .crumb-link{background:none;border:none;padding:0;font:inherit;color:#6C675C;font-weight:600;cursor:pointer;}
+  .crumb-link:hover{color:#2F5D50;text-decoration:underline;}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column;">
+
+  <div style="height: 56px; flex: none; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid #E2DFD9; background: #FFFFFF; box-sizing: border-box;">
+    <span style="font-weight: 700; font-size: 16px; letter-spacing: 0.01em; font-family: 'IBM Plex Serif', Georgia, serif;">Synfactu</span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: row;">
+
+  <div style="width: {{railWidth}}; flex: none; background: #FFFFFF; border-right: 1px solid #E2DFD9; display: flex; flex-direction: column; padding: 14px 12px; gap: 10px; box-sizing: border-box; transition: width 140ms ease;">
+    <div style="display: flex; align-items: center; justify-content: {{railHeaderJustify}}; gap: 8px; padding: 4px 2px 10px 2px;">
+      <button class="icon-btn" aria-label="{{collapseLabel}}" onClick="{{toggleNav}}" style="border: none; background: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform: {{collapseIconTransform}};"><path d="M15 6l-6 6 6 6" stroke="#211F1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <button class="nav-item {{partnersActiveClass}}" onClick="{{goPartners}}" aria-label="Partners" title="Partners">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex: none;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <sc-if value="{{navExpanded}}" hint-placeholder-val="{{true}}">
+        <span style="font-size: 14px;">Partners</span>
+      </sc-if>
+    </button>
+
+    <button class="nav-item {{clientsActiveClass}}" onClick="{{goClients}}" aria-label="Clients" title="Clients">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex: none;"><path d="M6 22V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v18" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 9h4a1 1 0 0 1 1 1v12" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7h.01M9 11h.01M9 15h.01M18 13h.01M18 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <sc-if value="{{navExpanded}}" hint-placeholder-val="{{true}}">
+        <span style="font-size: 14px;">Clients</span>
+      </sc-if>
+    </button>
+  </div>
+
+  <div style="flex: 1; min-width: 0; padding: 32px 48px; box-sizing: border-box;">
+    <div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="icon-btn" aria-label="Go back" onClick="{{goBack}}" disabled="{{cannotGoBack}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#211F1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Go forward" onClick="{{goForward}}" disabled="{{cannotGoForward}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#211F1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span style="width: 1px; height: 18px; background: #E2DFD9; margin: 0 6px;"></span>
+        <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap;">
+          <sc-for list="{{crumbs}}" as="crumb" hint-placeholder-count="3">
+            <sc-if value="{{crumb.showSeparator}}" hint-placeholder-val="{{false}}">
+              <span style="color: #B7B2A6;">/</span>
+            </sc-if>
+            <sc-if value="{{crumb.isEllipsis}}" hint-placeholder-val="{{false}}">
+              <span style="color: #8B8578;">&hellip;</span>
+            </sc-if>
+            <sc-if value="{{crumb.clickable}}" hint-placeholder-val="{{false}}">
+              <button class="crumb-link" onClick="{{crumb.onClick}}">{{crumb.label}}</button>
+            </sc-if>
+            <sc-if value="{{crumb.isCurrent}}" hint-placeholder-val="{{true}}">
+              <span style="color: #211F1C; font-weight: 600;">{{crumb.label}}</span>
+            </sc-if>
+          </sc-for>
+        </nav>
+      </div>
+
+      <sc-if value="{{showPartnersList}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700;">Partners</h1>
+            <button onClick="{{openPartnerCreate}}" style="background: #2F5D50; color: #FFFFFF; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;">New partner</button>
+          </div>
+          <sc-if value="{{partnersEmpty}}" hint-placeholder-val="{{false}}">
+            <div style="border: 1px dashed #D8D4CC; border-radius: 12px; padding: 64px 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: #FFFFFF;">
+              <p style="margin: 0; color: #8B8578; font-size: 15px;">No partners yet.</p>
+              <button onClick="{{openPartnerCreate}}" style="background: #2F5D50; color: #FFFFFF; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;">New partner</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{partnersHasRows}}" hint-placeholder-val="{{true}}">
+            <div style="border: 1px solid #E2DFD9; border-radius: 12px; overflow: hidden; background: #FFFFFF;">
+              <div style="display: grid; grid-template-columns: 1fr 140px; padding: 12px 20px; font-size: 12px; font-weight: 600; color: #8B8578; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #E2DFD9;">
+                <span>Name</span><span>Status</span>
+              </div>
+              <sc-for list="{{partnerRows}}" as="p" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: 1fr 140px; padding: 16px 20px; align-items: center; border-bottom: 1px solid #E2DFD9; font-size: 14px;">
+                  <button class="row-link" onClick="{{p.open}}">{{p.name}}</button>
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{p.badgeBg}}; color: {{p.badgeInk}}; width: fit-content;">{{p.statusLabel}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showPartnerDetail}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700;">{{pdName}}</h1>
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{pdBadgeBg}}; color: {{pdBadgeInk}};">{{pdStatusLabel}}</span>
+            </div>
+            <button onClick="{{openPartnerEditFromDetail}}" style="background: none; border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Edit</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700;">Linked clients</h2>
+            <sc-if value="{{pdClientsEmpty}}" hint-placeholder-val="{{false}}">
+              <div style="border: 1px dashed #D8D4CC; border-radius: 12px; padding: 32px 24px; background: #FFFFFF;">
+                <p style="margin: 0; color: #8B8578; font-size: 14px;">No clients linked to this partner yet.</p>
+              </div>
+            </sc-if>
+            <sc-if value="{{pdClientsHasRows}}" hint-placeholder-val="{{true}}">
+              <div style="border: 1px solid #E2DFD9; border-radius: 12px; overflow: hidden; background: #FFFFFF;">
+                <div style="display: grid; grid-template-columns: 1fr 120px 120px; padding: 12px 20px; font-size: 12px; font-weight: 600; color: #8B8578; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #E2DFD9;">
+                  <span>Name</span><span>Short label</span><span>Status</span>
+                </div>
+                <sc-for list="{{pdClientRows}}" as="c" hint-placeholder-count="2">
+                  <div style="display: grid; grid-template-columns: 1fr 120px 120px; padding: 14px 20px; align-items: center; border-bottom: 1px solid #E2DFD9; font-size: 14px;">
+                    <button class="row-link" onClick="{{c.open}}">{{c.name}}</button>
+                    <span style="color: #6C675C;">{{c.shortLabel}}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{c.badgeBg}}; color: {{c.badgeInk}}; width: fit-content;">{{c.statusLabel}}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showClientsList}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700;">Clients</h1>
+            <button onClick="{{openClientCreate}}" style="background: #2F5D50; color: #FFFFFF; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;">New client</button>
+          </div>
+          <sc-if value="{{clientsEmpty}}" hint-placeholder-val="{{false}}">
+            <div style="border: 1px dashed #D8D4CC; border-radius: 12px; padding: 64px 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: #FFFFFF;">
+              <p style="margin: 0; color: #8B8578; font-size: 15px;">No clients yet.</p>
+              <button onClick="{{openClientCreate}}" style="background: #2F5D50; color: #FFFFFF; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;">New client</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{clientsHasRows}}" hint-placeholder-val="{{true}}">
+            <div style="border: 1px solid #E2DFD9; border-radius: 12px; overflow: hidden; background: #FFFFFF;">
+              <div style="display: grid; grid-template-columns: 1.4fr 110px 90px 110px 1fr; padding: 12px 20px; font-size: 12px; font-weight: 600; color: #8B8578; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #E2DFD9;">
+                <span>Name</span><span>Short label</span><span>Billable</span><span>Status</span><span>Partner</span>
+              </div>
+              <sc-for list="{{clientRows}}" as="c" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 1.4fr 110px 90px 110px 1fr; padding: 16px 20px; align-items: center; border-bottom: 1px solid #E2DFD9; font-size: 14px;">
+                  <button class="row-link" onClick="{{c.open}}">{{c.name}}</button>
+                  <span style="color: #6C675C;">{{c.shortLabel}}</span>
+                  <span>{{c.billableLabel}}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{c.badgeBg}}; color: {{c.badgeInk}}; width: fit-content;">{{c.statusLabel}}</span>
+                  <span style="color: #6C675C;">{{c.partnerLabel}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showClientDetail}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700;">{{cdName}}</h1>
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{cdBadgeBg}}; color: {{cdBadgeInk}};">{{cdStatusLabel}}</span>
+            </div>
+            <button onClick="{{openClientEditFromDetail}}" style="background: none; border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Edit</button>
+          </div>
+
+          <div style="border: 1px solid #E2DFD9; border-radius: 12px; background: #FFFFFF; padding: 4px 20px;">
+            <div style="display: flex; padding: 14px 0; border-bottom: 1px solid #EFEDE8;">
+              <span style="width: 180px; flex: none; color: #8B8578; font-size: 13px; font-weight: 600;">Short label</span>
+              <span style="font-size: 14px;">{{cdShortLabel}}</span>
+            </div>
+            <div style="display: flex; padding: 14px 0; border-bottom: 1px solid #EFEDE8;">
+              <span style="width: 180px; flex: none; color: #8B8578; font-size: 13px; font-weight: 600;">Default rate (TJM)</span>
+              <span style="font-size: 14px;">{{cdRate}}</span>
+            </div>
+            <div style="display: flex; padding: 14px 0; border-bottom: 1px solid #EFEDE8;">
+              <span style="width: 180px; flex: none; color: #8B8578; font-size: 13px; font-weight: 600;">Billable</span>
+              <span style="font-size: 14px;">{{cdBillable}}</span>
+            </div>
+            <div style="display: flex; padding: 14px 0; border-bottom: 1px solid #EFEDE8; align-items: center;">
+              <span style="width: 180px; flex: none; color: #8B8578; font-size: 13px; font-weight: 600;">Referring partner</span>
+              <sc-if value="{{cdHasPartner}}" hint-placeholder-val="{{false}}">
+                <button class="row-link" onClick="{{cdOpenPartner}}">{{cdPartnerLabel}}</button>
+              </sc-if>
+              <sc-if value="{{cdHasNoPartner}}" hint-placeholder-val="{{true}}">
+                <span style="font-size: 14px; color: #6C675C;">—</span>
+              </sc-if>
+            </div>
+            <div style="display: flex; padding: 14px 0;">
+              <span style="width: 180px; flex: none; color: #8B8578; font-size: 13px; font-weight: 600;">Default regime</span>
+              <span style="font-size: 14px;">{{cdRegime}}</span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  </div>
+
+  <sc-if value="{{partnerDialogOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; inset: 0; background: rgba(33,31,28,0.4); display: flex; align-items: center; justify-content: center; z-index: 50;">
+      <div style="width: 420px; background: #FFFFFF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700;">{{pDialogTitle}}</h2>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="partner-name" style="font-size: 13px; font-weight: 600; color: #8B8578;">Name</label>
+          <input id="partner-name" type="text" value="{{pFormName}}" onChange="{{setPName}}" style="border: 1px solid {{pNameBorder}}; border-radius: 8px; padding: 9px 12px; font-size: 14px;" />
+          <sc-if value="{{pHasNameError}}" hint-placeholder-val="{{false}}">
+            <span style="color: #B3261E; font-size: 12px;">Name is required.</span>
+          </sc-if>
+        </div>
+        <sc-if value="{{pIsEditMode}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid #EFEDE8;">
+            <span style="font-size: 13px; font-weight: 600; color: #8B8578;">Active</span>
+            <button role="switch" aria-checked="{{pFormActive}}" aria-label="Toggle active" onClick="{{togglePFormActive}}" style="width: 36px; height: 20px; border-radius: 999px; border: none; padding: 2px; background: {{pSwitchBg}}; cursor: pointer; display: flex; justify-content: {{pSwitchJustify}}; margin-top: 12px;">
+              <span style="width: 16px; height: 16px; border-radius: 999px; background: #fff; display: block;"></span>
+            </button>
+          </div>
+        </sc-if>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+          <button onClick="{{closePartnerDialog}}" style="background: none; border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+          <button onClick="{{savePartner}}" style="background: #2F5D50; color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Save</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{clientDialogOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; inset: 0; background: rgba(33,31,28,0.4); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 24px;">
+      <div style="width: 460px; max-height: 88vh; overflow-y: auto; background: #FFFFFF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); box-sizing: border-box;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700;">{{cDialogTitle}}</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="client-name" style="font-size: 13px; font-weight: 600; color: #8B8578;">Name</label>
+          <input id="client-name" type="text" value="{{cFormName}}" onChange="{{setCName}}" style="border: 1px solid {{cNameBorder}}; border-radius: 8px; padding: 9px 12px; font-size: 14px;" />
+          <sc-if value="{{cHasNameError}}" hint-placeholder-val="{{false}}">
+            <span style="color: #B3261E; font-size: 12px;">Name is required.</span>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="client-short" style="font-size: 13px; font-weight: 600; color: #8B8578;">Short label</label>
+          <input id="client-short" type="text" value="{{cFormShortLabel}}" onChange="{{setCShortLabel}}" style="border: 1px solid {{cShortLabelBorder}}; border-radius: 8px; padding: 9px 12px; font-size: 14px;" />
+          <sc-if value="{{cHasShortLabelError}}" hint-placeholder-val="{{false}}">
+            <span style="color: #B3261E; font-size: 12px;">Short label is required.</span>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="client-rate" style="font-size: 13px; font-weight: 600; color: #8B8578;">Default rate (TJM)</label>
+          <input id="client-rate" type="text" inputmode="decimal" value="{{cFormRate}}" onChange="{{setCRate}}" placeholder="e.g. 550" style="border: 1px solid {{cRateBorder}}; border-radius: 8px; padding: 9px 12px; font-size: 14px;" />
+          <sc-if value="{{cHasRateError}}" hint-placeholder-val="{{false}}">
+            <span style="color: #B3261E; font-size: 12px;">Enter a positive number.</span>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 13px; font-weight: 600; color: #8B8578;">Billable</span>
+          <button role="switch" aria-checked="{{cFormBillable}}" aria-label="Toggle billable" onClick="{{toggleCBillable}}" style="width: 36px; height: 20px; border-radius: 999px; border: none; padding: 2px; background: {{cBillableSwitchBg}}; cursor: pointer; display: flex; justify-content: {{cBillableSwitchJustify}};">
+            <span style="width: 16px; height: 16px; border-radius: 999px; background: #fff; display: block;"></span>
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="client-partner" style="font-size: 13px; font-weight: 600; color: #8B8578;">Referring partner</label>
+          <select id="client-partner" value="{{cFormPartnerId}}" onChange="{{setCPartnerId}}" style="border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 12px; font-size: 14px; background: #FFFFFF;">
+            <option value="">None</option>
+            <sc-for list="{{cPartnerOptions}}" as="opt" hint-placeholder-count="2">
+              <option value="{{opt.id}}">{{opt.label}}</option>
+            </sc-for>
+          </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="client-regime" style="font-size: 13px; font-weight: 600; color: #8B8578;">Default regime</label>
+          <select id="client-regime" value="{{cFormRegime}}" onChange="{{setCRegime}}" style="border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 12px; font-size: 14px; background: #FFFFFF;">
+            <option value="">None</option>
+            <option value="MICRO">Micro</option>
+            <option value="PORTAGE">Portage</option>
+          </select>
+        </div>
+
+        <sc-if value="{{cIsEditMode}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid #EFEDE8;">
+            <span style="font-size: 13px; font-weight: 600; color: #8B8578; margin-top: 12px;">Active</span>
+            <button role="switch" aria-checked="{{cFormActive}}" aria-label="Toggle active" onClick="{{toggleCFormActive}}" style="width: 36px; height: 20px; border-radius: 999px; border: none; padding: 2px; background: {{cActiveSwitchBg}}; cursor: pointer; display: flex; justify-content: {{cActiveSwitchJustify}}; margin-top: 12px;">
+              <span style="width: 16px; height: 16px; border-radius: 999px; background: #fff; display: block;"></span>
+            </button>
+          </div>
+        </sc-if>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+          <button onClick="{{closeClientDialog}}" style="background: none; border: 1px solid #E2DFD9; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+          <button onClick="{{saveClient}}" style="background: #2F5D50; color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;">Save</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1560,"height":960}}'>
+function deriveShortLabel(name) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+  if (words.length === 1) return words[0].slice(0, 6).toUpperCase();
+  return (words[0].slice(0, 3) + words[1].slice(0, 3)).toUpperCase();
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      navCollapsed: false,
+      history: [{ section: 'partners', view: 'list', id: null }],
+      historyIndex: 0,
+
+      partnerDialogOpen: false, partnerDialogMode: 'create', editingPartnerId: null,
+      pFormName: '', pFormActive: true, pShowNameError: false,
+
+      clientDialogOpen: false, clientDialogMode: 'create', editingClientId: null,
+      cFormName: '', cFormShortLabel: '', cShortLabelDirty: false, cFormRate: '',
+      cFormBillable: true, cFormActive: true, cFormPartnerId: '', cFormRegime: '',
+      cPartnerOptions: [], cShowNameError: false, cShowShortLabelError: false, cShowRateError: false,
+
+      partnersAll: [
+        { id: 1, name: 'Acme Consulting', active: true },
+        { id: 2, name: 'Nova Referrals', active: true },
+        { id: 3, name: 'Bright Ventures', active: false },
+      ],
+      clientsAll: [
+        { id: 1, name: 'Atelier Rousseau', shortLabel: 'ATRO', billable: true, active: true, partnerId: 1, regime: 'MICRO', rate: 520 },
+        { id: 2, name: 'Meridian Labs', shortLabel: 'MERLAB', billable: true, active: true, partnerId: null, regime: null, rate: 600 },
+        { id: 3, name: 'Solene Dupont', shortLabel: 'SOLDUP', billable: false, active: true, partnerId: 3, regime: 'PORTAGE', rate: 480 },
+        { id: 4, name: 'Kappa Studio', shortLabel: 'KAPSTU', billable: true, active: false, partnerId: null, regime: null, rate: 550 },
+        { id: 5, name: 'Ferro Industries', shortLabel: 'FERIND', billable: true, active: true, partnerId: 1, regime: 'MICRO', rate: 540 },
+      ],
+    };
+  }
+
+  current() { return this.state.history[this.state.historyIndex]; }
+
+  pushView(entry) {
+    let truncated = this.state.history.slice(0, this.state.historyIndex + 1).concat([entry]);
+    if (truncated.length > 10) truncated = truncated.slice(truncated.length - 10);
+    this.setState({ history: truncated, historyIndex: truncated.length - 1, partnerDialogOpen: false, clientDialogOpen: false });
+  }
+
+  jumpTo(realIndex) {
+    this.setState({ historyIndex: realIndex, partnerDialogOpen: false, clientDialogOpen: false });
+  }
+
+  labelForEntry(entry) {
+    if (entry.view === 'list') return entry.section === 'partners' ? 'Partners' : 'Clients';
+    if (entry.section === 'partners') {
+      const p = this.state.partnersAll.find((x) => x.id === entry.id);
+      return p ? p.name : 'Partner';
+    }
+    const c = this.state.clientsAll.find((x) => x.id === entry.id);
+    return c ? c.name : 'Client';
+  }
+
+  buildCrumbs() {
+    const self = this;
+    let pathEntries = this.state.history.slice(0, this.state.historyIndex + 1).map((entry, idx) => ({ entry: entry, idx: idx }));
+    const crumbs = [];
+    if (pathEntries.length > 4) {
+      crumbs.push({ key: 'ellipsis', label: '', clickable: false, isCurrent: false, isEllipsis: true, showSeparator: false });
+      pathEntries = pathEntries.slice(-4);
+    }
+    pathEntries.forEach((pe) => {
+      const isCurrent = pe.idx === self.state.historyIndex;
+      crumbs.push({
+        key: 'c' + pe.idx,
+        label: self.labelForEntry(pe.entry),
+        clickable: !isCurrent,
+        isCurrent: isCurrent,
+        isEllipsis: false,
+        showSeparator: crumbs.length > 0,
+        onClick: function () { self.jumpTo(pe.idx); },
+      });
+    });
+    return crumbs;
+  }
+
+  goBack() { if (this.state.historyIndex > 0) this.setState({ historyIndex: this.state.historyIndex - 1 }); }
+  goForward() { if (this.state.historyIndex < this.state.history.length - 1) this.setState({ historyIndex: this.state.historyIndex + 1 }); }
+
+  goSection(section) {
+    const cur = this.current();
+    if (cur.section === section && cur.view === 'list') return;
+    this.pushView({ section: section, view: 'list', id: null });
+  }
+
+  openPartner(id) { this.pushView({ section: 'partners', view: 'detail', id: id }); }
+  openClient(id) { this.pushView({ section: 'clients', view: 'detail', id: id }); }
+
+  toggleNav() { this.setState({ navCollapsed: !this.state.navCollapsed }); }
+
+  activePartners() { return this.state.partnersAll.filter((p) => p.active); }
+
+  openPartnerCreate() {
+    this.setState({ partnerDialogOpen: true, partnerDialogMode: 'create', editingPartnerId: null, pFormName: '', pFormActive: true, pShowNameError: false });
+  }
+  openPartnerEditFromDetail() {
+    const cur = this.current();
+    const p = this.state.partnersAll.find((x) => x.id === cur.id);
+    this.setState({ partnerDialogOpen: true, partnerDialogMode: 'edit', editingPartnerId: p.id, pFormName: p.name, pFormActive: p.active, pShowNameError: false });
+  }
+  closePartnerDialog() { this.setState({ partnerDialogOpen: false }); }
+  setPName(e) {
+    const val = e && e.target ? e.target.value : e;
+    this.setState({ pFormName: val, pShowNameError: false });
+  }
+  togglePFormActive() { this.setState({ pFormActive: !this.state.pFormActive }); }
+  savePartner() {
+    const name = this.state.pFormName.trim();
+    if (name.length === 0) { this.setState({ pShowNameError: true }); return; }
+    if (this.state.partnerDialogMode === 'create') {
+      const nextId = this.state.partnersAll.length ? Math.max.apply(null, this.state.partnersAll.map((p) => p.id)) + 1 : 1;
+      this.setState({ partnersAll: this.state.partnersAll.concat([{ id: nextId, name: name, active: true }]), partnerDialogOpen: false });
+    } else {
+      this.setState({
+        partnersAll: this.state.partnersAll.map((p) => (p.id === this.state.editingPartnerId ? { ...p, name: name, active: this.state.pFormActive } : p)),
+        partnerDialogOpen: false,
+      });
+    }
+  }
+
+  openClientCreate() {
+    this.setState({
+      clientDialogOpen: true, clientDialogMode: 'create', editingClientId: null,
+      cFormName: '', cFormShortLabel: '', cShortLabelDirty: false, cFormRate: '',
+      cFormBillable: true, cFormActive: true, cFormPartnerId: '', cFormRegime: '',
+      cPartnerOptions: this.activePartners().map((p) => ({ id: String(p.id), label: p.name })),
+      cShowNameError: false, cShowShortLabelError: false, cShowRateError: false,
+    });
+  }
+  openClientEditFromDetail() {
+    const cur = this.current();
+    const c = this.state.clientsAll.find((x) => x.id === cur.id);
+    const options = this.activePartners().map((p) => ({ id: String(p.id), label: p.name }));
+    if (c.partnerId) {
+      const linked = this.state.partnersAll.find((p) => p.id === c.partnerId);
+      if (linked && !linked.active) options.push({ id: String(linked.id), label: linked.name + ' (inactive)' });
+    }
+    this.setState({
+      clientDialogOpen: true, clientDialogMode: 'edit', editingClientId: c.id,
+      cFormName: c.name, cFormShortLabel: c.shortLabel, cShortLabelDirty: true,
+      cFormRate: String(c.rate || ''), cFormBillable: c.billable, cFormActive: c.active,
+      cFormPartnerId: c.partnerId ? String(c.partnerId) : '', cFormRegime: c.regime || '',
+      cPartnerOptions: options,
+      cShowNameError: false, cShowShortLabelError: false, cShowRateError: false,
+    });
+  }
+  closeClientDialog() { this.setState({ clientDialogOpen: false }); }
+  setCName(e) {
+    const val = e && e.target ? e.target.value : e;
+    const nextShort = this.state.cShortLabelDirty ? this.state.cFormShortLabel : deriveShortLabel(val);
+    this.setState({ cFormName: val, cFormShortLabel: nextShort, cShowNameError: false });
+  }
+  setCShortLabel(e) {
+    const val = e && e.target ? e.target.value : e;
+    this.setState({ cFormShortLabel: val, cShortLabelDirty: true, cShowShortLabelError: false });
+  }
+  setCRate(e) {
+    const val = e && e.target ? e.target.value : e;
+    this.setState({ cFormRate: val, cShowRateError: false });
+  }
+  toggleCBillable() { this.setState({ cFormBillable: !this.state.cFormBillable }); }
+  toggleCFormActive() { this.setState({ cFormActive: !this.state.cFormActive }); }
+  setCPartnerId(e) {
+    const val = e && e.target ? e.target.value : e;
+    this.setState({ cFormPartnerId: val });
+  }
+  setCRegime(e) {
+    const val = e && e.target ? e.target.value : e;
+    this.setState({ cFormRegime: val });
+  }
+  saveClient() {
+    const name = this.state.cFormName.trim();
+    const shortLabel = this.state.cFormShortLabel.trim();
+    const rateStr = this.state.cFormRate.trim();
+    const rate = parseFloat(rateStr);
+    const rateOk = /^\d+(\.\d{1,2})?$/.test(rateStr) && rate > 0;
+    const errors = {
+      cShowNameError: name.length === 0,
+      cShowShortLabelError: shortLabel.length === 0,
+      cShowRateError: !rateOk,
+    };
+    if (errors.cShowNameError || errors.cShowShortLabelError || errors.cShowRateError) { this.setState(errors); return; }
+    const partnerId = this.state.cFormPartnerId ? parseInt(this.state.cFormPartnerId, 10) : null;
+    const regime = this.state.cFormRegime || null;
+    if (this.state.clientDialogMode === 'create') {
+      const nextId = this.state.clientsAll.length ? Math.max.apply(null, this.state.clientsAll.map((c) => c.id)) + 1 : 1;
+      this.setState({
+        clientsAll: this.state.clientsAll.concat([{ id: nextId, name: name, shortLabel: shortLabel, billable: this.state.cFormBillable, active: true, partnerId: partnerId, regime: regime, rate: rate }]),
+        clientDialogOpen: false,
+      });
+    } else {
+      this.setState({
+        clientsAll: this.state.clientsAll.map((c) => (c.id === this.state.editingClientId ? { ...c, name: name, shortLabel: shortLabel, billable: this.state.cFormBillable, active: this.state.cFormActive, partnerId: partnerId, regime: regime, rate: rate } : c)),
+        clientDialogOpen: false,
+      });
+    }
+  }
+
+  renderVals() {
+    const self = this;
+    const cur = this.current();
+    const partnersById = {};
+    this.state.partnersAll.forEach((p) => { partnersById[p.id] = p; });
+
+    const partnerRows = this.state.partnersAll.map((p) => ({
+      id: p.id, name: p.name,
+      statusLabel: p.active ? 'Active' : 'Inactive',
+      badgeBg: p.active ? '#E4EEE9' : '#EFEDE8',
+      badgeInk: p.active ? '#2F5D50' : '#8B8578',
+      open: function () { self.openPartner(p.id); },
+    }));
+
+    const clientRows = this.state.clientsAll.map((c) => {
+      const linked = c.partnerId ? partnersById[c.partnerId] : null;
+      return {
+        id: c.id, name: c.name, shortLabel: c.shortLabel,
+        billableLabel: c.billable ? 'Yes' : 'No',
+        statusLabel: c.active ? 'Active' : 'Inactive',
+        badgeBg: c.active ? '#E4EEE9' : '#EFEDE8',
+        badgeInk: c.active ? '#2F5D50' : '#8B8578',
+        partnerLabel: linked ? (linked.name + (linked.active ? '' : ' (inactive)')) : '—',
+        open: function () { self.openClient(c.id); },
+      };
+    });
+
+    let pdName = '', pdStatusLabel = '', pdBadgeBg = '#EFEDE8', pdBadgeInk = '#8B8578';
+    let pdClientRows = [];
+    if (cur.section === 'partners' && cur.view === 'detail') {
+      const p = this.state.partnersAll.find((x) => x.id === cur.id);
+      if (p) {
+        pdName = p.name;
+        pdStatusLabel = p.active ? 'Active' : 'Inactive';
+        pdBadgeBg = p.active ? '#E4EEE9' : '#EFEDE8';
+        pdBadgeInk = p.active ? '#2F5D50' : '#8B8578';
+        pdClientRows = this.state.clientsAll.filter((c) => c.partnerId === p.id).map((c) => ({
+          id: c.id, name: c.name, shortLabel: c.shortLabel,
+          statusLabel: c.active ? 'Active' : 'Inactive',
+          badgeBg: c.active ? '#E4EEE9' : '#EFEDE8',
+          badgeInk: c.active ? '#2F5D50' : '#8B8578',
+          open: function () { self.openClient(c.id); },
+        }));
+      }
+    }
+
+    let cdName = '', cdStatusLabel = '', cdBadgeBg = '#EFEDE8', cdBadgeInk = '#8B8578';
+    let cdShortLabel = '', cdRate = '', cdBillable = '', cdPartnerLabel = '', cdHasPartner = false, cdRegime = '—', cdPartnerId = null;
+    if (cur.section === 'clients' && cur.view === 'detail') {
+      const c = this.state.clientsAll.find((x) => x.id === cur.id);
+      if (c) {
+        cdName = c.name;
+        cdStatusLabel = c.active ? 'Active' : 'Inactive';
+        cdBadgeBg = c.active ? '#E4EEE9' : '#EFEDE8';
+        cdBadgeInk = c.active ? '#2F5D50' : '#8B8578';
+        cdShortLabel = c.shortLabel;
+        cdRate = c.rate ? (c.rate + ' €') : '—';
+        cdBillable = c.billable ? 'Yes' : 'No';
+        const linked = c.partnerId ? partnersById[c.partnerId] : null;
+        cdHasPartner = !!linked;
+        cdPartnerLabel = linked ? (linked.name + (linked.active ? '' : ' (inactive)')) : '';
+        cdPartnerId = c.partnerId;
+        cdRegime = c.regime === 'MICRO' ? 'Micro' : (c.regime === 'PORTAGE' ? 'Portage' : '—');
+      }
+    }
+
+    const crumbs = this.buildCrumbs();
+
+    return {
+      railWidth: this.state.navCollapsed ? '72px' : '232px',
+      navExpanded: !this.state.navCollapsed,
+      railHeaderJustify: this.state.navCollapsed ? 'center' : 'flex-end',
+      collapseLabel: this.state.navCollapsed ? 'Expand navigation' : 'Collapse navigation',
+      collapseIconTransform: this.state.navCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+      toggleNav: function () { self.toggleNav(); },
+      partnersActiveClass: cur.section === 'partners' ? 'active' : '',
+      clientsActiveClass: cur.section === 'clients' ? 'active' : '',
+      goPartners: function () { self.goSection('partners'); },
+      goClients: function () { self.goSection('clients'); },
+
+      cannotGoBack: this.state.historyIndex === 0,
+      cannotGoForward: this.state.historyIndex === this.state.history.length - 1,
+      goBack: function () { self.goBack(); },
+      goForward: function () { self.goForward(); },
+
+      crumbs: crumbs,
+
+      showPartnersList: cur.section === 'partners' && cur.view === 'list',
+      partnersEmpty: partnerRows.length === 0,
+      partnersHasRows: partnerRows.length > 0,
+      partnerRows: partnerRows,
+      openPartnerCreate: function () { self.openPartnerCreate(); },
+
+      showPartnerDetail: cur.section === 'partners' && cur.view === 'detail',
+      pdName: pdName, pdStatusLabel: pdStatusLabel, pdBadgeBg: pdBadgeBg, pdBadgeInk: pdBadgeInk,
+      pdClientsEmpty: pdClientRows.length === 0,
+      pdClientsHasRows: pdClientRows.length > 0,
+      pdClientRows: pdClientRows,
+      openPartnerEditFromDetail: function () { self.openPartnerEditFromDetail(); },
+
+      showClientsList: cur.section === 'clients' && cur.view === 'list',
+      clientsEmpty: clientRows.length === 0,
+      clientsHasRows: clientRows.length > 0,
+      clientRows: clientRows,
+      openClientCreate: function () { self.openClientCreate(); },
+
+      showClientDetail: cur.section === 'clients' && cur.view === 'detail',
+      cdName: cdName, cdStatusLabel: cdStatusLabel, cdBadgeBg: cdBadgeBg, cdBadgeInk: cdBadgeInk,
+      cdShortLabel: cdShortLabel, cdRate: cdRate, cdBillable: cdBillable,
+      cdHasPartner: cdHasPartner, cdHasNoPartner: !cdHasPartner, cdPartnerLabel: cdPartnerLabel,
+      cdOpenPartner: function () { if (cdPartnerId) self.openPartner(cdPartnerId); },
+      cdRegime: cdRegime,
+      openClientEditFromDetail: function () { self.openClientEditFromDetail(); },
+
+      partnerDialogOpen: this.state.partnerDialogOpen,
+      pDialogTitle: this.state.partnerDialogMode === 'create' ? 'New partner' : 'Edit partner ' + this.state.pFormName,
+      pFormName: this.state.pFormName,
+      pIsEditMode: this.state.partnerDialogMode === 'edit',
+      pFormActive: this.state.pFormActive,
+      pSwitchBg: this.state.pFormActive ? '#2F5D50' : '#D8D4CC',
+      pSwitchJustify: this.state.pFormActive ? 'flex-end' : 'flex-start',
+      pHasNameError: this.state.pShowNameError,
+      pNameBorder: this.state.pShowNameError ? '#B3261E' : '#E2DFD9',
+      closePartnerDialog: function () { self.closePartnerDialog(); },
+      setPName: function (e) { self.setPName(e); },
+      togglePFormActive: function () { self.togglePFormActive(); },
+      savePartner: function () { self.savePartner(); },
+
+      clientDialogOpen: this.state.clientDialogOpen,
+      cDialogTitle: this.state.clientDialogMode === 'create' ? 'New client' : 'Edit client ' + this.state.cFormName,
+      cFormName: this.state.cFormName,
+      cFormShortLabel: this.state.cFormShortLabel,
+      cFormRate: this.state.cFormRate,
+      cFormBillable: this.state.cFormBillable,
+      cBillableSwitchBg: this.state.cFormBillable ? '#2F5D50' : '#D8D4CC',
+      cBillableSwitchJustify: this.state.cFormBillable ? 'flex-end' : 'flex-start',
+      cIsEditMode: this.state.clientDialogMode === 'edit',
+      cFormActive: this.state.cFormActive,
+      cActiveSwitchBg: this.state.cFormActive ? '#2F5D50' : '#D8D4CC',
+      cActiveSwitchJustify: this.state.cFormActive ? 'flex-end' : 'flex-start',
+      cFormPartnerId: this.state.cFormPartnerId,
+      cFormRegime: this.state.cFormRegime,
+      cPartnerOptions: this.state.cPartnerOptions,
+      cHasNameError: this.state.cShowNameError,
+      cHasShortLabelError: this.state.cShowShortLabelError,
+      cHasRateError: this.state.cShowRateError,
+      cNameBorder: this.state.cShowNameError ? '#B3261E' : '#E2DFD9',
+      cShortLabelBorder: this.state.cShowShortLabelError ? '#B3261E' : '#E2DFD9',
+      cRateBorder: this.state.cShowRateError ? '#B3261E' : '#E2DFD9',
+      closeClientDialog: function () { self.closeClientDialog(); },
+      setCName: function (e) { self.setCName(e); },
+      setCShortLabel: function (e) { self.setCShortLabel(e); },
+      setCRate: function (e) { self.setCRate(e); },
+      toggleCBillable: function () { self.toggleCBillable(); },
+      toggleCFormActive: function () { self.toggleCFormActive(); },
+      setCPartnerId: function (e) { self.setCPartnerId(e); },
+      setCRegime: function (e) { self.setCRegime(e); },
+      saveClient: function () { self.saveClient(); },
+    };
+  }
+}
+</script>
+</body>
+</html>
