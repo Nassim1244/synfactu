@@ -3,6 +3,7 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
+  - 2026-09-18 - bootstrap step 8b complete: `prisma/seed.ts` added with dev and test modes, selected by CLI argument, refusal guard against a non-empty database, zero records (AD-017 - authentication deferred), AD-029 recorded (`tsx` invocation, `count()`-based refusal guard); steps 10, 10b and 15 still outstanding - specs/init.md
   - 2026-09-18 - bootstrap step 13 complete: dependency audit run for the first time ahead of the v0.1.0 release attempt (`pnpm audit --prod` then full); steps 8b, 10, 10b and 15 still outstanding - specs/init.md
   - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
@@ -20,6 +21,8 @@
 - # Migrations applied
   - 2026-09-16 - 20260916112115_add_partners_and_clients - adds `partners` and `clients` tables (PARTNER, CLIENT, RG-01 relation), additive only - specs/iteration/v1/v01-001-nav-partners-clients.md
 - # Recent events
+  - 2026-09-18 - feat(db) committed (fe00140): `prisma/seed.ts` with dev and test modes, `db:seed`/`db:seed:test` scripts, run via `tsx` (AD-029); reviewed READY (`reviewed/2026-09-18_134254`) - specs/init.md
+  - 2026-09-18 - AD-029 recorded, `tsx` runs `prisma/seed.ts` against the generated Prisma client, refusal guard via `count()` per model instead of raw SQL, `pnpm-workspace.yaml` allows `esbuild` to build - ai-rules/decisions.md
   - 2026-09-18 - fix(docker) committed (3cf5a33): self-contained `prisma migrate deploy` in the release image - build-stage `DATABASE_URL` placeholder, `prisma` CLI moved to `dependencies` via a `deps-prod` stage, `@prisma/engines` allowed to build with OpenSSL matched to `runtime`, `prisma.config.ts` shipped to `runtime`; reviewed READY (`reviewed/2026-09-18_114536`) - ai-rules/decisions.md
   - 2026-09-18 - AD-028 recorded, supersedes AD-027: `prisma migrate deploy` self-contained in the release image (adds the `prisma.config.ts` copy to `runtime`, consolidating all three engine/OpenSSL/config fixes) - ai-rules/decisions.md
   - 2026-09-18 - AD-027 recorded, `@prisma/engines` allowed to build and `deps-prod` installs OpenSSL to match `runtime` - ai-rules/decisions.md
