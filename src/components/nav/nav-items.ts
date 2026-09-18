@@ -5,7 +5,12 @@
 // entry for a section that does not exist yet (functional spec -> Out of
 // scope).
 
-import { Building2, Users, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  Settings as SettingsIcon,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * One entry of the navigation rail: its visible label, the route it links
@@ -24,4 +29,5 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Partners", href: "/partners", icon: Users },
   { label: "Clients", href: "/clients", icon: Building2 },
+  { label: "Settings", href: "/settings", icon: SettingsIcon },
 ];

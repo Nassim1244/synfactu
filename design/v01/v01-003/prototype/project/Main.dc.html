@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F4EF;
+    --surface:#FFFFFF;
+    --border:#E3DFD5;
+    --text:#211F1B;
+    --text-secondary:#6E6858;
+    --accent:{{accent}};
+    --accent-hover:#1F4038;
+    --error:#B3261E;
+    --muted:#A39D8C;
+  }
+  body{margin:0;font-family:'Public Sans',sans-serif;color:var(--text);background:var(--bg);}
+  h1,h2{font-family:'Fraunces',serif;margin:0;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{color:var(--accent-hover);}
+  input:focus,button:focus,a:focus{outline:2px solid var(--accent);outline-offset:2px;}
+  ::placeholder{color:var(--muted);}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;}
+  .label-col{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-secondary);}
+  .field-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field-input{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;font-size:14px;font-family:'Public Sans',sans-serif;background:#fff;color:var(--text);}
+  .field-input:disabled{background:var(--bg);color:var(--text-secondary);}
+  .error-text{color:var(--error);font-size:13px;margin-top:6px;}
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-primary:hover{background:var(--accent-hover);}
+  .btn-secondary{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text);}
+  .btn-secondary:hover{background:var(--bg);}
+  .btn-edit{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text);}
+  .btn-edit:hover{background:var(--bg);}
+  .nav-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-secondary);}
+  .nav-link:hover{background:var(--bg);color:var(--text);}
+  .nav-link-active{color:var(--accent);background:#EEF3F1;font-weight:600;}
+  .nav-link-active:hover{background:#EEF3F1;color:var(--accent);}
+  .toggle{appearance:none;-webkit-appearance:none;width:44px;height:24px;border-radius:999px;background:var(--border);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s ease;}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s ease;}
+  .toggle:checked{background:var(--accent);}
+  .toggle:checked::after{transform:translateX(20px);}
+  .pattern-chip{font-family:ui-monospace,'SFMono-Regular',Menlo,monospace;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:6px;display:inline-block;}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;background:var(--bg);">
+
+  <div style="width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:28px 20px;display:flex;flex-direction:column;gap:4px;">
+    <div style="font-family:'Fraunces',serif;font-weight:700;font-size:20px;margin:0 8px 28px;">Synfactu</div>
+    <a href="#" class="nav-link">Partners</a>
+    <a href="#" class="nav-link">Clients</a>
+    <a href="#" aria-current="page" class="nav-link nav-link-active" style="margin-top:auto;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      Settings
+    </a>
+  </div>
+
+  <div style="flex:1;padding:56px 64px;">
+    <div style="max-width:760px;">
+      <h1 style="font-size:30px;font-weight:600;margin-bottom:4px;">Settings</h1>
+      <p style="margin:0 0 32px;color:var(--text-secondary);font-size:15px;">Company identity and the application-wide values the rest of Synfactu depends on.</p>
+
+      <sc-if value="{{isSettingsView}}" hint-placeholder-val="{{true}}">
+        <div>
+          <div class="card" style="margin-bottom:24px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+              <h2 style="font-size:20px;font-weight:600;">Company profile</h2>
+              <button class="btn-edit" onClick="{{onEditCompanyClick}}">Edit</button>
+            </div>
+            <div style="display:grid;grid-template-columns:180px 1fr;row-gap:18px;column-gap:16px;">
+              <div class="label-col">Legal / trading name</div>
+              <div style="font-size:15px;">{{companyView.legalName}}</div>
+              <div class="label-col">SIRET</div>
+              <div style="font-size:15px;font-variant-numeric:tabular-nums;">{{companyView.siret}}</div>
+              <div class="label-col">Address</div>
+              <div style="font-size:15px;">{{companyView.address}}</div>
+              <div class="label-col">Email</div>
+              <div style="font-size:15px;">{{companyView.email}}</div>
+              <div class="label-col">Phone</div>
+              <div style="font-size:15px;">{{companyView.phone}}</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+              <h2 style="font-size:20px;font-weight:600;">Application settings</h2>
+              <button class="btn-edit" onClick="{{onEditAppClick}}">Edit</button>
+            </div>
+            <div style="display:grid;grid-template-columns:220px 1fr;row-gap:18px;column-gap:16px;align-items:center;">
+              <div class="label-col">Hours per working day</div>
+              <div style="font-size:15px;">{{appView.hoursPerDay}}</div>
+              <div class="label-col">Rounding step</div>
+              <div style="font-size:15px;">{{appView.roundingStep}}</div>
+              <div class="label-col">Invoice numbering pattern</div>
+              <div><span class="pattern-chip">{{appView.invoicePattern}}</span></div>
+              <div class="label-col">Estimated micro-entreprise charge rate</div>
+              <div style="font-size:15px;">{{appView.chargeRate}}</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isEditCompanyView}}" hint-placeholder-val="{{false}}">
+        <div class="card">
+          <h2 style="font-size:20px;font-weight:600;margin-bottom:24px;">Edit company profile</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+            <div style="grid-column:1 / -1;">
+              <label for="legalName" class="field-label">Legal / trading name</label>
+              <input id="legalName" class="field-input" value="{{companyDraft.legalName}}" onChange="{{onLegalNameChange}}" style="border:1px solid {{companyBorders.legalName}};">
+              <sc-if value="{{companyErrors.legalName}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.legalName}}</div></sc-if>
+            </div>
+
+            <div style="grid-column:1 / -1;">
+              <label for="siret" class="field-label">SIRET</label>
+              <input id="siret" class="field-input" value="{{companyDraft.siret}}" onChange="{{onSiretChange}}" style="border:1px solid {{companyBorders.siret}};">
+              <sc-if value="{{companyErrors.siret}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.siret}}</div></sc-if>
+            </div>
+
+            <div style="grid-column:1 / -1;">
+              <label for="street" class="field-label">Street</label>
+              <input id="street" class="field-input" value="{{companyDraft.street}}" onChange="{{onStreetChange}}" style="border:1px solid {{companyBorders.street}};">
+              <sc-if value="{{companyErrors.street}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.street}}</div></sc-if>
+            </div>
+
+            <div>
+              <label for="postalCode" class="field-label">Postal code</label>
+              <input id="postalCode" class="field-input" value="{{companyDraft.postalCode}}" onChange="{{onPostalCodeChange}}" style="border:1px solid {{companyBorders.postalCode}};">
+              <sc-if value="{{companyErrors.postalCode}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.postalCode}}</div></sc-if>
+            </div>
+
+            <div>
+              <label for="city" class="field-label">City</label>
+              <input id="city" class="field-input" value="{{companyDraft.city}}" onChange="{{onCityChange}}" style="border:1px solid {{companyBorders.city}};">
+              <sc-if value="{{companyErrors.city}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.city}}</div></sc-if>
+            </div>
+
+            <div>
+              <label for="email" class="field-label">Contact email</label>
+              <input id="email" class="field-input" value="{{companyDraft.email}}" onChange="{{onEmailChange}}" style="border:1px solid {{companyBorders.email}};">
+              <sc-if value="{{companyErrors.email}}" hint-placeholder-val="{{false}}"><div class="error-text">{{companyErrors.email}}</div></sc-if>
+            </div>
+
+            <div>
+              <label for="phone" class="field-label">Contact phone (optional)</label>
+              <input id="phone" class="field-input" value="{{companyDraft.phone}}" onChange="{{onPhoneChange}}" style="border:1px solid var(--border);">
+            </div>
+
+          </div>
+          <div style="display:flex;gap:12px;margin-top:28px;">
+            <button class="btn-primary" onClick="{{onSaveCompany}}">Save</button>
+            <button class="btn-secondary" onClick="{{onCancelCompany}}">Cancel</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isEditAppView}}" hint-placeholder-val="{{false}}">
+        <div class="card">
+          <h2 style="font-size:20px;font-weight:600;margin-bottom:24px;">Edit application settings</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+            <div>
+              <label for="hoursPerDay" class="field-label">Hours per working day</label>
+              <input id="hoursPerDay" class="field-input" value="{{appDraft.hoursPerDay}}" onChange="{{onHoursChange}}" style="border:1px solid {{appBorders.hoursPerDay}};">
+              <sc-if value="{{appErrors.hoursPerDay}}" hint-placeholder-val="{{false}}"><div class="error-text">{{appErrors.hoursPerDay}}</div></sc-if>
+            </div>
+
+            <div>
+              <label for="roundingStep" class="field-label">Rounding step (minutes)</label>
+              <input id="roundingStep" class="field-input" value="{{appDraft.roundingStep}}" onChange="{{onRoundingChange}}" style="border:1px solid {{appBorders.roundingStep}};">
+              <sc-if value="{{appErrors.roundingStep}}" hint-placeholder-val="{{false}}"><div class="error-text">{{appErrors.roundingStep}}</div></sc-if>
+            </div>
+
+            <div style="grid-column:1 / -1;">
+              <label for="roundingDirection" class="field-label">Rounding direction</label>
+              <input id="roundingDirection" class="field-input" value="Always up" disabled="{{true}}" style="border:1px solid var(--border);">
+            </div>
+
+            <div style="grid-column:1 / -1;">
+              <label for="invoicePattern" class="field-label">Invoice numbering pattern</label>
+              <input id="invoicePattern" class="field-input" value="{{appDraft.invoicePattern}}" onChange="{{onInvoicePatternChange}}" style="border:1px solid {{appBorders.invoicePattern}};font-family:ui-monospace,monospace;">
+              <sc-if value="{{appErrors.invoicePattern}}" hint-placeholder-val="{{false}}"><div class="error-text">{{appErrors.invoicePattern}}</div></sc-if>
+            </div>
+
+            <div style="grid-column:1 / -1;display:flex;align-items:center;gap:12px;padding:4px 0;">
+              <input type="checkbox" class="toggle" checked="{{appDraft.coefficientVisible}}" onChange="{{onCoefficientToggle}}" aria-label="Show mission time-adjustment coefficient elsewhere in the product">
+              <span style="font-size:14px;">Show the mission time-adjustment coefficient elsewhere in the product</span>
+            </div>
+
+            <div>
+              <label for="chargeRate" class="field-label">Estimated micro-entreprise charge rate (%)</label>
+              <input id="chargeRate" class="field-input" value="{{appDraft.chargeRate}}" onChange="{{onChargeRateChange}}" style="border:1px solid {{appBorders.chargeRate}};">
+              <sc-if value="{{appErrors.chargeRate}}" hint-placeholder-val="{{false}}"><div class="error-text">{{appErrors.chargeRate}}</div></sc-if>
+            </div>
+
+          </div>
+          <div style="display:flex;gap:12px;margin-top:28px;">
+            <button class="btn-primary" onClick="{{onSaveApp}}">Save</button>
+            <button class="btn-secondary" onClick="{{onCancelApp}}">Cancel</button>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#2F5D50","options":["#2F5D50","#1F4038","#8A6D3B","#3D5A80"]},"$preview":{"width":1440,"height":1024}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      view: 'settings',
+      company: { legalName: '', siret: '', street: '', postalCode: '', city: '', email: '', phone: '' },
+      companyDraft: null,
+      companyErrors: {},
+      app: { hoursPerDay: '7', roundingStep: '15', invoicePattern: 'YYYY-MM-NNN_Client_mission', coefficientVisible: false, chargeRate: '25' },
+      appDraft: null,
+      appErrors: {}
+    };
+  }
+
+  validateCompany(d) {
+    const errors = {};
+    if (!d.legalName.trim()) errors.legalName = 'Required.';
+    if (!d.siret.trim()) errors.siret = 'Required.';
+    else if (!/^\d{14}$/.test(d.siret.trim())) errors.siret = 'Must be exactly 14 digits.';
+    if (!d.street.trim()) errors.street = 'Required.';
+    if (!d.postalCode.trim()) errors.postalCode = 'Required.';
+    if (!d.city.trim()) errors.city = 'Required.';
+    if (!d.email.trim()) errors.email = 'Required.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email.trim())) errors.email = 'Must be a valid email address.';
+    return errors;
+  }
+
+  validateApp(d) {
+    const errors = {};
+    const hours = Number(d.hoursPerDay);
+    if (d.hoursPerDay.trim() === '' || isNaN(hours) || hours <= 0) errors.hoursPerDay = 'Must be a positive number.';
+    const step = Number(d.roundingStep);
+    if (d.roundingStep.trim() === '' || isNaN(step) || step <= 0 || !Number.isInteger(step)) errors.roundingStep = 'Must be a positive whole number.';
+    if (!d.invoicePattern.trim()) errors.invoicePattern = 'Cannot be empty.';
+    const rate = Number(d.chargeRate);
+    if (d.chargeRate.trim() === '' || isNaN(rate) || rate < 0 || rate > 100) errors.chargeRate = 'Must be a number between 0 and 100.';
+    return errors;
+  }
+
+  updateCompanyField(field, value) {
+    this.setState({ companyDraft: { ...this.state.companyDraft, [field]: value } });
+  }
+
+  updateAppField(field, value) {
+    this.setState({ appDraft: { ...this.state.appDraft, [field]: value } });
+  }
+
+  renderVals() {
+    const state = this.state;
+    const company = state.company;
+    const app = state.app;
+
+    const hasAddress = company.street || company.postalCode || company.city;
+    const companyView = {
+      legalName: company.legalName || '—',
+      siret: company.siret || '—',
+      address: hasAddress ? (company.street + ', ' + company.postalCode + ' ' + company.city).trim() : '—',
+      email: company.email || '—',
+      phone: company.phone || '—'
+    };
+
+    const appView = {
+      hoursPerDay: app.hoursPerDay + ' hours',
+      roundingStep: app.roundingStep + ' minutes',
+      invoicePattern: app.invoicePattern,
+      chargeRate: app.chargeRate + '%'
+    };
+
+    const companyDraft = state.companyDraft || company;
+    const companyErrors = state.companyErrors;
+    const companyBorders = {
+      legalName: companyErrors.legalName ? '#B3261E' : '#E3DFD5',
+      siret: companyErrors.siret ? '#B3261E' : '#E3DFD5',
+      street: companyErrors.street ? '#B3261E' : '#E3DFD5',
+      postalCode: companyErrors.postalCode ? '#B3261E' : '#E3DFD5',
+      city: companyErrors.city ? '#B3261E' : '#E3DFD5',
+      email: companyErrors.email ? '#B3261E' : '#E3DFD5'
+    };
+
+    const appDraft = state.appDraft || app;
+    const appErrors = state.appErrors;
+    const appBorders = {
+      hoursPerDay: appErrors.hoursPerDay ? '#B3261E' : '#E3DFD5',
+      roundingStep: appErrors.roundingStep ? '#B3261E' : '#E3DFD5',
+      invoicePattern: appErrors.invoicePattern ? '#B3261E' : '#E3DFD5',
+      chargeRate: appErrors.chargeRate ? '#B3261E' : '#E3DFD5'
+    };
+
+    return {
+      accent: this.props.accent ?? '#2F5D50',
+      isSettingsView: state.view === 'settings',
+      isEditCompanyView: state.view === 'editCompany',
+      isEditAppView: state.view === 'editApp',
+      companyView,
+      appView,
+      companyDraft,
+      companyErrors,
+      companyBorders,
+      appDraft,
+      appErrors,
+      appBorders,
+
+      onEditCompanyClick: () => this.setState({ view: 'editCompany', companyDraft: { ...this.state.company }, companyErrors: {} }),
+      onCancelCompany: () => this.setState({ view: 'settings', companyDraft: null, companyErrors: {} }),
+      onSaveCompany: () => {
+        const draft = this.state.companyDraft;
+        const errors = this.validateCompany(draft);
+        if (Object.keys(errors).length) { this.setState({ companyErrors: errors }); return; }
+        this.setState({
+          company: {
+            legalName: draft.legalName.trim(),
+            siret: draft.siret.trim(),
+            street: draft.street.trim(),
+            postalCode: draft.postalCode.trim(),
+            city: draft.city.trim(),
+            email: draft.email.trim(),
+            phone: draft.phone.trim()
+          },
+          view: 'settings',
+          companyDraft: null,
+          companyErrors: {}
+        });
+      },
+
+      onEditAppClick: () => this.setState({ view: 'editApp', appDraft: { ...this.state.app }, appErrors: {} }),
+      onCancelApp: () => this.setState({ view: 'settings', appDraft: null, appErrors: {} }),
+      onSaveApp: () => {
+        const draft = this.state.appDraft;
+        const errors = this.validateApp(draft);
+        if (Object.keys(errors).length) { this.setState({ appErrors: errors }); return; }
+        this.setState({
+          app: {
+            hoursPerDay: String(Number(draft.hoursPerDay)),
+            roundingStep: String(Number(draft.roundingStep)),
+            invoicePattern: draft.invoicePattern.trim(),
+            coefficientVisible: draft.coefficientVisible,
+            chargeRate: String(Number(draft.chargeRate))
+          },
+          view: 'settings',
+          appDraft: null,
+          appErrors: {}
+        });
+      },
+
+      onLegalNameChange: (e) => this.updateCompanyField('legalName', e.target.value),
+      onSiretChange: (e) => this.updateCompanyField('siret', e.target.value),
+      onStreetChange: (e) => this.updateCompanyField('street', e.target.value),
+      onPostalCodeChange: (e) => this.updateCompanyField('postalCode', e.target.value),
+      onCityChange: (e) => this.updateCompanyField('city', e.target.value),
+      onEmailChange: (e) => this.updateCompanyField('email', e.target.value),
+      onPhoneChange: (e) => this.updateCompanyField('phone', e.target.value),
+      onHoursChange: (e) => this.updateAppField('hoursPerDay', e.target.value),
+      onRoundingChange: (e) => this.updateAppField('roundingStep', e.target.value),
+      onInvoicePatternChange: (e) => this.updateAppField('invoicePattern', e.target.value),
+      onChargeRateChange: (e) => this.updateAppField('chargeRate', e.target.value),
+      onCoefficientToggle: () => this.updateAppField('coefficientVisible', !this.state.appDraft.coefficientVisible)
+    };
+  }
+}
+</script>
+</body>
+</html>

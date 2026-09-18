@@ -112,6 +112,60 @@ describe("Rate.applyTo", () => {
   });
 });
 
+describe("Rate.fromPercent", () => {
+  it.each([
+    { value: "25", expected: 2500 },
+    { value: "24.60", expected: 2460 },
+    { value: "0", expected: 0 },
+    { value: "100", expected: 10_000 },
+    { value: "0.01", expected: 1 },
+    { value: "-5.25", expected: -525 },
+  ])(
+    "converts $value% to $expected basis points, exactly",
+    ({ value, expected }) => {
+      expect(Rate.fromPercent(value).toBasisPoints()).toBe(expected);
+    },
+  );
+
+  it("rejects more than two fraction digits rather than rounding, exactly like Money.fromDecimalString", () => {
+    expect(() => Rate.fromPercent("24.605")).toThrow(RangeError);
+  });
+
+  it.each(["abc", ""])("refuses %j, which is not a decimal number", (value) => {
+    expect(() => Rate.fromPercent(value)).toThrow(RangeError);
+  });
+});
+
+describe("Rate.toPercentDecimalString", () => {
+  it.each([
+    { basisPoints: 2500, expected: "25.00" },
+    { basisPoints: 2460, expected: "24.60" },
+    { basisPoints: 0, expected: "0.00" },
+    { basisPoints: 10_000, expected: "100.00" },
+    { basisPoints: 12_000, expected: "120.00" },
+    { basisPoints: -250, expected: "-2.50" },
+    { basisPoints: 1, expected: "0.01" },
+  ])(
+    "renders $basisPoints basis points as $expected",
+    ({ basisPoints, expected }) => {
+      expect(bp(basisPoints).toPercentDecimalString()).toBe(expected);
+    },
+  );
+});
+
+describe("Rate.fromPercent / toPercentDecimalString round trip", () => {
+  it.each([0, 1, 50, 2500, 9999, 10_000, 12_000, -250])(
+    "round-trips %p basis points exactly - digit-shift both ways, no rounding to lose",
+    (basisPoints) => {
+      const original = bp(basisPoints);
+
+      const roundTripped = Rate.fromPercent(original.toPercentDecimalString());
+
+      expect(roundTripped.toBasisPoints()).toBe(basisPoints);
+    },
+  );
+});
+
 describe("Rate comparisons", () => {
   it.each([
     { a: 2000, b: 2000, expected: true },

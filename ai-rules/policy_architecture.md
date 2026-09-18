@@ -58,6 +58,7 @@
   - Every model carries `createdAt` and `updatedAt`.
   - Deletions that must remain auditable are soft: a nullable `deletedAt`, filtered in the repository.
   - Enumerations are Prisma `enum` when the set is closed and code branches on it; a lookup table when the user can extend it.
+  - A record whose bootstrap value is a fixed default (a global setting, a singleton profile) is not seeded as a database row: the repository returns the coded default when the row is absent, and a row is written only on the first real write. This holds identically in development, the test seed and production, since `prisma/seed.ts` never runs against a production deployment (see AD-031).
   - Naming: PascalCase model names, camelCase field names, matching `policy_coding_guidelines.md`'s style rule for code. Every field maps to a snake_case column via `@map`; every model maps to a snake_case table name via `@@map` (see AD-023).
 - # Schema and migrations
   - `prisma/schema.prisma` is owned by the architect. No other agent edits it.

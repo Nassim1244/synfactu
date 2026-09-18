@@ -8,12 +8,26 @@
 import {
   assertPositiveInteger,
   assertSafeInteger,
+  fromDecimalString,
   normaliseZero,
+  scaleHalfUp,
+  toDecimalString,
 } from "./arithmetic";
 import { LOCALE } from "./locale";
 
 /** Minutes in an hour. Named so the formatting arithmetic reads as intent. */
 const MINUTES_PER_HOUR = 60;
+
+/**
+ * How many of an hours value's digits are fractional when entered or
+ * displayed as a decimal number of hours - two, the same precision
+ * `Money.fromDecimalString` uses for cents (feature v01-003's `hours_per_day`
+ * setting).
+ */
+const HOUR_FRACTION_DIGITS = 2;
+
+/** `10 ** HOUR_FRACTION_DIGITS` - the scale a decimal number of hours is shifted by before it is an integer. */
+const HOUR_FRACTION_SCALE = 100;
 
 /**
  * The bootstrap day length in minutes: seven hours (AD-018).
@@ -61,6 +75,40 @@ export class Duration {
   static fromMinutes(minutes: number): Duration {
     assertSafeInteger(minutes, "minutes");
     return new Duration(normaliseZero(minutes));
+  }
+
+  /**
+   * Builds a duration from a decimal number of hours, such as the
+   * application settings edit form's `hoursPerDay` field - e.g. `"7.5"`
+   * becomes 450 minutes.
+   *
+   * Parsed by digit-shifting the text itself (`fromDecimalString`), never
+   * `parseFloat` and never a multiplication of a `number` by 60, for the same
+   * reason `Money.fromDecimalString` avoids a float: either would misrepresent
+   * a decimal like 0.1 before any rounding rule here ever saw it. The
+   * resulting hundredths of an hour are then scaled to minutes and rounded
+   * half up (`scaleHalfUp`), the direction AD-018 also uses for money.
+   *
+   * @param value a decimal string, optionally signed, with at most two
+   * fraction digits.
+   * @throws RangeError when the string is not shaped like a decimal number,
+   * carries more than two fraction digits, or the resulting number of minutes
+   * overflows the safe integer range.
+   */
+  static fromHours(value: string): Duration {
+    const hundredthsOfHour = fromDecimalString(
+      value,
+      HOUR_FRACTION_DIGITS,
+      "hours",
+    );
+    return Duration.fromMinutes(
+      scaleHalfUp(
+        hundredthsOfHour,
+        MINUTES_PER_HOUR,
+        HOUR_FRACTION_SCALE,
+        "minutes",
+      ),
+    );
   }
 
   /** The zero duration. */
@@ -173,6 +221,26 @@ export class Duration {
    */
   formatDays(dayLengthMinutes: number): string {
     return `${daysFormatter.format(this.toDays(dayLengthMinutes))} j`;
+  }
+
+  /**
+   * Renders the duration as a plain, exact decimal number of hours with no
+   * unit and no locale grouping, always with two fraction digits - e.g. 450
+   * minutes becomes `"7.50"`. The reverse of `fromHours`.
+   *
+   * This is the boundary conversion the other direction from `fromHours`: it
+   * exists to pre-fill an editable form field (feature v01-003's
+   * `hoursPerDay`) with the exact current duration expressed in hours,
+   * without the caller ever touching `minutes / 60`
+   * (`policy_coding_guidelines.md` -> Value objects). Goes through
+   * `scaleHalfUp`/`toDecimalString` rather than a float division, for the
+   * same reason `Money.toDecimalString` does.
+   */
+  toHoursDecimalString(): string {
+    return toDecimalString(
+      scaleHalfUp(this.minutes, HOUR_FRACTION_SCALE, MINUTES_PER_HOUR, "hours"),
+      HOUR_FRACTION_DIGITS,
+    );
   }
 
   /** True when both durations hold the same number of minutes. */

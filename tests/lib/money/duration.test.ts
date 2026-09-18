@@ -304,6 +304,76 @@ describe("Duration.format", () => {
   });
 });
 
+describe("Duration.fromHours", () => {
+  it.each([
+    { value: "7", expected: 420 },
+    { value: "7.5", expected: 450 },
+    { value: "0.5", expected: 30 },
+    { value: "0", expected: 0 },
+    { value: "-3.5", expected: -210 },
+  ])("converts $value hours to $expected minutes", ({ value, expected }) => {
+    expect(Duration.fromHours(value).toMinutes()).toBe(expected);
+  });
+
+  // 60 and 100 (the minutes-per-hour and hundredths-of-an-hour scales this
+  // conversion moves between) share a factor of 20, so the only remainders
+  // `scaleHalfUp` ever sees are 0, 20, 40, 60 and 80 out of 100 - an exact
+  // half (50) can never arise at two-decimal-hour precision. The boundary is
+  // instead pinned with the closest achievable pair: 0.07h stays down at 4
+  // minutes (remainder 20/100) and 0.08h rounds up to 5 (remainder 80/100).
+  it("rounds 0.07h down to 4 minutes (remainder below half)", () => {
+    expect(Duration.fromHours("0.07").toMinutes()).toBe(4);
+  });
+
+  it("rounds 0.08h up to 5 minutes (remainder above half)", () => {
+    expect(Duration.fromHours("0.08").toMinutes()).toBe(5);
+  });
+
+  it("rounds the negative case away from zero too: -0.08h becomes -5 minutes", () => {
+    expect(Duration.fromHours("-0.08").toMinutes()).toBe(-5);
+  });
+
+  it.each(["7.555", "abc", "", "7.5.5"])(
+    "refuses %j, which is not a decimal with at most two fraction digits",
+    (value) => {
+      expect(() => Duration.fromHours(value)).toThrow(RangeError);
+    },
+  );
+});
+
+describe("Duration.toHoursDecimalString", () => {
+  it.each([
+    { minutes: 420, expected: "7.00" },
+    { minutes: 450, expected: "7.50" },
+    { minutes: 30, expected: "0.50" },
+    { minutes: 0, expected: "0.00" },
+    { minutes: 1, expected: "0.02" }, // 1/60 = 0.0166..., rounds up
+    { minutes: 7, expected: "0.12" }, // 7/60 = 0.11666..., rounds up
+    { minutes: -1, expected: "-0.02" },
+  ])("renders $minutes minutes as $expected hours", ({ minutes, expected }) => {
+    expect(Duration.fromMinutes(minutes).toHoursDecimalString()).toBe(expected);
+  });
+
+  it("always renders exactly two fraction digits, never fewer", () => {
+    expect(Duration.fromMinutes(420).toHoursDecimalString()).toMatch(
+      /^\d+\.\d{2}$/,
+    );
+  });
+});
+
+describe("Duration.fromHours / toHoursDecimalString round trip", () => {
+  it.each([0, 1, 7, 30, 59, 420, 450, 1440, -1, -450])(
+    "round-trips %p minutes through its decimal-hours display string",
+    (value) => {
+      const original = Duration.fromMinutes(value);
+
+      const roundTripped = Duration.fromHours(original.toHoursDecimalString());
+
+      expect(roundTripped.toMinutes()).toBe(value);
+    },
+  );
+});
+
 describe("Duration comparisons", () => {
   it.each([
     { a: 450, b: 450, expected: true },

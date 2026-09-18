@@ -66,19 +66,30 @@ function parseMode(argv: readonly string[]): Mode {
  * added here per future model, the same explicit trade-off AD-017 accepts
  * elsewhere for a "future insertion point" rather than a fully generic guard.
  *
+ * `companyProfile` and `setting` (v01-003) are checked here even though
+ * neither mode below ever inserts a row into them: their bootstrap defaults
+ * are computed, not seeded (AD-031), so the only rows either table ever holds
+ * come from a real user edit - which is exactly the pre-existing data this
+ * guard exists to catch.
+ *
  * @throws Error naming the first non-empty model found, with its row count.
  */
 async function assertDatabaseIsEmpty(): Promise<void> {
-  const [partnerCount, clientCount] = await Promise.all([
-    prisma.partner.count(),
-    prisma.client.count(),
-  ]);
+  const [partnerCount, clientCount, companyProfileCount, settingCount] =
+    await Promise.all([
+      prisma.partner.count(),
+      prisma.client.count(),
+      prisma.companyProfile.count(),
+      prisma.setting.count(),
+    ]);
 
   // One entry per current model (`prisma/schema.prisma`). Add a line here
   // for each model a future spec introduces.
   const counts: ReadonlyArray<readonly [table: string, count: number]> = [
     ["partners", partnerCount],
     ["clients", clientCount],
+    ["company_profile", companyProfileCount],
+    ["settings", settingCount],
   ];
 
   for (const [table, count] of counts) {

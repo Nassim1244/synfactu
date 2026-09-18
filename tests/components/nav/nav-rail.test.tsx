@@ -32,6 +32,7 @@ describe("NavRail - visibility and items", () => {
 
     expect(screen.getByRole("link", { name: "Partners" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Clients" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Settings" })).toBeVisible();
   });
 
   it("marks the item matching the current route as current, exact match", () => {
@@ -64,6 +65,20 @@ describe("NavRail - visibility and items", () => {
 
     render(<NavRail />);
 
+    expect(screen.getByRole("link", { name: "Partners" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("marks Settings as current on its own route (v01-003)", () => {
+    mockedUsePathname.mockReturnValue("/settings");
+
+    render(<NavRail />);
+
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.getByRole("link", { name: "Partners" })).not.toHaveAttribute(
       "aria-current",
     );

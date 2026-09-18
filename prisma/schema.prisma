@@ -85,3 +85,44 @@ model Client {
 
   @@map("clients")
 }
+
+// v01-003 - the operator's legal identity and the application's global
+// settings. Both are additive, singleton/registry-style tables with no
+// seeded row (AD-031): the repository returns a coded default when a row is
+// absent, and a row is written only on the user's first real edit.
+
+/// The operator's own legal identity - name, SIRET, address and contact
+/// details used on every invoice (specs/functional/MCD v2.md ->
+/// COMPANY_PROFILE, D-35). A single row, fixed id 1, enforced by the
+/// application. Never seeded (AD-031): every field is nullable so "no row
+/// yet" and "saved, with phone left blank" are both representable with no
+/// invented placeholder value.
+model CompanyProfile {
+  id         Int      @id @default(1)
+  legalName  String?  @map("legal_name")
+  siret      String?
+  street     String?
+  postalCode String?  @map("postal_code")
+  city       String?
+  email      String?
+  phone      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("company_profile")
+}
+
+/// A single named application setting (specs/functional/MCD v2.md -> SETTING,
+/// D-35, D-50). Keys are declared, typed and defaulted in a Zod registry in
+/// code (`src/features/settings/schema.ts`); a key with no row yet reads as
+/// its registry default rather than being seeded (AD-031). `value` is `Json`
+/// so a key's own type (number, string or boolean) round-trips with no manual
+/// serialisation step.
+model Setting {
+  key       String   @id
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
