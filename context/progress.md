@@ -3,10 +3,9 @@
   - Within each section, most recent entry first.
   - Format: `YYYY-MM-DD - <event> - <spec, decision or migration reference>`.
 - # In progress
-  - 2026-09-18 - design/v01-001 renamed to design/v01-002 to match the revising spec's index; prototype content carried over unchanged, pending the designer's actual G2 revision - specs/iteration/v1/v01-002-nav-partner-client-detail.md
-  - 2026-09-18 - v01-002 spec approved at G1 (revises v01-001): collapsible nav panel, permanent title bar, partner/client detail views, active toggle moved into the edit form, visited-history breadcrumb with independent back/forward; awaiting @designer at G2 - specs/iteration/v1/v01-002-nav-partner-client-detail.md
   - 2026-09-15 - bootstrap at step 14 of 15, hello world implemented and committed and the agent chain proven end to end; steps 8b, 10, 10b, 13 and 15 outstanding - specs/init.md
 - # Completed
+  - 2026-09-18 - v01-002 completed, READY at G6 and committed at G8: collapsible nav rail plus permanent title bar, partner and client detail views (loading/not-found/error states), active toggle moved into the edit form, visited-history breadcrumb with independent back/forward, AD-024 recorded - specs/iteration/v1/v01-002-nav-partner-client-detail.md
   - 2026-09-16 - v01-001 completed, READY at G6 and committed at G8: hamburger nav shell plus partners/clients CRUD (create, edit, deactivate/reactivate, RG-01 relation), 687 unit/integration/component tests and 3 Playwright journeys - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-15 - hello world completed, READY at G6 and committed at G8: `/hello-world` renders the heading and the colour-cycling button, with 11 component tests and the first Playwright journey - specs/001-hello-world.md
   - 2026-09-15 - bootstrap step 14 complete, the full agent chain ran end to end - @architect (G3), @orchestrator, @coder, @tester, G5, @reviewer (G6, one CHANGES NEEDED and one retry), @committer (G8) - specs/init.md
@@ -19,6 +18,10 @@
 - # Migrations applied
   - 2026-09-16 - 20260916112115_add_partners_and_clients - adds `partners` and `clients` tables (PARTNER, CLIENT, RG-01 relation), additive only - specs/iteration/v1/v01-001-nav-partners-clients.md
 - # Recent events
+  - 2026-09-18 - v01-002 committed at G8: nav rail, title bar, partner/client detail views, visited-history breadcrumb, AD-024 recorded - specs/iteration/v1/v01-002-nav-partner-client-detail.md
+  - 2026-09-18 - AD-024 recorded, ephemeral client-side visited-history trail (React Context, in-memory, not persisted) for the breadcrumb and back/forward controls - ai-rules/decisions.md
+  - 2026-09-18 - design/v01-001 renamed to design/v01-002 to match the revising spec's index; prototype content carried over unchanged, pending the designer's actual G2 revision - specs/iteration/v1/v01-002-nav-partner-client-detail.md
+  - 2026-09-18 - v01-002 spec approved at G1 (revises v01-001): collapsible nav panel, permanent title bar, partner/client detail views, active toggle moved into the edit form, visited-history breadcrumb with independent back/forward - specs/iteration/v1/v01-002-nav-partner-client-detail.md
   - 2026-09-18 - roadmap RM-XXX id convention adopted (append-only, allocated in order, independent of spec index); "Next"/"Later" bullets no longer pre-reserve a v01-NNN index - context/vision.md
   - 2026-09-16 - v01-001 committed at G8: nav shell, partners/clients CRUD, AD-021/AD-022/AD-023 recorded, migration 20260916112115_add_partners_and_clients applied - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-16 - AD-023 recorded, Prisma naming convention: camelCase in schema, mapped to snake_case tables/columns; rule added to `policy_architecture.md` -> Data model conventions - ai-rules/decisions.md
