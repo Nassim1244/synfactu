@@ -17,6 +17,7 @@
 - # Migrations applied
   - 2026-09-16 - 20260916112115_add_partners_and_clients - adds `partners` and `clients` tables (PARTNER, CLIENT, RG-01 relation), additive only - specs/iteration/v1/v01-001-nav-partners-clients.md
 - # Recent events
+  - 2026-09-18 - roadmap RM-XXX id convention adopted (append-only, allocated in order, independent of spec index); "Next"/"Later" bullets no longer pre-reserve a v01-NNN index - context/vision.md
   - 2026-09-16 - v01-001 committed at G8: nav shell, partners/clients CRUD, AD-021/AD-022/AD-023 recorded, migration 20260916112115_add_partners_and_clients applied - specs/iteration/v1/v01-001-nav-partners-clients.md
   - 2026-09-16 - AD-023 recorded, Prisma naming convention: camelCase in schema, mapped to snake_case tables/columns; rule added to `policy_architecture.md` -> Data model conventions - ai-rules/decisions.md
   - 2026-09-16 - AD-022 recorded, `Client.regime` as a Prisma enum, not a lookup table - ai-rules/decisions.md

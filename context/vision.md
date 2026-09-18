@@ -27,25 +27,26 @@
   - Business data never leaves the host. No external service holds financial data.
 - # Roadmap
   - Ordered by priority. Update when priorities shift. Completed items move to `context/progress.md`.
+  - Format: RM-XXX - one line per item, append-only, allocated in order, independent of any spec index. Lets one bullet cross-reference another (or later, a spec) without naming a `v01-NNN` index that can drift or collide.
   - ## Now
     - 001 - Hello world (template bootstrap, see `specs/001-hello-world.md`).
   - ## Next
     - V1 is CRUD and views only. It records what you invoice, not what you are paid: estimated figures throughout, no real net, no outstanding-to-pay, no payment delay.
-    - v01-001 - Global navigation shell, plus referential: partners, clients, and the relation between them (RG-01). First because every other V1 screen needs a real client to point at, and every screen after it lives inside the nav shell it introduces.
-    - v01-002 - Settings and company profile. `hours_per_day`, the rounding step and the estimated charge rate are settings, not constants, and v01-005 reads all three.
-    - v01-003 - Referential: mission categories, portage contracts, tags.
-    - v01-004 - Missions, including the time adjustment coefficient.
-    - v01-005 - Time entry journal. The daily-use screen; speed of entry is its acceptance criterion.
-    - v01-006 - Partner consolidation view and generated billing text.
-    - v01-007 - Micro invoicing.
-    - v01-008 - Portage declarations.
-    - v01-009 - Billing backlog.
+    - RM-001 - Global navigation shell, plus referential: partners, clients, and the relation between them (RG-01). First because every other V1 screen needs a real client to point at, and every screen after it lives inside the nav shell it introduces.
+    - RM-002 - Settings and company profile. `hours_per_day`, the rounding step and the estimated charge rate are settings, not constants, and RM-005 reads all three.
+    - RM-003 - Referential: mission categories, portage contracts, tags.
+    - RM-004 - Missions, including the time adjustment coefficient.
+    - RM-005 - Time entry journal. The daily-use screen; speed of entry is its acceptance criterion.
+    - RM-006 - Partner consolidation view and generated billing text.
+    - RM-007 - Micro invoicing.
+    - RM-008 - Portage declarations.
+    - RM-009 - Billing backlog.
   - ## Later
-    - CI pipeline (GitHub Actions) running `format:check`, `lint`, `typecheck`, `test` and `build` on every push, so gates G5 and G8 are enforced rather than conventional. See `ai-rules/policy_workflow.md` -> Gates.
-    - **Phase 2** - payments, payslips, URSSAF, and the whole dashboard, statistics and charts. This is where estimated-versus-real reconciliation becomes possible, and where the historized charge rate table arrives.
-    - **Phase 3** - CSV import, which is also the Excel history migration path, and data export to CSV/JSON. Depends on Phase 2: historical charge rates are back-computed from URSSAF records, not hand-entered.
-    - **Authentication and user management** - Better Auth, roles, the assistant permission matrix. Until this ships, AD-009 is outstanding debt across every V1 feature and the instance stays off any public URL.
-    - Audit log and data versioning - distinct concerns, both wanted.
-    - WYSIWYG PDF report builder.
-    - AI analysis against a self-hosted Ollama / Mistral instance - prestation descriptions, follow-up emails, client history summaries.
-    - PostgreSQL migration, if concurrent access or row-level security ever becomes a real requirement (see AD-013). At the expected volumetry - around 10 000 time entries and under 100 clients - SQLite is comfortable and stays comfortable.
+    - RM-010 - CI pipeline (GitHub Actions) running `format:check`, `lint`, `typecheck`, `test` and `build` on every push, so gates G5 and G8 are enforced rather than conventional. See `ai-rules/policy_workflow.md` -> Gates.
+    - RM-011 - **Phase 2** - payments, payslips, URSSAF, and the whole dashboard, statistics and charts. This is where estimated-versus-real reconciliation becomes possible, and where the historized charge rate table arrives.
+    - RM-012 - **Phase 3** - CSV import, which is also the Excel history migration path, and data export to CSV/JSON. Depends on Phase 2: historical charge rates are back-computed from URSSAF records, not hand-entered.
+    - RM-013 - **Authentication and user management** - Better Auth, roles, the assistant permission matrix. Until this ships, AD-009 is outstanding debt across every V1 feature and the instance stays off any public URL.
+    - RM-014 - Audit log and data versioning - distinct concerns, both wanted.
+    - RM-015 - WYSIWYG PDF report builder.
+    - RM-016 - AI analysis against a self-hosted Ollama / Mistral instance - prestation descriptions, follow-up emails, client history summaries.
+    - RM-017 - PostgreSQL migration, if concurrent access or row-level security ever becomes a real requirement (see AD-013). At the expected volumetry - around 10 000 time entries and under 100 clients - SQLite is comfortable and stays comfortable.

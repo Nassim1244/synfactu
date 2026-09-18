@@ -2,6 +2,17 @@
   - Versions of the spec-driven template itself, independent of any project built from it. SemVer.
   - How a project catches up on a newer version, and why there is no link back to this repository: `README.md` -> Versioning and back-porting.
   - Most recent version first.
+- # 2.12.0 - 2026-09-18
+  - ## Added
+    - `context/vision.md` -> Roadmap items now carry a stable `RM-XXX` id - a format line stated the way `ai-rules/decisions.md` states `AD-XXX`'s - append-only, allocated in order, independent of any spec index. It exists so one bullet can cross-reference another (or later, a spec) without naming a `v01-NNN` index that can drift or collide, which is exactly what forced 2.11.1's fix one entry below. Assigned across both "Next" (`RM-001`-`RM-009`) and "Later" (`RM-010`-`RM-017`) in their existing order; "Now"'s "001 - Hello world" line keeps its separate bootstrap numbering.
+    - The "Settings and company profile" bullet's forward reference to "v01-005", the leftover 2.11.1 flagged and left alone, now cites `RM-005` - the Time entry journal bullet's id under the new scheme.
+  - ## Upgrading
+    - MINOR: a new convention, no existing rule invalidated. A project that wants the same cross-referencing safety assigns its own `RM-XXX` ids to its roadmap bullets, in priority order, continuing past any range it has already used; nothing requires it, since no rule until now depended on a roadmap item being addressable.
+- # 2.11.1 - 2026-09-18
+  - ## Fixed
+    - `context/vision.md` -> Roadmap no longer prefixes "Next" bullets with a `v01-NNN` index. The roadmap tracks the ordered sequence of ideas; the index is allocated only when a spec is actually written, which `ai-rules/policy_workflow.md` -> Spec numbering already said. Pre-assigning it in the roadmap collided the day `@product-owner` needed `v01-002` for a UX-revision spec while the roadmap had already reserved that index for the unrelated "Settings and company profile" idea. Ordering and description text are unchanged; "Later" already carried no indices, and the bootstrap's "001 - Hello world" line keeps its own separate numbering.
+  - ## Upgrading
+    - PATCH. Nothing invalidates work already done. A project whose own roadmap still carries `v<NN>-<NNN>` prefixes on upcoming items drops them the same way, keeping bullet order as the dependency order it already encodes.
 - # 2.11.0 - 2026-09-15
   - ## Added
     - Generated code is build output:
