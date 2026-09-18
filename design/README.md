@@ -1,0 +1,26 @@
+- # Design guidelines
+  - General UI rules derived from the designs produced so far. A feature's own `design/<index>/` may cite these instead of restating them; deviations are a decision to flag at gate G2, not a silent choice.
+- # Navigation
+  - Global navigation is a persistent left rail, never a hamburger-triggered overlay.
+  - The rail is collapsible: expanded shows icon + label per item, collapsed shows icon only.
+  - The current section is visually highlighted in the rail.
+  - The app title lives in its own persistent top bar, full width, independent of the rail and never a rail item.
+- # Lists
+  - A list row shows only scannable data columns plus a status badge. No inline row actions.
+  - The record's name is the click target; clicking it opens that record's detail page.
+  - Status is always a `Badge` with a text label ("Active"/"Inactive"), never colour alone.
+  - Empty state replaces the table with a message and repeats the primary creation action.
+- # Detail pages
+  - Every entity with a list gets a detail page: read-only fields, a status badge, and a single "Edit" button.
+  - A relationship shown on a detail page is a clickable link to the related record's own detail page.
+  - A dangling/unknown id in a detail route shows a not-found state, not a crash or blank page.
+- # Forms and dialogs
+  - Create and edit share one dialog. A reversible state toggle (e.g. active/inactive) appears only in edit mode, never on create.
+  - Validation errors are field-local, shown beneath the field, never a generic top-of-dialog banner.
+  - Cancel/Escape/outside click discards unsaved changes with no confirmation.
+  - No destructive actions anywhere: deactivate/reactivate only, never delete, never a confirmation prompt for a reversible toggle.
+- # History and breadcrumb
+  - The breadcrumb reflects the actual sequence of screens visited, not a fixed section/entity path derived from the current route.
+  - Each crumb is clickable and jumps back to that point in the visited trail.
+  - A long trail truncates rather than growing unbounded: keep the most recent screens, collapse the rest behind a leading ellipsis.
+  - Back/forward controls sit next to the breadcrumb, mirror the same trail, and disable at either end.
